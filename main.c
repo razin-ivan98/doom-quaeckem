@@ -45,7 +45,7 @@ int		main()
 	model.vertexes[7] = (t_vertex){ 1,-1,-1};
 
 	model.bounds_center = (t_vertex){0,0,0};
-	model.bounds_radius = sqrt(2.0);
+	model.bounds_radius = sqrt(3.0);
 
 	model.triangles[0].indexes[0] = 0;
 	model.triangles[0].indexes[1] = 1;
@@ -211,12 +211,12 @@ int		main()
 	instance.position = (t_vertex){ 0, 0, 2};
 	//instance.projected = malloc(sizeof(t_point) * 10);
 	instance.clipped = malloc(sizeof(t_vertex) * 10);
-	instance.scale = 0.1;
+	instance.scale = 1.0;
 	instance.orientation = make_oy_rot_matrix(0.0);
 
 	scene.instances = malloc(sizeof(t_instance) * 30);
 	scene.instances[0] = instance;
-	scene.instances[0].position = (t_vertex){-0.5, 0.5, 2};
+	scene.instances[0].position = (t_vertex){0, 0, 2};
 	scene.instances[1] = instance;
 	scene.instances[1].position = (t_vertex){0, 0.5, 2};
 	scene.instances[2] = instance;
@@ -233,6 +233,7 @@ int		main()
 	scene.instances[7].position = (t_vertex){0.5, -0.5, 2};
 	scene.instances[8] = instance;
 	scene.instances[8].position = (t_vertex){0, 0, 2};
+//	scene.instances[8].scale = 0.5;
 
 	scene.instances[9] = instance;
 	scene.instances[9].position = (t_vertex){-0.5, 0.5, 3};
@@ -274,9 +275,36 @@ int		main()
 
 
 	scene.z_buffer = create_z_buffer();
-	scene.instances_count = 27;
+	scene.instances_count = 1;
 	scene.camera.orientation = make_oy_rot_matrix(360.0);
-	scene.camera.position = (t_vertex){0,0, 0};
+	scene.camera.position = (t_vertex){0,0, -2};
+
+
+	scene.render_tr.x.v012.array = malloc(sizeof(float) * H * 2);
+	scene.render_tr.x.v02.array = malloc(sizeof(float) * H* 2);
+
+	scene.render_tr.iz.v012.array = malloc(sizeof(float) * H* 2);
+	scene.render_tr.iz.v02.array = malloc(sizeof(float) * H* 2);
+
+	scene.render_tr.uz.v012.array = malloc(sizeof(float) * H* 2);
+	scene.render_tr.uz.v02.array = malloc(sizeof(float) * H* 2);
+
+	scene.render_tr.vz.v012.array = malloc(sizeof(float) * H* 2);
+	scene.render_tr.vz.v02.array = malloc(sizeof(float) * H* 2);
+
+	scene.render_tr.zscan.array = malloc(sizeof(float) * W* 2);
+	scene.render_tr.uzscan.array = malloc(sizeof(float) * W* 2);
+	scene.render_tr.vzscan.array = malloc(sizeof(float) * W* 2);
+
+	scene.render_tr.v02.array = malloc(sizeof(float) * H* 2);
+	scene.render_tr.v01.array = malloc(sizeof(float) * H* 2);
+	scene.render_tr.v12.array = malloc(sizeof(float) * H* 2);
+
+
+	scene.render_tr.rendered.vertexes = malloc(sizeof(t_vertex) * 100);
+	scene.render_tr.rendered.projected = malloc(sizeof(t_point) * 100);
+	scene.render_tr.rendered.triangles = malloc(sizeof(t_triangle) * 100);
+
 
 
 	render_scene(surface->pixels, &scene);
@@ -301,7 +329,7 @@ int		main()
 	float beta = 0;
 	float gamma = 0;
 
-	float s2 = sqrt(2.0);
+	float s2 = sqrt(2.0) / 2.0;
 	scene.clipping_planes[0] = (t_plane){(t_vertex){0.0,0.0,1.0}, -1.0}; //near
 	scene.clipping_planes[1] = (t_plane){(t_vertex){s2,0.0,s2}, 0.0}; //left
 	scene.clipping_planes[2] = (t_plane){(t_vertex){-s2,0.0,s2}, 0.0};//right
@@ -380,7 +408,7 @@ int		main()
 			SDL_RenderCopy(renderer, text, NULL, &rect);
 			SDL_RenderPresent(renderer);
 			SDL_DestroyTexture(text);
-			// SDL_Delay(20);
+			//  SDL_Delay(20);
 			//quit = 1;
 	}
 

@@ -97,6 +97,28 @@ typedef struct	s_e_i_input
 	float	v2;
 }				t_e_i_input;
 
+
+typedef struct	s_redner
+{
+	t_edge_interpolate	x;
+	t_edge_interpolate	iz;
+	t_edge_interpolate	uz;
+	t_edge_interpolate	vz;
+
+	t_float_array		zscan;
+	t_float_array		uzscan;
+	t_float_array		vzscan;
+
+	t_float_array		v01;
+	t_float_array		v12;
+	t_float_array		v02;
+
+
+	t_model				rendered;
+
+}				t_render;
+
+
 typedef struct	s_scene
 {
 	t_model		*models;
@@ -108,7 +130,8 @@ typedef struct	s_scene
 	float		*z_buffer;
 
 	t_plane		clipping_planes[5];
-}				t_scene;
 
+	t_render	render_tr;
+}				t_scene;
 
 #endif

@@ -114,58 +114,56 @@ void	render_triangle(int *image_data, t_model *model, t_triangle *tr, t_scene *s
 						tr->indexes[2]
 					};
 
-	t_edge_interpolate x = edge_interpolate((t_e_i_input){
-												pts[0].y, pts[0].x,
-												pts[1].y, pts[1].x,
-												pts[2].y, pts[2].x,
-											});
-	t_edge_interpolate iz = edge_interpolate((t_e_i_input){
-												pts[0].y, 1.0 / model->vertexes[ids[0]].z,
-												pts[1].y, 1.0 / model->vertexes[ids[1]].z,
-												pts[2].y, 1.0 / model->vertexes[ids[2]].z,
-											});
+	edge_interpolate((t_e_i_input){
+							pts[0].y, pts[0].x,
+							pts[1].y, pts[1].x,
+							pts[2].y, pts[2].x,
+					}, &scene->render_tr, &scene->render_tr.x);
+	edge_interpolate((t_e_i_input){
+							pts[0].y, 1.0 / model->vertexes[ids[0]].z,
+							pts[1].y, 1.0 / model->vertexes[ids[1]].z,
+							pts[2].y, 1.0 / model->vertexes[ids[2]].z,
+					}, &scene->render_tr, &scene->render_tr.iz);
 
-	t_edge_interpolate uz = edge_interpolate((t_e_i_input){
-												pts[0].y, tr->uvs[0].x / model->vertexes[ids[0]].z,
-												pts[1].y, tr->uvs[1].x / model->vertexes[ids[1]].z,
-												pts[2].y, tr->uvs[2].x / model->vertexes[ids[2]].z,
-											});
-										//	printf("ids: %d %d %d", ids[0], ids[1], ids[2]);
-										//	printf("uz: %f %f %f", tr->uvs[ids[0]].x, tr->uvs[ids[1]].x, tr->uvs[ids[2]].x);
+	edge_interpolate((t_e_i_input){
+							pts[0].y, tr->uvs[0].x / model->vertexes[ids[0]].z,
+							pts[1].y, tr->uvs[1].x / model->vertexes[ids[1]].z,
+							pts[2].y, tr->uvs[2].x / model->vertexes[ids[2]].z,
+					}, &scene->render_tr, &scene->render_tr.uz);
 
-	t_edge_interpolate vz = edge_interpolate((t_e_i_input){
-												pts[0].y, tr->uvs[0].y / model->vertexes[ids[0]].z,
-												pts[1].y, tr->uvs[1].y / model->vertexes[ids[1]].z,
-												pts[2].y, tr->uvs[2].y / model->vertexes[ids[2]].z,
-											});
+	edge_interpolate((t_e_i_input){
+							pts[0].y, tr->uvs[0].y / model->vertexes[ids[0]].z,
+							pts[1].y, tr->uvs[1].y / model->vertexes[ids[1]].z,
+							pts[2].y, tr->uvs[2].y / model->vertexes[ids[2]].z,
+					}, &scene->render_tr, &scene->render_tr.vz);
 
-	int m = (int)(x.v02.length / 2);
+	int m = (int)(scene->render_tr.x.v02.length / 2);
 
 	t_float_array *x_left, *x_right, *iz_left, *iz_right,
 						*uz_left, *uz_right, *vz_left, *vz_right;
 
-	if (x.v02.array[m] < x.v012.array[m])
+	if (scene->render_tr.x.v02.array[m] < scene->render_tr.x.v012.array[m])
 	{
-		x_left = &x.v02;
-		x_right = &x.v012;
-		iz_left = &iz.v02;
-		iz_right = &iz.v012;
-		uz_left = &uz.v02;
-		uz_right = &uz.v012;
-		vz_left = &vz.v02;
-		vz_right = &vz.v012;
+		x_left = &scene->render_tr.x.v02;
+		x_right = &scene->render_tr.x.v012;
+		 iz_left = &scene->render_tr.iz.v02;
+		 iz_right = &scene->render_tr.iz.v012;
+		uz_left = &scene->render_tr.uz.v02;
+		uz_right = &scene->render_tr.uz.v012;
+		vz_left = &scene->render_tr.vz.v02;
+		vz_right = &scene->render_tr.vz.v012;
 
 	}
 	else
 	{
-		x_left = &x.v012;
-		x_right = &x.v02;
-		iz_left = &iz.v012;
-		iz_right = &iz.v02;
-		uz_left = &uz.v012;
-		uz_right = &uz.v02;
-		vz_left = &vz.v012;
-		vz_right = &vz.v02;
+		x_left = &scene->render_tr.x.v012;
+		x_right = &scene->render_tr.x.v02;
+		 iz_left = &scene->render_tr.iz.v012;
+		 iz_right = &scene->render_tr.iz.v02;
+		uz_left = &scene->render_tr.uz.v012;
+		uz_right = &scene->render_tr.uz.v02;
+		vz_left = &scene->render_tr.vz.v012;
+		vz_right = &scene->render_tr.vz.v02;
 	}
 
 	int y_it = (int)pts[0].y;
@@ -182,8 +180,8 @@ void	render_triangle(int *image_data, t_model *model, t_triangle *tr, t_scene *s
 
 		xl = x_left->array[(y_it - (int)pts[0].y)];
 		xr = x_right->array[(y_it - (int)pts[0].y)];
-		zl = iz_left->array[(y_it - (int)pts[0].y)];
-		zr = iz_right->array[(y_it - (int)pts[0].y)];
+		 zl = iz_left->array[(y_it - (int)pts[0].y)];
+		 zr = iz_right->array[(y_it - (int)pts[0].y)];
 		uzl = uz_left->array[(y_it - (int)pts[0].y)];
 		uzr = uz_right->array[(y_it - (int)pts[0].y)];
 		vzl = vz_left->array[(y_it - (int)pts[0].y)];
@@ -194,22 +192,22 @@ void	render_triangle(int *image_data, t_model *model, t_triangle *tr, t_scene *s
 		// 	exit(-2);
 		// }
 
-		t_float_array zscan = interpolate(xl, zl, xr, zr);
+		interpolate(xl, zl, xr, zr, &scene->render_tr.zscan);
 
-		t_float_array uzscan = interpolate(xl, uzl, xr, uzr);
-		t_float_array vzscan = interpolate(xl, vzl, xr, vzr);
+		interpolate(xl, uzl, xr, uzr, &scene->render_tr.uzscan);
+		interpolate(xl, vzl, xr, vzr, &scene->render_tr.vzscan);
 
 		x_it = (int)xl;
 		while (x_it <= (int)xr)
 		{
-			float inv_z = zscan.array[(x_it - (int)xl)];
+			float inv_z = scene->render_tr.zscan.array[(x_it - (int)xl)];
 			if (set_z_buffer(scene->z_buffer, x_it, y_it, inv_z))
 			{
 				float u, v;
-				u = ((uzscan.array[(x_it - (int)xl)] / zscan.array[x_it - (int)xl]));
-				v = ((vzscan.array[(x_it - (int)xl)] / zscan.array[x_it - (int)xl]));
-			//a	printf("%f, %f\n", u, v);
-			int color = get_texel(tr->texture, u, v, 500, &uzscan, &vzscan);
+				u = ((scene->render_tr.uzscan.array[(x_it - (int)xl)] / scene->render_tr.zscan.array[x_it - (int)xl]));
+				v = ((scene->render_tr.vzscan.array[(x_it - (int)xl)] / scene->render_tr.zscan.array[x_it - (int)xl]));
+			//	printf("%f, %f\n", u, v);
+			int color = get_texel(tr->texture, u, v, 500, &scene->render_tr.uzscan, &scene->render_tr.vzscan);
 			//	 int color = tr->color;
 				 put_pixel(image_data, x_it, y_it, color);
 			}
@@ -217,21 +215,21 @@ void	render_triangle(int *image_data, t_model *model, t_triangle *tr, t_scene *s
 		}
 		y_it++;
 
-		free(zscan.array);
-		free(uzscan.array);
-		free(vzscan.array);
+		//free(zscan.array);
+	//	free(uzscan.array);
+		//free(vzscan.array);
 	}
-	free(x.v012.array);
-	free(x.v02.array);
+	//free(x.v012.array);
+//	free(x.v02.array);
 
-	free(iz.v012.array);
-	free(iz.v02.array);
+	//  free(iz.v012.array);
+	//  free(iz.v02.array);
 
-	free(uz.v012.array);
-	free(uz.v02.array);
+	// free(uz.v012.array);
+	// free(uz.v02.array);
 
-	free(vz.v012.array);
-	free(vz.v02.array);
+	// free(vz.v012.array);
+	// free(vz.v02.array);
 }
 
 
@@ -260,12 +258,12 @@ void render_model(int *image_data, t_model *model, t_scene *scene)
 
 t_model *transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *scene)
 {
-	t_model *model;
+	t_model *model = &scene->render_tr.rendered;
 
-	model = malloc(sizeof(t_model));
-	model->triangles = malloc(sizeof(t_triangle) * instance->model->triangles_count);/////
-	model->vertexes = malloc(sizeof(t_vertex) * instance->model->vertexes_count);/////
-	model->projected = malloc(sizeof(t_vertex) * instance->model->vertexes_count);/////
+//	model = malloc(sizeof(t_model));
+//	model->triangles = malloc(sizeof(t_triangle) * instance->model->triangles_count);/////
+//	model->vertexes = malloc(sizeof(t_vertex) * instance->model->vertexes_count);/////
+	//model->projected = malloc(sizeof(t_vertex) * instance->model->vertexes_count);/////
 	model->vertexes_count = 0;
 	model->triangles_count = 0;
 
@@ -276,7 +274,7 @@ t_model *transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *sc
 									1.0
 									});
 	t_vertex center = (t_vertex){tmp.x, tmp.y, tmp.z};
-	float radius2 = instance->model->bounds_radius;
+	float radius2 = instance->model->bounds_radius * instance->scale;
 	
 	int i;
 
@@ -306,12 +304,70 @@ t_model *transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *sc
 		i++;
 	}
 	i = 0;
+	int distances[5][3];
 	while (i < instance->model->triangles_count)
 	{
-		model->triangles[i] = instance->model->triangles[i];
-		model->triangles_count++;
+		int k = 0;
+		int flag = 1;
+		
+		while (k < 5)
+		{
+			distances[k][0] = (dot(scene->clipping_planes[k].normal, model->vertexes[instance->model->triangles[i].indexes[0]]) + scene->clipping_planes[k].distance > 0);
+			distances[k][1] = (dot(scene->clipping_planes[k].normal, model->vertexes[instance->model->triangles[i].indexes[1]]) + scene->clipping_planes[k].distance > 0);
+			distances[k][2] = (dot(scene->clipping_planes[k].normal, model->vertexes[instance->model->triangles[i].indexes[2]]) + scene->clipping_planes[k].distance > 0);
+			if (!distances[k][0] && !distances[k][1] && !distances[k][2])
+			{
+				flag = 0;
+				break;
+			}
+			k++;
+		}
+		if (flag)
+		{
+			model->triangles[model->triangles_count] = instance->model->triangles[i];
+			model->triangles_count++;
+			printf("O");
+			// i++;
+			// continue ;
+		}
+		// k = 0;
+		
+		// t_triangle triangles_stack[20];
+		// int stack_count = 1;
+		// triangles_stack[0] = instance->model->triangles[i];
+		// while (k < 5)
+		// {
+		// 	if (distances[k][0] && distances[k][1] && distances[k][2])
+		// 	{
+		// 		k++;
+		// 		continue ;
+		// 	}
+		// 	int count = 0;
+		// 	int outside_indexes[2];
+		// 	for (int g = 0; g < 3; g++)
+		// 	{
+		// 		if (!distances[k][g])
+		// 		{
+		// 			outside_indexes[count] = g;
+		// 			count++;
+		// 		}
+		// 	}
+			
+		// 	if (count == 1)
+		// 	{
+
+		// 	} else if (count == 2)
+		// 	{
+
+		// 	}
+
+
+		// 	k++;
+		// }
+
 		i++;
 	}
+	printf("\n");
 	return (model);
 }
 
@@ -339,16 +395,19 @@ void	render_scene(int *image_data, t_scene *scene)
 	//		}
 	//		printf("\n");
 	//	}
+	printf("ok\n");
 		if (!(model = transform_and_clip(&scene->instances[i], transform, scene))){
 			i++;
 			continue;
 		}
-		//printf("%d\n", i);
+		printf("%d\n", i);
+		
+
 		render_model(image_data, model, scene);
-		free(model->vertexes);
-		free(model->triangles);
-		free(model->projected);
-		free(model);
+	//	free(model->vertexes);
+	//	free(model->triangles);
+	//	free(model->projected);
+	//	free(model);
 		i++;
 	}
 	// for (int i = 0; i < 50; i++){

@@ -1,8 +1,8 @@
 # include <SDL2/SDL.h>
 
-# define W 1000
-# define H 500
-#define CH 1
+# define W 800
+# define H 800
+# define CH 2
 # define CW 2
 # define V_SIZE 1
 # define PROJ_PLANE_Z 1
@@ -12,11 +12,11 @@
 
 
 void			put_pixel(int *image_data, int x, int y, int color);
-t_float_array	interpolate(float i0, float d0, float i1, float d1);
+void        	interpolate(float i0, float d0, float i1, float d1, t_float_array *dst);
 
-t_edge_interpolate	edge_interpolate(t_e_i_input in);
+void        	edge_interpolate(t_e_i_input in, t_render *render, t_edge_interpolate *edge);
 
-t_float_array	*concat(t_float_array *first, t_float_array *second);
+void            concat(t_float_array *first, t_float_array *second);
 
 void	draw_line(int *image_data, t_point *p0, t_point *p1, int color);
 
