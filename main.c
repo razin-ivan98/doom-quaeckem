@@ -226,7 +226,7 @@ int		main()
 	//instance.projected = malloc(sizeof(t_point) * 10);
 	instance.clipped = malloc(sizeof(t_vertex) * 10);
 	instance.scale = 1.0;
-	make_oy_rot_matrix(&instance.orientation, 0.0);
+	instance.orientation = make_oy_rot_matrix(0.0);
 
 	scene.instances = malloc(sizeof(t_instance) * 30);
 	scene.instances[0] = instance;
@@ -290,7 +290,7 @@ int		main()
 
 	scene.z_buffer = create_z_buffer();
 	scene.instances_count = 1;
-	make_oy_rot_matrix(&scene.camera.orientation, 360.0);
+	scene.camera.orientation = make_oy_rot_matrix(360.0);
 	scene.camera.position = (t_vertex){0,0, -2};
 
 
@@ -432,11 +432,11 @@ int		main()
 
 		}
 		//	for (int h = 0; h < 27; h++)
-				make_oy_rot_matrix(&scene.instances[0].orientation, beta);
+			scene.instances[0].orientation = make_oy_rot_matrix(beta);
 
 
 			
-			make_oy_rot_matrix(&scene.camera.orientation, gamma);
+		scene.camera.orientation =	make_oy_rot_matrix(gamma);
 			bzero(surface->pixels, sizeof(int) * HxW);
 	//		instance.orientation = make_oy_rot_matrix(beta);
 			clear_z_buffer(scene.z_buffer);

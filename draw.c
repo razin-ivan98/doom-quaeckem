@@ -305,7 +305,7 @@ void render_model(int *image_data, t_model *model, t_scene *scene)
 
 }
 
-t_model *transform_and_clip(t_instance *instance,t_mat4x4 *transform, t_scene *scene)
+t_model *transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *scene)
 {
 	t_model *model = &scene->render_tr.rendered;
 
@@ -317,7 +317,7 @@ t_model *transform_and_clip(t_instance *instance,t_mat4x4 *transform, t_scene *s
 	model->triangles_count = 0;
 
 	t_vertex4 tmp;
-	multiply_m_v(&tmp, transform, &(t_vertex4){
+	tmp = multiply_m_v(transform, (t_vertex4){
 									instance->model->bounds_center.x,
 									instance->model->bounds_center.y,
 									instance->model->bounds_center.z,
@@ -331,7 +331,7 @@ t_model *transform_and_clip(t_instance *instance,t_mat4x4 *transform, t_scene *s
 	i = 0;
 	while (i < 5)
 	{
-		float distance2 = dot(&scene->clipping_planes[i].normal, &center) + scene->clipping_planes[i].distance;
+		float distance2 = dot(scene->clipping_planes[i].normal, center) + scene->clipping_planes[i].distance;
 		if (distance2 < -radius2)
 			return (NULL);
 		i++;
@@ -346,7 +346,7 @@ t_model *transform_and_clip(t_instance *instance,t_mat4x4 *transform, t_scene *s
 			instance->model->vertexes[i].z,
 			1.0
 		};
-		multiply_m_v(&tmp, transform, &tmp);
+		tmp = multiply_m_v(transform, tmp);
 	//	printf("tmp: x: %f, y: %f, z: %f\n", tmp.x, tmp.y, tmp.z);
 		//instance->clipped[i] = (t_vertex){tmp.x, tmp.y, tmp.z};
 		model->vertexes[i] = (t_vertex){tmp.x, tmp.y, tmp.z};
@@ -383,9 +383,9 @@ t_model *transform_and_clip(t_instance *instance,t_mat4x4 *transform, t_scene *s
 
 		while (k < 5)
 		{
-			distances[k][0] = (dot(&scene->clipping_planes[k].normal, &model->vertexes[curr.indexes[0]]) + scene->clipping_planes[k].distance > 0);
-			distances[k][1] = (dot(&scene->clipping_planes[k].normal, &model->vertexes[curr.indexes[1]]) + scene->clipping_planes[k].distance > 0);
-			distances[k][2] = (dot(&scene->clipping_planes[k].normal, &model->vertexes[curr.indexes[2]]) + scene->clipping_planes[k].distance > 0);
+			distances[k][0] = (dot(scene->clipping_planes[k].normal, model->vertexes[curr.indexes[0]]) + scene->clipping_planes[k].distance > 0);
+			distances[k][1] = (dot(scene->clipping_planes[k].normal, model->vertexes[curr.indexes[1]]) + scene->clipping_planes[k].distance > 0);
+			distances[k][2] = (dot(scene->clipping_planes[k].normal, model->vertexes[curr.indexes[2]]) + scene->clipping_planes[k].distance > 0);
 			if (!distances[k][0] && !distances[k][1] && !distances[k][2])
 			{
 				flag = 0;
@@ -451,8 +451,8 @@ void	render_scene(int *image_data, t_scene *scene)
 	t_model *model;
 
 
-	multiply_m_m(&camera_mat, transposed_m(&transposed, &scene->camera.orientation), 
-		make_translation_matrix(&translation, multiply(&tmp, &scene->camera.position, -1.0)));
+	camera_mat = multiply_m_m(transposed_m(scene->camera.orientation), 
+		make_translation_matrix(multiply(scene->camera.position, -1.0)));
 
 	int i;
 	i = 0;
@@ -461,8 +461,8 @@ void	render_scene(int *image_data, t_scene *scene)
 	{
 		update_instance_transform(&scene->instances[i]);
 		t_mat4x4 transform;
-		multiply_m_m(&transform, &camera_mat, 
-									&scene->instances[i].transform);
+		transform = multiply_m_m(camera_mat, 
+									scene->instances[i].transform);
 		///////////////////////////////clipped
 	//	for (int j = 0; j < 4; j++){
 	//		for (int k = 0; k < 4; k++){
@@ -471,7 +471,7 @@ void	render_scene(int *image_data, t_scene *scene)
 	//		printf("\n");
 	//	}
 //	printf("ok\n");
-		if (!(model = transform_and_clip(&scene->instances[i], &transform, scene))){
+		if (!(model = transform_and_clip(&scene->instances[i], transform, scene))){
 			i++;
 			continue;
 		}
