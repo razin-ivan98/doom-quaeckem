@@ -50,6 +50,8 @@ int		main()
 	model.triangles[0].indexes[0] = 0;
 	model.triangles[0].indexes[1] = 1;
 	model.triangles[0].indexes[2] = 2;
+	model.triangles[0].normal = (t_vertex){ 0,0,1};
+
 	
 	model.triangles[0].texture = tex->pixels;
 	model.triangles[0].color = 0xff0000;
@@ -62,6 +64,8 @@ int		main()
 	model.triangles[1].indexes[0] = 0;
 	model.triangles[1].indexes[1] = 2;
 	model.triangles[1].indexes[2] = 3;
+	model.triangles[1].normal = (t_vertex){ 0,0,1};
+
 
 	model.triangles[1].texture = tex->pixels;
 	model.triangles[1].color = 0xff0000;
@@ -75,6 +79,7 @@ int		main()
 	model.triangles[2].indexes[0] = 4;
 	model.triangles[2].indexes[1] = 0;
 	model.triangles[2].indexes[2] = 3;
+	model.triangles[2].normal = (t_vertex){ 1,0,0};
 
 	model.triangles[2].texture = tex->pixels;
 	model.triangles[2].color = 0x00ff00;
@@ -88,6 +93,7 @@ int		main()
 	model.triangles[3].indexes[0] = 4;
 	model.triangles[3].indexes[1] = 3;
 	model.triangles[3].indexes[2] = 7;
+	model.triangles[3].normal = (t_vertex){ 1,0,0};
 
 	model.triangles[3].texture = tex->pixels;
 	model.triangles[3].color = 0x00ff00;
@@ -101,6 +107,7 @@ int		main()
 	model.triangles[4].indexes[0] = 5;
 	model.triangles[4].indexes[1] = 4;
 	model.triangles[4].indexes[2] = 7;
+	model.triangles[4].normal = (t_vertex){0,0,-1};
 
 	model.triangles[4].texture = tex->pixels;
 	model.triangles[4].color = 0x0000ff;
@@ -114,6 +121,7 @@ int		main()
 	model.triangles[5].indexes[0] = 5;
 	model.triangles[5].indexes[1] = 7;
 	model.triangles[5].indexes[2] = 6;
+	model.triangles[5].normal = (t_vertex){0,0,-1};
 
 	model.triangles[5].texture = tex->pixels;
 	model.triangles[5].color = 0x0000ff;
@@ -130,6 +138,7 @@ int		main()
 	model.triangles[6].indexes[0] = 1;
 	model.triangles[6].indexes[1] = 5;
 	model.triangles[6].indexes[2] = 6;
+	model.triangles[6].normal = (t_vertex){-1,0,0};
 
 	model.triangles[6].texture = tex->pixels;
 	model.triangles[6].color = 0xffff00;
@@ -143,6 +152,7 @@ int		main()
 	model.triangles[7].indexes[0] = 1;
 	model.triangles[7].indexes[1] = 6;
 	model.triangles[7].indexes[2] = 2;
+	model.triangles[7].normal = (t_vertex){-1,0,0};
 
 	model.triangles[7].texture = tex->pixels;
 	model.triangles[7].color = 0xffff00;
@@ -156,6 +166,7 @@ int		main()
 	model.triangles[8].indexes[0] = 1;
 	model.triangles[8].indexes[1] = 0;
 	model.triangles[8].indexes[2] = 5;
+	model.triangles[8].normal = (t_vertex){0,1,0};
 
 	model.triangles[8].texture = tex->pixels;
 	model.triangles[8].color = 0x00ffff;
@@ -169,6 +180,7 @@ int		main()
 	model.triangles[9].indexes[0] = 5;
 	model.triangles[9].indexes[1] = 0;
 	model.triangles[9].indexes[2] = 4;
+	model.triangles[9].normal = (t_vertex){0,1,0};
 
 	model.triangles[9].texture = tex->pixels;
 	model.triangles[9].color = 0x00ffff;
@@ -182,6 +194,7 @@ int		main()
 	model.triangles[10].indexes[0] = 2;
 	model.triangles[10].indexes[1] = 6;
 	model.triangles[10].indexes[2] = 7;
+	model.triangles[10].normal = (t_vertex){0,-1,0};
 
 	model.triangles[10].texture = tex->pixels;
 	model.triangles[10].color = 0xff00ff;
@@ -195,6 +208,7 @@ int		main()
 	model.triangles[11].indexes[0] = 2;
 	model.triangles[11].indexes[1] = 7;
 	model.triangles[11].indexes[2] = 3;
+	model.triangles[11].normal = (t_vertex){0,-1,0};
 
 	model.triangles[11].texture = tex->pixels;
 	model.triangles[11].color = 0xff00ff;
@@ -212,7 +226,7 @@ int		main()
 	//instance.projected = malloc(sizeof(t_point) * 10);
 	instance.clipped = malloc(sizeof(t_vertex) * 10);
 	instance.scale = 1.0;
-	instance.orientation = make_oy_rot_matrix(0.0);
+	make_oy_rot_matrix(&instance.orientation, 0.0);
 
 	scene.instances = malloc(sizeof(t_instance) * 30);
 	scene.instances[0] = instance;
@@ -276,7 +290,7 @@ int		main()
 
 	scene.z_buffer = create_z_buffer();
 	scene.instances_count = 1;
-	scene.camera.orientation = make_oy_rot_matrix(360.0);
+	make_oy_rot_matrix(&scene.camera.orientation, 360.0);
 	scene.camera.position = (t_vertex){0,0, -2};
 
 
@@ -316,16 +330,16 @@ int		main()
 	rect.x = 0;
 	rect.y = 0;
 	//SDL_FreeSurface(bmp);
-	SDL_RenderClear(renderer);
-	SDL_RenderCopy(renderer, text, NULL, &rect);
-	SDL_RenderPresent(renderer);
+//	SDL_RenderClear(renderer);
+//	SDL_RenderCopy(renderer, text, NULL, &rect);
+//	SDL_RenderPresent(renderer);
 
 	int quit = 0;
-	SDL_Event event;
+	
 
 	int mouse_pressed = 0;
 	int mouse_right_pressed = 0;
-	int prev_x, prev_y = 0;
+	int prev_x = 0, prev_y = 0;
 	float beta = 0;
 	float gamma = 0;
 
@@ -336,15 +350,37 @@ int		main()
 	scene.clipping_planes[3] = (t_plane){(t_vertex){0.0,-s2,s2}, 0.0};//top
 	scene.clipping_planes[4] = (t_plane){(t_vertex){0.0,s2,s2}, 0.0};//bottom
 
-	printf("%f %f %f, %f", scene.clipping_planes[3].normal.x,
-							scene.clipping_planes[3].normal.y,
-							scene.clipping_planes[3].normal.z,
-							scene.clipping_planes[3].distance);
+	// printf("%f %f %f, %f", scene.clipping_planes[3].normal.x,
+	// 						scene.clipping_planes[3].normal.y,
+	// 						scene.clipping_planes[3].normal.z,
+	// 						scene.clipping_planes[3].distance);
+
+
+
+	
+	float lstTime = 0.0 ;
+  	float currTime;
+ SDL_Event event;
+	// lstTime = 1.0;
+	//printf("%d\n", last_time);
+	 float fps;
+	 int frame = 0;
 	while (!quit)
 	{
+		if (frame == 60)
+		{
+			currTime = SDL_GetTicks() / 1000.0;
+
+			fps = 1.0 / (currTime - lstTime) * 60.0;
+			lstTime = currTime;
+			printf("fps: %f\n", fps);
+			frame = 0;;
+		}
+		frame++;	
+
 		while (SDL_PollEvent(&event))
 		{
-			SDL_PumpEvents();
+			//SDL_PumpEvents();
 			if (event.type == SDL_QUIT)
 				quit = 1;
 			else if (event.type == SDL_MOUSEBUTTONDOWN)
@@ -373,11 +409,12 @@ int		main()
 				//	scene.instances[0].position.x += (event.motion.x - prev_x) * 0.05;
 					scene.instances[0].position.y -= (event.motion.y - prev_y) * 0.005;
 				//	for (int h = 0; h < 27; h++)
+				//	printf("event: %d beta: %f\n",event.motion.x, beta);
 						
-				} else //if (mouse_right_pressed)
+				} else 
 				{
 					gamma += (event.motion.x - prev_x) * 0.5;
-					
+				//	printf("event: %d gamma: %f\n",event.motion.x, gamma);
 				}
 				prev_x = event.motion.x;
 				prev_y = event.motion.y;
@@ -394,11 +431,14 @@ int		main()
 			}
 
 		}
-			for (int h = 0; h < 27; h++)
-				scene.instances[h].orientation = make_oy_rot_matrix(beta);
-		scene.camera.orientation = make_oy_rot_matrix(gamma);
-			bzero(surface->pixels, sizeof(int) * W * H);
-		//	instance.orientation = make_oy_rot_matrix(beta);
+		//	for (int h = 0; h < 27; h++)
+				make_oy_rot_matrix(&scene.instances[0].orientation, beta);
+
+
+			
+			make_oy_rot_matrix(&scene.camera.orientation, gamma);
+			bzero(surface->pixels, sizeof(int) * HxW);
+	//		instance.orientation = make_oy_rot_matrix(beta);
 			clear_z_buffer(scene.z_buffer);
 			render_scene(surface->pixels, &scene);
 
@@ -408,7 +448,11 @@ int		main()
 			SDL_RenderCopy(renderer, text, NULL, &rect);
 			SDL_RenderPresent(renderer);
 			SDL_DestroyTexture(text);
-			//  SDL_Delay(20);
+
+		//	curr_tim = time(NULL);
+		
+		//	printf("fps: %d", fps);
+
 			//quit = 1;
 	}
 
@@ -417,6 +461,7 @@ int		main()
 
 
 	SDL_DestroyTexture(text);
+
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();

@@ -97,6 +97,14 @@ typedef struct	s_e_i_input
 	float	v2;
 }				t_e_i_input;
 
+typedef struct	s_e_i_output
+{
+	float	v02;
+	float	v01;
+	float	v12;
+	float	limit;
+}				t_e_i_output;
+
 
 typedef struct	s_redner
 {

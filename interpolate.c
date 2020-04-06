@@ -19,7 +19,7 @@ void		interpolate(float i0, float d0, float i1, float d1, t_float_array *dst)
 	//dst->array = malloc(result.length * sizeof(float));////////////////////////////////
 	i = 0;
 	d = d0;
-	a = (d1 - d0) / (float)(i1 - i0);
+	a = (d1 - d0) / (i1 - i0);
 	while (i < dst->length)
 	{
 		dst->array[i] = d;
@@ -28,6 +28,10 @@ void		interpolate(float i0, float d0, float i1, float d1, t_float_array *dst)
 	}
 	// return (result);
 }
+ float get_inter_d(float i0, float d0, float i1, float d1)
+ {
+	 return ((d1 - d0) / (i1 - i0));
+ }
 
 void		concat(t_float_array *first, t_float_array *second)
 {
@@ -52,6 +56,9 @@ void	edge_interpolate(t_e_i_input in, t_render *render, t_edge_interpolate *edge
 //	t_float_array v12;
 //	t_float_array v02;
 
+	
+
+
 	interpolate(in.y0, in.v0, in.y1, in.v1, &edge->v012);
 	interpolate(in.y1, in.v1, in.y2, in.v2, &render->v12);
 	// interpolate(in.y0, in.v0, in.y2, in.v2, &render->v02);
@@ -64,4 +71,18 @@ void	edge_interpolate(t_e_i_input in, t_render *render, t_edge_interpolate *edge
 //	edge->v02 = render->v02;
 //	edge->v012 = render->v01;
 	//return ((t_edge_interpolate){v02, v01});
+}
+
+
+t_e_i_output	get_edge_inter(t_e_i_input in)
+{
+	t_e_i_output out;
+
+	out.v01 = get_inter_d(in.y0, in.v0, in.y1, in.v1);
+	out.v12 = get_inter_d(in.y1, in.v1, in.y2, in.v2);
+	out.v02 = get_inter_d(in.y0, in.v0, in.y2, in.v2);
+	out.limit = in.y1;
+
+	return (out);
+
 }

@@ -2,7 +2,7 @@
 
 float *clear_z_buffer(float *z_buffer)
 {
-	bzero((void *)z_buffer, sizeof(float) * H * W);////////////////
+	bzero((void *)z_buffer, sizeof(float) * HxW);////////////////
 	return (z_buffer);
 }
 
@@ -19,8 +19,8 @@ int set_z_buffer(float *z_buffer, int x, int y, float value)
 {
 	int index;
 	
-	index = (H / 2 - y - 1) * W + W / 2 + x;
-	if (index < 0 || index > W * H)
+	index = (H_2 - y - 1) * W + W_2 + x;
+	if (index < 0 || index > HxW)
 		return (0);
 	if (z_buffer[index] < value){
 		z_buffer[index] = value;
