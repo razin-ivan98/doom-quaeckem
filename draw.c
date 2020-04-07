@@ -253,7 +253,7 @@ void	render_triangle(int *image_data, t_model *model, t_triangle *tr, t_scene *s
 			//	v = ((scene->render_tr.vzscan.array[(x_it - (int)xl)] / scene->render_tr.zscan.array[x_it - (int)xl]));
 			//	printf("%f, %f\n", u, v);
 			int color = get_texel(tr->texture, u / inv_z, v / inv_z, 500);
-				//  int color = tr->color;
+			//	  int color = tr->color;
 				 put_pixel(image_data, x_it, y_it, color);
 			}
 			x_it++;
@@ -303,6 +303,209 @@ void render_model(int *image_data, t_model *model, t_scene *scene)
 	}
 	i = 0;
 
+}
+
+int		clip_triangle(t_triangle *trs, int *count, t_plane *planes, t_model *model)
+{
+	int k;
+	int i;
+	int j;
+	int flag = 1;
+	int outside_count;
+	int inside_count;
+	int	outsides[3];
+	int insides[3];
+	t_triangle *curr;
+	t_triangle crop[6][40];
+
+	int l;
+	crop[0][0] = trs[0];
+	int l_prev = 1;
+	l = 1;
+
+	//bzero(mask, 40);///////////////
+
+	float distances[5][3];
+	k = 0;
+	while (k < 5)
+	{	
+		i = 0;
+		l = 0;
+		while (i < l_prev)
+		{
+			// distances[k][0] = (dot(planes[k].normal, model->vertexes[trs[i].indexes[0]]) + planes[k].distance > 0);
+			// distances[k][1] = (dot(planes[k].normal, model->vertexes[trs[i].indexes[1]]) + planes[k].distance > 0);
+			// distances[k][2] = (dot(planes[k].normal, model->vertexes[trs[i].indexes[2]]) + planes[k].distance > 0);
+			outside_count = 0;
+			inside_count = 0;
+			if (dot(planes[k].normal, model->vertexes[crop[k][i].indexes[0]]) + planes[k].distance < 0)
+			{
+				outsides[outside_count] = 0;
+				outside_count++;
+			}
+			else
+			{
+				insides[inside_count] = 0;
+				inside_count++;
+			}
+			
+			if (dot(planes[k].normal, model->vertexes[crop[k][i].indexes[1]]) + planes[k].distance < 0)
+			{
+				outsides[outside_count] = 1;
+				outside_count++;
+			}
+			else
+			{
+				insides[inside_count] = 1;
+				inside_count++;
+			}
+			
+			if (dot(planes[k].normal, model->vertexes[crop[k][i].indexes[2]]) + planes[k].distance < 0)
+			{
+				outsides[outside_count] = 2;
+				outside_count++;
+			}
+			else
+			{
+				insides[inside_count] = 2;
+				inside_count++;
+			}
+
+			if (outside_count == 0)
+			{
+				crop[k + 1][l] = crop[k][i];
+				l++;
+			}
+			else if (outside_count == 2)
+			{
+				t_vertex new1;
+				t_vertex new2;
+
+				float t;
+
+				t = (-planes[k].distance - dot(planes[k].normal, model->vertexes[crop[k][i].indexes[insides[0]]])) /
+											dot(planes[k].normal, sub( model->vertexes[crop[k][i].indexes[outsides[0]]], model->vertexes[crop[k][i].indexes[insides[0]]]));
+			//printf("%f / %f = %f\n",dot(planes[k].normal, model->vertexes[crop[k][i].indexes[insides[0]]]), dot(planes[k].normal, sub( model->vertexes[crop[k][i].indexes[outsides[0]]], model->vertexes[crop[k][i].indexes[insides[0]]])), t);
+				new1 = add(model->vertexes[crop[k][i].indexes[insides[0]]], multiply(sub(model->vertexes[crop[k][i].indexes[outsides[0]]], model->vertexes[crop[k][i].indexes[insides[0]]]), t));
+				
+				
+				model->vertexes[model->vertexes_count] = new1;
+				crop[k][i].indexes[outsides[0]] = model->vertexes_count;
+				crop[k][i].uvs[outsides[0]].x = crop[k][i].uvs[outsides[0]].x + (crop[k][i].uvs[insides[0]].x - crop[k][i].uvs[outsides[0]].x) * (1 - t);
+				crop[k][i].uvs[outsides[0]].y = crop[k][i].uvs[outsides[0]].y + (crop[k][i].uvs[insides[0]].y - crop[k][i].uvs[outsides[0]].y) * (1 - t);
+
+				model->vertexes_count++;
+
+
+
+
+
+				t = (-planes[k].distance - dot(planes[k].normal, model->vertexes[crop[k][i].indexes[insides[0]]])) /
+											dot(planes[k].normal, sub( model->vertexes[crop[k][i].indexes[outsides[1]]], model->vertexes[crop[k][i].indexes[insides[0]]]));
+
+				new2 = add(model->vertexes[crop[k][i].indexes[insides[0]]], multiply(sub(model->vertexes[crop[k][i].indexes[outsides[1]]], model->vertexes[crop[k][i].indexes[insides[0]]]), t));
+
+
+				model->vertexes[model->vertexes_count] = new2;
+				crop[k][i].indexes[outsides[1]] = model->vertexes_count;
+				crop[k][i].uvs[outsides[1]].x = crop[k][i].uvs[outsides[1]].x + (crop[k][i].uvs[insides[0]].x - crop[k][i].uvs[outsides[1]].x) * (1 - t);
+				crop[k][i].uvs[outsides[1]].y = crop[k][i].uvs[outsides[1]].y + (crop[k][i].uvs[insides[0]].y - crop[k][i].uvs[outsides[1]].y) * (1 - t);
+				model->vertexes_count++;
+				crop[k][l].color += 100;
+				crop[k + 1][l] = (crop[k][i]);
+				l++;
+			}
+			else if (outside_count == 1)
+			{
+				t_vertex new1;
+				t_vertex new2;
+				t_point new_uv1;
+				t_point new_uv2;
+
+
+				float t;
+
+				t = (-planes[k].distance - dot(planes[k].normal, model->vertexes[crop[k][i].indexes[insides[0]]])) /
+											dot(planes[k].normal, sub( model->vertexes[crop[k][i].indexes[outsides[0]]], model->vertexes[crop[k][i].indexes[insides[0]]]));
+			//printf("%f / %f = %f\n",dot(planes[k].normal, model->vertexes[crop[k][i].indexes[insides[0]]]), dot(planes[k].normal, sub( model->vertexes[crop[k][i].indexes[outsides[0]]], model->vertexes[crop[k][i].indexes[insides[0]]])), t);
+				new1 = add(model->vertexes[crop[k][i].indexes[insides[0]]], multiply(sub(model->vertexes[crop[k][i].indexes[outsides[0]]], model->vertexes[crop[k][i].indexes[insides[0]]]), t));
+				
+				
+			//	model->vertexes[model->vertexes_count] = new1;
+			//	crop[k][i].indexes[outsides[0]] = model->vertexes_count;
+				new_uv1.x = crop[k][i].uvs[outsides[0]].x + (crop[k][i].uvs[insides[0]].x - crop[k][i].uvs[outsides[0]].x) * (1 - t);
+				new_uv1.y = crop[k][i].uvs[outsides[0]].y + (crop[k][i].uvs[insides[0]].y - crop[k][i].uvs[outsides[0]].y) * (1 - t);
+
+			//	model->vertexes_count++;
+
+
+				t = (-planes[k].distance - dot(planes[k].normal, model->vertexes[crop[k][i].indexes[insides[1]]])) /
+											dot(planes[k].normal, sub( model->vertexes[crop[k][i].indexes[outsides[0]]], model->vertexes[crop[k][i].indexes[insides[1]]]));
+
+				new2 = add(model->vertexes[crop[k][i].indexes[insides[1]]], multiply(sub(model->vertexes[crop[k][i].indexes[outsides[0]]], model->vertexes[crop[k][i].indexes[insides[1]]]), t));
+
+
+				//model->vertexes[model->vertexes_count] = new2;
+			////	crop[k][i].indexes[outsides[1]] = model->vertexes_count;
+				new_uv2.x = crop[k][i].uvs[outsides[0]].x + (crop[k][i].uvs[insides[1]].x - crop[k][i].uvs[outsides[0]].x) * (1 - t);
+				new_uv2.y = crop[k][i].uvs[outsides[0]].y + (crop[k][i].uvs[insides[1]].y - crop[k][i].uvs[outsides[0]].y) * (1 - t);
+			//	model->vertexes_count++;
+
+
+				t_triangle new_tr1 = crop[k][i];
+				t_triangle new_tr2 = crop[k][i];;
+
+				new_tr2.color += 100;
+				new_tr1.color += 300;
+
+
+
+				new_tr1.indexes[0] = crop[k][i].indexes[insides[0]];
+				new_tr1.uvs[0] = crop[k][i].uvs[insides[0]];
+				new_tr1.indexes[1] = crop[k][i].indexes[insides[1]];
+				new_tr1.uvs[1] = crop[k][i].uvs[insides[1]];
+
+
+				model->vertexes[model->vertexes_count] = new1;
+				new_tr1.indexes[2] = model->vertexes_count;
+				new_tr1.uvs[2] = new_uv1;
+
+
+				new_tr2.indexes[0] = model->vertexes_count;
+				new_tr2.uvs[0] = new_uv1;
+
+				model->vertexes_count++;
+
+				new_tr2.indexes[1] = crop[k][i].indexes[insides[1]];
+				new_tr2.uvs[1] = crop[k][i].uvs[insides[1]];
+
+				model->vertexes[model->vertexes_count] = new2;
+				new_tr2.indexes[2] = model->vertexes_count;
+				new_tr2.uvs[2] = new_uv2;
+
+
+				model->vertexes_count++;
+
+
+				crop[k + 1][l] = new_tr1;
+				l++;
+
+				crop[k + 1][l] = new_tr2;
+				l++;
+			}
+
+			i++;
+		}
+		l_prev = l;
+		
+		k++;
+	}
+	for (int r = 0; r < l_prev; r++)
+	{
+		model->triangles[model->triangles_count] = crop[5][r];
+		model->triangles_count++;
+	}
+		
 }
 
 t_model *transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *scene)
@@ -379,28 +582,25 @@ t_model *transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *sc
 		
 		// if (dot(&tt, &curr.normal) < 0)
 		// 	flag = 0;
+		t_triangle ters[40];
+		int ters_count = 1;
+		ters[0] = curr;
+
+		//while (k < 5)
+		//{
+		flag = clip_triangle(ters, &ters_count, scene->clipping_planes, model);
 
 
-		while (k < 5)
-		{
-			distances[k][0] = (dot(scene->clipping_planes[k].normal, model->vertexes[curr.indexes[0]]) + scene->clipping_planes[k].distance > 0);
-			distances[k][1] = (dot(scene->clipping_planes[k].normal, model->vertexes[curr.indexes[1]]) + scene->clipping_planes[k].distance > 0);
-			distances[k][2] = (dot(scene->clipping_planes[k].normal, model->vertexes[curr.indexes[2]]) + scene->clipping_planes[k].distance > 0);
-			if (!distances[k][0] && !distances[k][1] && !distances[k][2])
-			{
-				flag = 0;
-				break;
-			}
-			k++;
-		}
-		if (flag)
-		{
-			model->triangles[model->triangles_count] = curr;
-			model->triangles_count++;
+		//	k++;
+		//}
+	//	if (flag)
+	//	{
+		//	model->triangles[model->triangles_count] = curr;
+		//	model->triangles_count++;
 		//	printf("O");
 			// i++;
 			// continue ;
-		}
+	//	}
 		// k = 0;
 		
 		// t_triangle triangles_stack[20];

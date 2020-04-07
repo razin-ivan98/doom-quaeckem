@@ -222,10 +222,10 @@ int		main()
 
 	t_instance instance;
 	instance.model = &model;
-	instance.position = (t_vertex){ 0, 0, 2};
+	instance.position = (t_vertex){ 0, 0, 10};
 	//instance.projected = malloc(sizeof(t_point) * 10);
 	instance.clipped = malloc(sizeof(t_vertex) * 10);
-	instance.scale = 1.0;
+	instance.scale = 2;
 	instance.orientation = make_oy_rot_matrix(0.0);
 
 	scene.instances = malloc(sizeof(t_instance) * 30);
@@ -344,7 +344,7 @@ int		main()
 	float gamma = 0;
 
 	float s2 = sqrt(2.0) / 2.0;
-	scene.clipping_planes[0] = (t_plane){(t_vertex){0.0,0.0,1.0}, -1.0}; //near
+	scene.clipping_planes[0] = (t_plane){(t_vertex){0.0,0.0,1.0}, 0.0}; //near
 	scene.clipping_planes[1] = (t_plane){(t_vertex){s2,0.0,s2}, 0.0}; //left
 	scene.clipping_planes[2] = (t_plane){(t_vertex){-s2,0.0,s2}, 0.0};//right
 	scene.clipping_planes[3] = (t_plane){(t_vertex){0.0,-s2,s2}, 0.0};//top
