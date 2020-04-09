@@ -39,6 +39,7 @@ typedef struct	s_triangle
 	int			indexes[3];
 	t_vertex	normal;
 	int			*texture;
+	int			**new_tex;
 	int			color;
 	t_point		uvs[3];
 }				t_triangle;
@@ -46,7 +47,10 @@ typedef struct	s_triangle
 typedef struct	s_model
 {
 //	t_point		*uvs;
+	int **new_tex;
 	t_vertex	*vertexes;
+	t_point	*uvs;
+	int			uvs_count;
 	t_vertex	bounds_center;
 	float		bounds_radius;
 	int			vertexes_count;
@@ -131,6 +135,8 @@ typedef struct	s_scene
 {
 	t_model		*models;
 	int			models_count;
+
+
 
 	t_instance	*instances;
 	int			instances_count;

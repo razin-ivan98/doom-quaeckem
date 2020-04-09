@@ -22,6 +22,30 @@ int		main()
 
 	char *ptr1 = (char *)tex->pixels;
 	char *ptr2 = (char *)texture->pixels;
+
+	int **new_tex;
+
+	new_tex = malloc(sizeof(int *) * 500);
+
+	char *tmptr;
+
+	for (int a = 0; a < 500; a++)
+	{
+		new_tex[a] = malloc(sizeof(int) * 500);
+		for (int u = 0; u < 500; u++)
+		{
+			int inds = 500 * a + u;
+
+			tmptr = (char *)&new_tex[a][u];
+
+			tmptr[0] = ptr2[inds * 3];
+			tmptr[1] = ptr2[inds * 3 + 1];
+			tmptr[2] = ptr2[inds * 3 + 2];
+			tmptr[3] = 255;
+		}
+	}
+
+
 	for (int i = 0; i < 500 * 500; i++){
 		ptr1[i * 4] = ptr2[i * 3];
 		ptr1[i * 4 + 1] = ptr2[i * 3 + 1];
@@ -30,12 +54,20 @@ int		main()
 
 	}
 
-	model.vertexes = malloc(sizeof(t_vertex) * 10);
-	model.vertexes_count = 8;
-	model.triangles = malloc(sizeof(t_triangle) * 12);
-	model.triangles_count = 12;
+	model.vertexes = malloc(sizeof(t_vertex) * 30000);
+	model.vertexes_count = 0;
+	model.triangles = malloc(sizeof(t_triangle) * 30000);
+	model.triangles_count = 0;
+	model.uvs = malloc(sizeof(t_point) * 30000);
+	model.uvs_count = 0;
+	model.bounds_center = (t_vertex){0,0,0};
+	model.bounds_radius = 100;
+	model.new_tex = new_tex;
 
-	model.vertexes[0] = (t_vertex){ 1, 1, 1};
+	//read_obj(&model, "ak.obj");
+
+	read_map("map.map", &model, new_tex);
+/*	model.vertexes[0] = (t_vertex){ 1, 1, 1};
 	model.vertexes[1] = (t_vertex){-1, 1, 1};
 	model.vertexes[2] = (t_vertex){-1,-1, 1};
 	model.vertexes[3] = (t_vertex){ 1,-1, 1};
@@ -54,6 +86,8 @@ int		main()
 
 	
 	model.triangles[0].texture = tex->pixels;
+	model.triangles[0].new_tex = new_tex;
+
 	model.triangles[0].color = 0xff0000;
 	
 	model.triangles[0].uvs[0] = (t_point){0,0, 0};
@@ -68,6 +102,8 @@ int		main()
 
 
 	model.triangles[1].texture = tex->pixels;
+	model.triangles[1].new_tex = new_tex;
+
 	model.triangles[1].color = 0xff0000;
 
 	
@@ -82,6 +118,8 @@ int		main()
 	model.triangles[2].normal = (t_vertex){ 1,0,0};
 
 	model.triangles[2].texture = tex->pixels;
+	model.triangles[2].new_tex = new_tex;
+
 	model.triangles[2].color = 0x00ff00;
 
 	
@@ -96,6 +134,8 @@ int		main()
 	model.triangles[3].normal = (t_vertex){ 1,0,0};
 
 	model.triangles[3].texture = tex->pixels;
+	model.triangles[3].new_tex = new_tex;
+
 	model.triangles[3].color = 0x00ff00;
 
 	
@@ -110,6 +150,8 @@ int		main()
 	model.triangles[4].normal = (t_vertex){0,0,-1};
 
 	model.triangles[4].texture = tex->pixels;
+	model.triangles[4].new_tex = new_tex;
+
 	model.triangles[4].color = 0x0000ff;
 
 	
@@ -124,6 +166,8 @@ int		main()
 	model.triangles[5].normal = (t_vertex){0,0,-1};
 
 	model.triangles[5].texture = tex->pixels;
+	model.triangles[5].new_tex = new_tex;
+
 	model.triangles[5].color = 0x0000ff;
 
 	
@@ -141,6 +185,8 @@ int		main()
 	model.triangles[6].normal = (t_vertex){-1,0,0};
 
 	model.triangles[6].texture = tex->pixels;
+	model.triangles[6].new_tex = new_tex;
+
 	model.triangles[6].color = 0xffff00;
 
 
@@ -155,6 +201,8 @@ int		main()
 	model.triangles[7].normal = (t_vertex){-1,0,0};
 
 	model.triangles[7].texture = tex->pixels;
+	model.triangles[7].new_tex = new_tex;
+
 	model.triangles[7].color = 0xffff00;
 
 	
@@ -169,6 +217,8 @@ int		main()
 	model.triangles[8].normal = (t_vertex){0,1,0};
 
 	model.triangles[8].texture = tex->pixels;
+	model.triangles[8].new_tex = new_tex;
+
 	model.triangles[8].color = 0x00ffff;
 
 	
@@ -183,6 +233,8 @@ int		main()
 	model.triangles[9].normal = (t_vertex){0,1,0};
 
 	model.triangles[9].texture = tex->pixels;
+	model.triangles[9].new_tex = new_tex;
+
 	model.triangles[9].color = 0x00ffff;
 
 	
@@ -197,6 +249,8 @@ int		main()
 	model.triangles[10].normal = (t_vertex){0,-1,0};
 
 	model.triangles[10].texture = tex->pixels;
+	model.triangles[10].new_tex = new_tex;
+
 	model.triangles[10].color = 0xff00ff;
 
 	
@@ -211,6 +265,8 @@ int		main()
 	model.triangles[11].normal = (t_vertex){0,-1,0};
 
 	model.triangles[11].texture = tex->pixels;
+	model.triangles[11].new_tex = new_tex;
+https://www.3ds-models.org/tag/obj
 	model.triangles[11].color = 0xff00ff;
 
 	
@@ -218,6 +274,9 @@ int		main()
 	model.triangles[11].uvs[1] = (t_point){1,1, 0};
 	model.triangles[11].uvs[2] = (t_point){0,1, 0};
 
+	model.triangles_count = 12;
+	model.vertexes_count = 8;
+*/
 
 
 	t_instance instance;
@@ -225,12 +284,13 @@ int		main()
 	instance.position = (t_vertex){ 0, 0, 10};
 	//instance.projected = malloc(sizeof(t_point) * 10);
 	instance.clipped = malloc(sizeof(t_vertex) * 10);
-	instance.scale = 2;
+	instance.scale = 0.02;
 	instance.orientation = make_oy_rot_matrix(0.0);
 
 	scene.instances = malloc(sizeof(t_instance) * 30);
 	scene.instances[0] = instance;
-	scene.instances[0].position = (t_vertex){0, 0, 2};
+	scene.instances[0].scale = 1.0;
+	scene.instances[0].position = (t_vertex){0, 0, 0};
 	scene.instances[1] = instance;
 	scene.instances[1].position = (t_vertex){0, 0.5, 2};
 	scene.instances[2] = instance;
@@ -315,13 +375,13 @@ int		main()
 	scene.render_tr.v12.array = malloc(sizeof(float) * H* 2);
 
 
-	scene.render_tr.rendered.vertexes = malloc(sizeof(t_vertex) * 100);
-	scene.render_tr.rendered.projected = malloc(sizeof(t_point) * 100);
-	scene.render_tr.rendered.triangles = malloc(sizeof(t_triangle) * 100);
+	scene.render_tr.rendered.vertexes = malloc(sizeof(t_vertex) * 30000);
+	scene.render_tr.rendered.projected = malloc(sizeof(t_point) * 30000);
+	scene.render_tr.rendered.triangles = malloc(sizeof(t_triangle) * 30000);
 
 
 
-	render_scene(surface->pixels, &scene);
+//	render_scene(surface->pixels, &scene);
 
 	SDL_Texture *text;
 	SDL_Rect rect;
@@ -344,11 +404,14 @@ int		main()
 	float gamma = 0;
 
 	float s2 = sqrt(2.0) / 2.0;
-	scene.clipping_planes[0] = (t_plane){(t_vertex){0.0,0.0,1.0}, 0.0}; //near
-	scene.clipping_planes[1] = (t_plane){(t_vertex){s2,0.0,s2}, 0.0}; //left
-	scene.clipping_planes[2] = (t_plane){(t_vertex){-s2,0.0,s2}, 0.0};//right
-	scene.clipping_planes[3] = (t_plane){(t_vertex){0.0,-s2,s2}, 0.0};//top
-	scene.clipping_planes[4] = (t_plane){(t_vertex){0.0,s2,s2}, 0.0};//bottom
+
+	float sins = 1 / sqrt(5);
+	float coss = sins * 2;
+	scene.clipping_planes[0] = (t_plane){(t_vertex){0.0,0.0,1.0}, /*-1.0*/0.0}; //near
+	scene.clipping_planes[1] = (t_plane){(t_vertex){coss,0.0,sins}, 0.0}; //left
+	scene.clipping_planes[2] = (t_plane){(t_vertex){-coss,0.0,sins}, 0.0};//right
+	scene.clipping_planes[3] = (t_plane){(t_vertex){0.0,-coss,sins}, 0.0};//top
+	scene.clipping_planes[4] = (t_plane){(t_vertex){0.0,coss,sins}, 0.0};//bottom
 
 	// printf("%f %f %f, %f", scene.clipping_planes[3].normal.x,
 	// 						scene.clipping_planes[3].normal.y,
@@ -411,7 +474,7 @@ int		main()
 				//	for (int h = 0; h < 27; h++)
 				//	printf("event: %d beta: %f\n",event.motion.x, beta);
 						
-				} else 
+				} else if (mouse_right_pressed)
 				{
 					gamma += (event.motion.x - prev_x) * 0.5;
 				//	printf("event: %d gamma: %f\n",event.motion.x, gamma);
@@ -421,9 +484,17 @@ int		main()
 			} else if (event.type == SDL_KEYDOWN )
 			{
 				if (event.key.keysym.sym == SDLK_w)
-					scene.camera.position.z += 0.1;
+				{
+					scene.camera.position.z += 0.1 * cos(gamma / 180 * 3.1415);
+					scene.camera.position.x -= 0.1 * sin(gamma / 180 * 3.1415);
+
+				}
 				else if (event.key.keysym.sym == SDLK_s)
-					scene.camera.position.z -= 0.1;
+				{
+					scene.camera.position.z -= 0.1 * cos(gamma / 180 * 3.1415);
+					scene.camera.position.x += 0.1 * sin(gamma / 180 * 3.1415);
+
+				}
 				else if (event.key.keysym.sym == SDLK_a)
 					scene.camera.position.x -= 0.1;
 				else if (event.key.keysym.sym == SDLK_d)
@@ -431,8 +502,8 @@ int		main()
 			}
 
 		}
-		//	for (int h = 0; h < 27; h++)
-			scene.instances[0].orientation = make_oy_rot_matrix(beta);
+			for (int h = 0; h < 27; h++)
+			scene.instances[h].orientation = make_oy_rot_matrix(beta);
 
 
 			

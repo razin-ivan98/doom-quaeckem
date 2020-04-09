@@ -3,35 +3,35 @@ Flat profile:
 Each sample counts as 0.01 seconds.
   %   cumulative   self              self     total           
  time   seconds   seconds    calls  ms/call  ms/call  name    
- 26.49      3.00     3.00    11935     0.25     0.93  render_triangle
- 25.60      5.90     2.90 354820106     0.00     0.00  get_texel
- 25.43      8.78     2.88 469003143     0.00     0.00  set_z_buffer
- 17.66     10.78     2.00 354820106     0.00     0.00  put_pixel
-  1.94     11.00     0.22   143220     0.00     0.00  interpolate
-  1.24     11.14     0.14                             main
-  0.79     11.23     0.09    11935     0.01     0.01  sort_vertex_indexes
-  0.44     11.28     0.05        1    50.02    50.02  create_z_buffer
-  0.26     11.31     0.03 12355059     0.00     0.00  get_inter_d
-  0.09     11.32     0.01     9552     0.00     0.00  clip_triangle
-  0.09     11.33     0.01     2211     0.00     0.01  transform_and_clip
-  0.00     11.33     0.00   193443     0.00     0.00  dot
-  0.00     11.33     0.00    47740     0.00     0.00  concat
-  0.00     11.33     0.00    47740     0.00     0.00  edge_interpolate
-  0.00     11.33     0.00    32728     0.00     0.00  sub
-  0.00     11.33     0.00    22732     0.00     0.00  project_vertex
-  0.00     11.33     0.00    22732     0.00     0.00  viewport_to_canvas
-  0.00     11.33     0.00    18575     0.00     0.00  multiply
-  0.00     11.33     0.00    16364     0.00     0.00  add
-  0.00     11.33     0.00     8844     0.00     0.00  multiply_m_m
-  0.00     11.33     0.00     8579     0.00     0.00  multiply_m_v
-  0.00     11.33     0.00     4422     0.00     0.00  make_oy_rot_matrix
-  0.00     11.33     0.00     4422     0.00     0.00  make_translation_matrix
-  0.00     11.33     0.00     2211     0.00     0.00  clear_z_buffer
-  0.00     11.33     0.00     2211     0.00     0.00  make_scaling_matrix
-  0.00     11.33     0.00     2211     0.00     5.04  render_scene
-  0.00     11.33     0.00     2211     0.00     0.00  transposed_m
-  0.00     11.33     0.00     2211     0.00     0.00  update_instance_transform
-  0.00     11.33     0.00      796     0.00    13.97  render_model
+ 25.52      2.39     2.39 312313414     0.00     0.00  get_texel
+ 25.04      4.73     2.34 372470638     0.00     0.00  set_z_buffer
+ 24.61      7.03     2.30     8723     0.26     1.05  render_triangle
+ 18.94      8.80     1.77 312313414     0.00     0.00  put_pixel
+  2.57      9.04     0.24   104676     0.00     0.00  interpolate
+  1.18      9.15     0.11     8723     0.01     0.01  sort_vertex_indexes
+  1.02      9.24     0.10                             main
+  0.86      9.32     0.08        1    80.03    80.03  create_z_buffer
+  0.11      9.33     0.01  9579576     0.00     0.00  get_inter_d
+  0.11      9.34     0.01     5916     0.00     0.00  clip_triangle
+  0.11      9.35     0.01      493     0.02    18.60  render_model
+  0.00      9.35     0.00   172613     0.00     0.00  dot
+  0.00      9.35     0.00    55148     0.00     0.00  sub
+  0.00      9.35     0.00    34892     0.00     0.00  concat
+  0.00      9.35     0.00    34892     0.00     0.01  edge_interpolate
+  0.00      9.35     0.00    31518     0.00     0.00  project_vertex
+  0.00      9.35     0.00    31518     0.00     0.00  viewport_to_canvas
+  0.00      9.35     0.00    28819     0.00     0.00  multiply
+  0.00      9.35     0.00    27574     0.00     0.00  add
+  0.00      9.35     0.00     5189     0.00     0.00  multiply_m_v
+  0.00      9.35     0.00     4980     0.00     0.00  multiply_m_m
+  0.00      9.35     0.00     2490     0.00     0.00  make_oy_rot_matrix
+  0.00      9.35     0.00     2490     0.00     0.00  make_translation_matrix
+  0.00      9.35     0.00     1245     0.00     0.00  clear_z_buffer
+  0.00      9.35     0.00     1245     0.00     0.00  make_scaling_matrix
+  0.00      9.35     0.00     1245     0.00     7.37  render_scene
+  0.00      9.35     0.00     1245     0.00     0.01  transform_and_clip
+  0.00      9.35     0.00     1245     0.00     0.00  transposed_m
+  0.00      9.35     0.00     1245     0.00     0.00  update_instance_transform
 
  %         the percentage of the total running time of the
 time       program used by this function.
@@ -69,133 +69,133 @@ notice and this notice are preserved.
 		     Call graph (explanation follows)
 
 
-granularity: each sample hit covers 2 byte(s) for 0.09% of 11.33 seconds
+granularity: each sample hit covers 2 byte(s) for 0.11% of 9.35 seconds
 
 index % time    self  children    called     name
                                                  <spontaneous>
-[1]    100.0    0.14   11.19                 main [1]
-                0.00   11.14    2211/2211        render_scene [2]
-                0.05    0.00       1/1           create_z_buffer [11]
-                0.00    0.00    4422/4422        make_oy_rot_matrix [24]
-                0.00    0.00    2210/2211        clear_z_buffer [26]
+[1]    100.0    0.10    9.26                 main [1]
+                0.00    9.18    1245/1245        render_scene [2]
+                0.08    0.00       1/1           create_z_buffer [11]
+                0.00    0.00    2490/2490        make_oy_rot_matrix [24]
+                0.00    0.00    1244/1245        clear_z_buffer [26]
 -----------------------------------------------
-                0.00   11.14    2211/2211        main [1]
-[2]     98.3    0.00   11.14    2211         render_scene [2]
-                0.00   11.12     796/796         render_model [4]
-                0.01    0.01    2211/2211        transform_and_clip [13]
-                0.00    0.00    4422/8844        multiply_m_m [22]
-                0.00    0.00    2211/18575       multiply [20]
-                0.00    0.00    2211/4422        make_translation_matrix [25]
-                0.00    0.00    2211/2211        transposed_m [28]
-                0.00    0.00    2211/2211        update_instance_transform [29]
+                0.00    9.18    1245/1245        main [1]
+[2]     98.1    0.00    9.18    1245         render_scene [2]
+                0.01    9.16     493/493         render_model [3]
+                0.00    0.01    1245/1245        transform_and_clip [14]
+                0.00    0.00    2490/4980        multiply_m_m [23]
+                0.00    0.00    1245/28819       multiply [20]
+                0.00    0.00    1245/2490        make_translation_matrix [25]
+                0.00    0.00    1245/1245        transposed_m [28]
+                0.00    0.00    1245/1245        update_instance_transform [29]
 -----------------------------------------------
-                3.00    8.12   11935/11935       render_model [4]
-[3]     98.1    3.00    8.12   11935         render_triangle [3]
-                2.90    0.00 354820106/354820106     get_texel [5]
-                2.88    0.00 469003143/469003143     set_z_buffer [6]
-                2.00    0.00 354820106/354820106     put_pixel [7]
-                0.00    0.22   47740/47740       edge_interpolate [9]
-                0.09    0.00   11935/11935       sort_vertex_indexes [10]
-                0.03    0.00 12355059/12355059     get_inter_d [12]
+                0.01    9.16     493/493         render_scene [2]
+[3]     98.0    0.01    9.16     493         render_model [3]
+                2.30    6.86    8723/8723        render_triangle [4]
+                0.00    0.00   31518/31518       project_vertex [18]
 -----------------------------------------------
-                0.00   11.12     796/796         render_scene [2]
-[4]     98.1    0.00   11.12     796         render_model [4]
-                3.00    8.12   11935/11935       render_triangle [3]
-                0.00    0.00   22732/22732       project_vertex [18]
+                2.30    6.86    8723/8723        render_model [3]
+[4]     97.9    2.30    6.86    8723         render_triangle [4]
+                2.39    0.00 312313414/312313414     get_texel [5]
+                2.34    0.00 372470638/372470638     set_z_buffer [6]
+                1.77    0.00 312313414/312313414     put_pixel [7]
+                0.00    0.24   34892/34892       edge_interpolate [9]
+                0.11    0.00    8723/8723        sort_vertex_indexes [10]
+                0.01    0.00 9579576/9579576     get_inter_d [12]
 -----------------------------------------------
-                2.90    0.00 354820106/354820106     render_triangle [3]
-[5]     25.6    2.90    0.00 354820106         get_texel [5]
+                2.39    0.00 312313414/312313414     render_triangle [4]
+[5]     25.5    2.39    0.00 312313414         get_texel [5]
 -----------------------------------------------
-                2.88    0.00 469003143/469003143     render_triangle [3]
-[6]     25.4    2.88    0.00 469003143         set_z_buffer [6]
+                2.34    0.00 372470638/372470638     render_triangle [4]
+[6]     25.0    2.34    0.00 372470638         set_z_buffer [6]
 -----------------------------------------------
-                2.00    0.00 354820106/354820106     render_triangle [3]
-[7]     17.7    2.00    0.00 354820106         put_pixel [7]
+                1.77    0.00 312313414/312313414     render_triangle [4]
+[7]     18.9    1.77    0.00 312313414         put_pixel [7]
 -----------------------------------------------
-                0.22    0.00  143220/143220      edge_interpolate [9]
-[8]      1.9    0.22    0.00  143220         interpolate [8]
+                0.24    0.00  104676/104676      edge_interpolate [9]
+[8]      2.6    0.24    0.00  104676         interpolate [8]
 -----------------------------------------------
-                0.00    0.22   47740/47740       render_triangle [3]
-[9]      1.9    0.00    0.22   47740         edge_interpolate [9]
-                0.22    0.00  143220/143220      interpolate [8]
-                0.00    0.00   47740/47740       concat [16]
+                0.00    0.24   34892/34892       render_triangle [4]
+[9]      2.6    0.00    0.24   34892         edge_interpolate [9]
+                0.24    0.00  104676/104676      interpolate [8]
+                0.00    0.00   34892/34892       concat [17]
 -----------------------------------------------
-                0.09    0.00   11935/11935       render_triangle [3]
-[10]     0.8    0.09    0.00   11935         sort_vertex_indexes [10]
+                0.11    0.00    8723/8723        render_triangle [4]
+[10]     1.2    0.11    0.00    8723         sort_vertex_indexes [10]
 -----------------------------------------------
-                0.05    0.00       1/1           main [1]
-[11]     0.4    0.05    0.00       1         create_z_buffer [11]
-                0.00    0.00       1/2211        clear_z_buffer [26]
+                0.08    0.00       1/1           main [1]
+[11]     0.9    0.08    0.00       1         create_z_buffer [11]
+                0.00    0.00       1/1245        clear_z_buffer [26]
 -----------------------------------------------
-                0.03    0.00 12355059/12355059     render_triangle [3]
-[12]     0.3    0.03    0.00 12355059         get_inter_d [12]
+                0.01    0.00 9579576/9579576     render_triangle [4]
+[12]     0.1    0.01    0.00 9579576         get_inter_d [12]
 -----------------------------------------------
-                0.01    0.01    2211/2211        render_scene [2]
-[13]     0.2    0.01    0.01    2211         transform_and_clip [13]
-                0.01    0.00    9552/9552        clip_triangle [14]
-                0.00    0.00    8579/8579        multiply_m_v [23]
-                0.00    0.00    5447/193443      dot [15]
+                0.01    0.00    5916/5916        transform_and_clip [14]
+[13]     0.1    0.01    0.00    5916         clip_triangle [13]
+                0.00    0.00  168659/172613      dot [15]
+                0.00    0.00   55148/55148       sub [16]
+                0.00    0.00   27574/28819       multiply [20]
+                0.00    0.00   27574/27574       add [21]
 -----------------------------------------------
-                0.01    0.00    9552/9552        transform_and_clip [13]
-[14]     0.1    0.01    0.00    9552         clip_triangle [14]
-                0.00    0.00  187996/193443      dot [15]
-                0.00    0.00   32728/32728       sub [17]
-                0.00    0.00   16364/18575       multiply [20]
-                0.00    0.00   16364/16364       add [21]
+                0.00    0.01    1245/1245        render_scene [2]
+[14]     0.1    0.00    0.01    1245         transform_and_clip [14]
+                0.01    0.00    5916/5916        clip_triangle [13]
+                0.00    0.00    5189/5189        multiply_m_v [22]
+                0.00    0.00    3954/172613      dot [15]
 -----------------------------------------------
-                0.00    0.00    5447/193443      transform_and_clip [13]
-                0.00    0.00  187996/193443      clip_triangle [14]
-[15]     0.0    0.00    0.00  193443         dot [15]
+                0.00    0.00    3954/172613      transform_and_clip [14]
+                0.00    0.00  168659/172613      clip_triangle [13]
+[15]     0.0    0.00    0.00  172613         dot [15]
 -----------------------------------------------
-                0.00    0.00   47740/47740       edge_interpolate [9]
-[16]     0.0    0.00    0.00   47740         concat [16]
+                0.00    0.00   55148/55148       clip_triangle [13]
+[16]     0.0    0.00    0.00   55148         sub [16]
 -----------------------------------------------
-                0.00    0.00   32728/32728       clip_triangle [14]
-[17]     0.0    0.00    0.00   32728         sub [17]
+                0.00    0.00   34892/34892       edge_interpolate [9]
+[17]     0.0    0.00    0.00   34892         concat [17]
 -----------------------------------------------
-                0.00    0.00   22732/22732       render_model [4]
-[18]     0.0    0.00    0.00   22732         project_vertex [18]
-                0.00    0.00   22732/22732       viewport_to_canvas [19]
+                0.00    0.00   31518/31518       render_model [3]
+[18]     0.0    0.00    0.00   31518         project_vertex [18]
+                0.00    0.00   31518/31518       viewport_to_canvas [19]
 -----------------------------------------------
-                0.00    0.00   22732/22732       project_vertex [18]
-[19]     0.0    0.00    0.00   22732         viewport_to_canvas [19]
+                0.00    0.00   31518/31518       project_vertex [18]
+[19]     0.0    0.00    0.00   31518         viewport_to_canvas [19]
 -----------------------------------------------
-                0.00    0.00    2211/18575       render_scene [2]
-                0.00    0.00   16364/18575       clip_triangle [14]
-[20]     0.0    0.00    0.00   18575         multiply [20]
+                0.00    0.00    1245/28819       render_scene [2]
+                0.00    0.00   27574/28819       clip_triangle [13]
+[20]     0.0    0.00    0.00   28819         multiply [20]
 -----------------------------------------------
-                0.00    0.00   16364/16364       clip_triangle [14]
-[21]     0.0    0.00    0.00   16364         add [21]
+                0.00    0.00   27574/27574       clip_triangle [13]
+[21]     0.0    0.00    0.00   27574         add [21]
 -----------------------------------------------
-                0.00    0.00    4422/8844        render_scene [2]
-                0.00    0.00    4422/8844        update_instance_transform [29]
-[22]     0.0    0.00    0.00    8844         multiply_m_m [22]
+                0.00    0.00    5189/5189        transform_and_clip [14]
+[22]     0.0    0.00    0.00    5189         multiply_m_v [22]
 -----------------------------------------------
-                0.00    0.00    8579/8579        transform_and_clip [13]
-[23]     0.0    0.00    0.00    8579         multiply_m_v [23]
+                0.00    0.00    2490/4980        render_scene [2]
+                0.00    0.00    2490/4980        update_instance_transform [29]
+[23]     0.0    0.00    0.00    4980         multiply_m_m [23]
 -----------------------------------------------
-                0.00    0.00    4422/4422        main [1]
-[24]     0.0    0.00    0.00    4422         make_oy_rot_matrix [24]
+                0.00    0.00    2490/2490        main [1]
+[24]     0.0    0.00    0.00    2490         make_oy_rot_matrix [24]
 -----------------------------------------------
-                0.00    0.00    2211/4422        render_scene [2]
-                0.00    0.00    2211/4422        update_instance_transform [29]
-[25]     0.0    0.00    0.00    4422         make_translation_matrix [25]
+                0.00    0.00    1245/2490        render_scene [2]
+                0.00    0.00    1245/2490        update_instance_transform [29]
+[25]     0.0    0.00    0.00    2490         make_translation_matrix [25]
 -----------------------------------------------
-                0.00    0.00       1/2211        create_z_buffer [11]
-                0.00    0.00    2210/2211        main [1]
-[26]     0.0    0.00    0.00    2211         clear_z_buffer [26]
+                0.00    0.00       1/1245        create_z_buffer [11]
+                0.00    0.00    1244/1245        main [1]
+[26]     0.0    0.00    0.00    1245         clear_z_buffer [26]
 -----------------------------------------------
-                0.00    0.00    2211/2211        update_instance_transform [29]
-[27]     0.0    0.00    0.00    2211         make_scaling_matrix [27]
+                0.00    0.00    1245/1245        update_instance_transform [29]
+[27]     0.0    0.00    0.00    1245         make_scaling_matrix [27]
 -----------------------------------------------
-                0.00    0.00    2211/2211        render_scene [2]
-[28]     0.0    0.00    0.00    2211         transposed_m [28]
+                0.00    0.00    1245/1245        render_scene [2]
+[28]     0.0    0.00    0.00    1245         transposed_m [28]
 -----------------------------------------------
-                0.00    0.00    2211/2211        render_scene [2]
-[29]     0.0    0.00    0.00    2211         update_instance_transform [29]
-                0.00    0.00    4422/8844        multiply_m_m [22]
-                0.00    0.00    2211/2211        make_scaling_matrix [27]
-                0.00    0.00    2211/4422        make_translation_matrix [25]
+                0.00    0.00    1245/1245        render_scene [2]
+[29]     0.0    0.00    0.00    1245         update_instance_transform [29]
+                0.00    0.00    2490/4980        multiply_m_m [23]
+                0.00    0.00    1245/1245        make_scaling_matrix [27]
+                0.00    0.00    1245/2490        make_translation_matrix [25]
 -----------------------------------------------
 
  This table describes the call tree of the program, and was sorted by
@@ -289,12 +289,12 @@ notice and this notice are preserved.
 Index by function name
 
   [21] add                     [1] main                    [2] render_scene
-  [26] clear_z_buffer         [24] make_oy_rot_matrix      [3] render_triangle
-  [14] clip_triangle          [27] make_scaling_matrix     [6] set_z_buffer
-  [16] concat                 [25] make_translation_matrix [10] sort_vertex_indexes
-  [11] create_z_buffer        [20] multiply               [17] sub
-  [15] dot                    [22] multiply_m_m           [13] transform_and_clip
-   [9] edge_interpolate       [23] multiply_m_v           [28] transposed_m
+  [26] clear_z_buffer         [24] make_oy_rot_matrix      [4] render_triangle
+  [13] clip_triangle          [27] make_scaling_matrix     [6] set_z_buffer
+  [17] concat                 [25] make_translation_matrix [10] sort_vertex_indexes
+  [11] create_z_buffer        [20] multiply               [16] sub
+  [15] dot                    [23] multiply_m_m           [14] transform_and_clip
+   [9] edge_interpolate       [22] multiply_m_v           [28] transposed_m
   [12] get_inter_d            [18] project_vertex         [29] update_instance_transform
    [5] get_texel               [7] put_pixel              [19] viewport_to_canvas
-   [8] interpolate             [4] render_model
+   [8] interpolate             [3] render_model

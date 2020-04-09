@@ -67,6 +67,8 @@ void	edge_interpolate(t_e_i_input in, t_render *render, t_edge_interpolate *edge
 
 	edge->v012.length -= 1;
 	concat(&edge->v012, &render->v12);
+
+//	printf("length %d\n", edge->v012.length);
 //	free(v12.array);
 //	edge->v02 = render->v02;
 //	edge->v012 = render->v01;

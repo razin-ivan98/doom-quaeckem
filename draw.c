@@ -99,6 +99,8 @@ void	render_triangle(int *image_data, t_model *model, t_triangle *tr, t_scene *s
 	// if (dot(centre, normal) < 0)
     // 	return ;
 
+	
+
 
 	sort_vertex_indexes(tr, model->projected);
 
@@ -137,31 +139,6 @@ void	render_triangle(int *image_data, t_model *model, t_triangle *tr, t_scene *s
 							pts[2].y, tr->uvs[2].y / model->vertexes[ids[2]].z,
 					}, &scene->render_tr, &scene->render_tr.vz);
 
-
-	// t_e_i_output edge_x = get_edge_inter((t_e_i_input){
-	// 						pts[0].y, pts[0].x,
-	// 						pts[1].y, pts[1].x,
-	// 						pts[2].y, pts[2].x,
-	// 				});
-	// t_e_i_output edge_z = get_edge_inter((t_e_i_input){
-	// 						pts[0].y, 1.0 / model->vertexes[ids[0]].z,
-	// 						pts[1].y, 1.0 / model->vertexes[ids[1]].z,
-	// 						pts[2].y, 1.0 / model->vertexes[ids[2]].z,
-	// 				});
-
-	// t_e_i_output edge_u = get_edge_inter((t_e_i_input){
-	// 						pts[0].y, tr->uvs[0].x / model->vertexes[ids[0]].z,
-	// 						pts[1].y, tr->uvs[1].x / model->vertexes[ids[1]].z,
-	// 						pts[2].y, tr->uvs[2].x / model->vertexes[ids[2]].z,
-	// 				});
-
-	// t_e_i_output edge_v = get_edge_inter((t_e_i_input){
-	// 						pts[0].y, tr->uvs[0].y / model->vertexes[ids[0]].z,
-	// 						pts[1].y, tr->uvs[1].y / model->vertexes[ids[1]].z,
-	// 						pts[2].y, tr->uvs[2].y / model->vertexes[ids[2]].z,
-	// 				});
-
-
 	int m = (int)(scene->render_tr.x.v02.length / 2);
 
 	t_float_array *x_left, *x_right, *iz_left, *iz_right,
@@ -194,16 +171,8 @@ void	render_triangle(int *image_data, t_model *model, t_triangle *tr, t_scene *s
 		vz_right = &scene->render_tr.vz.v02;
 	}
 
-	// if (pts[0].x + edge_x.v02 < pts[0].x + (pts[0].y == pts[1].y ? edge_x.v01 : edge_x.v12))
-	// {
-	// 	x_l_d = edge_x.v02;
-	// 	x_r_d = edge_x.v01;
-	// }
 
 	int y_it = (int)pts[0].y;
-
-	//printf("Ytop: %d\t Ybottom: %d\n", y_it, pts[2].y);
-	//printf("1: %d\t 2: %d\t 3: %d\n", pts[0].y, pts[1].y, pts[2].y);
 
 	int x_it;
 
@@ -214,23 +183,12 @@ void	render_triangle(int *image_data, t_model *model, t_triangle *tr, t_scene *s
 
 		xl = x_left->array[(y_it - (int)pts[0].y)];
 		xr = x_right->array[(y_it - (int)pts[0].y)];
-		 zl = iz_left->array[(y_it - (int)pts[0].y)];
-		 zr = iz_right->array[(y_it - (int)pts[0].y)];
+		zl = iz_left->array[(y_it - (int)pts[0].y)];
+		zr = iz_right->array[(y_it - (int)pts[0].y)];
 		uzl = uz_left->array[(y_it - (int)pts[0].y)];
 		uzr = uz_right->array[(y_it - (int)pts[0].y)];
 		vzl = vz_left->array[(y_it - (int)pts[0].y)];
 		vzr = vz_right->array[(y_it - (int)pts[0].y)];
-
-		// if (uzl < 0.0f){
-		// 	printf("error: uzl: %f", uzl);
-		// 	exit(-2);
-		// }
-
-		// interpolate(xl, zl, xr, zr, &scene->render_tr.zscan);
-
-		// interpolate(xl, uzl, xr, uzr, &scene->render_tr.uzscan);
-		// interpolate(xl, vzl, xr, vzr, &scene->render_tr.vzscan);
-
 
 		float d_z = get_inter_d(xl, zl, xr, zr);
 
@@ -245,16 +203,28 @@ void	render_triangle(int *image_data, t_model *model, t_triangle *tr, t_scene *s
 		float v = vzl;
 		while (x_it <= (int)xr)
 		{
-			//inv_z = scene->render_tr.zscan.array[(x_it - (int)xl)];
 			if (set_z_buffer(scene->z_buffer, x_it, y_it, inv_z))
 			{
-				//float u, v;
-			//	u = ((scene->render_tr.uzscan.array[(x_it - (int)xl)] / scene->render_tr.zscan.array[x_it - (int)xl]));
-			//	v = ((scene->render_tr.vzscan.array[(x_it - (int)xl)] / scene->render_tr.zscan.array[x_it - (int)xl]));
-			//	printf("%f, %f\n", u, v);
-			int color = get_texel(tr->texture, u / inv_z, v / inv_z, 500);
-			//	  int color = tr->color;
-				 put_pixel(image_data, x_it, y_it, color);
+
+			int color = get_texel_n(tr->new_tex, u / inv_z, v / inv_z, 500);
+
+				//   int color = tr->color;
+			//	unsigned char *ttt = (unsigned char *)&color;
+
+
+
+				// float intensity = (100.0 - 1.0 / inv_z) / 100.0;//(inv_z < 1.0 ? 1.0 - inv_z  : 0.0);
+				// if (intensity < 0.0)
+				// 	intensity = 0.0;
+
+
+				// ttt[0] = (unsigned char)(ttt[0] * intensity);
+				// ttt[1] = (unsigned char)(ttt[1] * intensity);
+				// ttt[2] = (unsigned char)(ttt[2] * intensity);
+
+
+
+				put_pixel(image_data, x_it, y_it, color);
 			}
 			x_it++;
 			inv_z += d_z;
@@ -262,22 +232,7 @@ void	render_triangle(int *image_data, t_model *model, t_triangle *tr, t_scene *s
 			v += d_v;
 		}
 		y_it++;
-
-		//free(zscan.array);
-	//	free(uzscan.array);
-		//free(vzscan.array);
 	}
-	//free(x.v012.array);
-//	free(x.v02.array);
-
-	//  free(iz.v012.array);
-	//  free(iz.v02.array);
-
-	// free(uz.v012.array);
-	// free(uz.v02.array);
-
-	// free(vz.v012.array);
-	// free(vz.v02.array);
 }
 
 
@@ -286,18 +241,46 @@ void render_model(int *image_data, t_model *model, t_scene *scene)
 	int i;
 
 	i = 0;
+
+	// for (int y = 0; y < model->triangles_count; y++)
+	// {
+	// 	if (model->triangles[y].indexes[0] > 1000 || model->triangles[y].indexes[0] < 0 ||
+	// 		model->triangles[y].indexes[1] > 1000 || model->triangles[y].indexes[1] < 0 ||
+	// 		model->triangles[y].indexes[2] > 1000 || model->triangles[y].indexes[2] < 0)
+	// 		printf("renderModelPreALARM %d\n", y);
+	// }
 	while (i < model->vertexes_count)
 	{
 		model->projected[i] = project_vertex(model->vertexes[i]);
-	//	printf("origin x: %f, y: %f, z: %f\n", instance->model->vertexes[i].x, instance->model->vertexes[i].y, instance->model->vertexes[i].z);
 
-		//printf("projected x: %f, y: %f\n", instance->projected[i].x, instance->projected[i].y);
 		i++;
 	}
 	i = 0;
+	// for (int y = 0; y < model->triangles_count; y++)
+	// {
+	// 	if (model->triangles[y].indexes[0] > 1000 || model->triangles[y].indexes[0] < 0 ||
+	// 		model->triangles[y].indexes[1] > 1000 || model->triangles[y].indexes[1] < 0 ||
+	// 		model->triangles[y].indexes[2] > 1000 || model->triangles[y].indexes[2] < 0)
+	// 		printf("renderModelProjectedALARM %d\n", y);
+	// }
 	while (i < model->triangles_count)
 	{
-	//	printf("render\n");
+		// for (int y = 0; y < model->triangles_count; y++)
+		// {
+		// 	if (model->triangles[i].indexes[0] > 1000 || model->triangles[i].indexes[0] < 0 ||
+		// 	model->triangles[i].indexes[1] > 1000 || model->triangles[i].indexes[1] < 0 ||
+		// 	model->triangles[i].indexes[2] > 1000 || model->triangles[i].indexes[2] < 0)
+		// 		printf("runtimeALARM %d %d\n", y, i);
+		// }
+
+		// if (model->triangles[i].indexes[0] > 1000 || model->triangles[i].indexes[0] < 0 ||
+		// 	model->triangles[i].indexes[1] > 1000 || model->triangles[i].indexes[1] < 0 ||
+		// 	model->triangles[i].indexes[2] > 1000 || model->triangles[i].indexes[2] < 0)
+		// {
+		// 	printf("1ssanyo %d %d\n", i, model->triangles_count);
+		// 	printf("%f", model->vertexes[model->triangles[i].indexes[0]]);
+		// }
+				
 		render_triangle(image_data, model, &model->triangles[i], scene);
 		i++;
 	}
@@ -324,7 +307,7 @@ int		clip_triangle(t_triangle *trs, int *count, t_plane *planes, t_model *model)
 	l = 1;
 
 	//bzero(mask, 40);///////////////
-
+	
 	float distances[5][3];
 	k = 0;
 	while (k < 5)
@@ -370,8 +353,12 @@ int		clip_triangle(t_triangle *trs, int *count, t_plane *planes, t_model *model)
 				insides[inside_count] = 2;
 				inside_count++;
 			}
-
-			if (outside_count == 0)
+			if (outside_count > 2)
+			{
+				i++;
+				continue;
+			}
+			else if (outside_count == 0)
 			{
 				crop[k + 1][l] = crop[k][i];
 				l++;
@@ -391,13 +378,15 @@ int		clip_triangle(t_triangle *trs, int *count, t_plane *planes, t_model *model)
 				
 				model->vertexes[model->vertexes_count] = new1;
 				crop[k][i].indexes[outsides[0]] = model->vertexes_count;
+				
 				crop[k][i].uvs[outsides[0]].x = crop[k][i].uvs[outsides[0]].x + (crop[k][i].uvs[insides[0]].x - crop[k][i].uvs[outsides[0]].x) * (1 - t);
 				crop[k][i].uvs[outsides[0]].y = crop[k][i].uvs[outsides[0]].y + (crop[k][i].uvs[insides[0]].y - crop[k][i].uvs[outsides[0]].y) * (1 - t);
 
 				model->vertexes_count++;
 
 
-
+		//		if (crop[k][i].indexes[0] > 100 || crop[k][i].indexes[0] < 0)
+		//			printf("1ssanyo\n");
 
 
 				t = (-planes[k].distance - dot(planes[k].normal, model->vertexes[crop[k][i].indexes[insides[0]]])) /
@@ -413,7 +402,10 @@ int		clip_triangle(t_triangle *trs, int *count, t_plane *planes, t_model *model)
 				model->vertexes_count++;
 				crop[k][l].color += 100;
 				crop[k + 1][l] = (crop[k][i]);
+			//	if (crop[k + 1][l].indexes[0] > 2024)
+		//			printf("ssanyo\n");
 				l++;
+				
 			}
 			else if (outside_count == 1)
 			{
@@ -461,6 +453,11 @@ int		clip_triangle(t_triangle *trs, int *count, t_plane *planes, t_model *model)
 
 
 				new_tr1.indexes[0] = crop[k][i].indexes[insides[0]];
+
+		//		if (new_tr1.indexes[0] > 100 || new_tr1.indexes[0] < 0)
+		//			printf("2ssanyo\n");
+
+
 				new_tr1.uvs[0] = crop[k][i].uvs[insides[0]];
 				new_tr1.indexes[1] = crop[k][i].indexes[insides[1]];
 				new_tr1.uvs[1] = crop[k][i].uvs[insides[1]];
@@ -472,6 +469,8 @@ int		clip_triangle(t_triangle *trs, int *count, t_plane *planes, t_model *model)
 
 
 				new_tr2.indexes[0] = model->vertexes_count;
+		//		if (new_tr2.indexes[0] > 100 || new_tr2.indexes[0] < 0)
+		//			printf("3ssanyo\n");
 				new_tr2.uvs[0] = new_uv1;
 
 				model->vertexes_count++;
@@ -494,15 +493,21 @@ int		clip_triangle(t_triangle *trs, int *count, t_plane *planes, t_model *model)
 				l++;
 			}
 
+			
+
 			i++;
 		}
 		l_prev = l;
 		
 		k++;
 	}
+	// model->triangles_count = 0;
 	for (int r = 0; r < l_prev; r++)
 	{
 		model->triangles[model->triangles_count] = crop[5][r];
+		model->triangles[model->triangles_count].color = r;
+	//	if (model->triangles[model->triangles_count].indexes[0] > 100 || model->triangles[model->triangles_count].indexes[0] < 0)
+	//				printf("1s23sanyo\n");
 		model->triangles_count++;
 	}
 		
@@ -512,12 +517,19 @@ t_model *transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *sc
 {
 	t_model *model = &scene->render_tr.rendered;
 
+//	model = (t_model *)malloc(sizeof(t_model));
+//	model->vertexes = malloc(sizeof(t_vertex) * 1000);
+//	model->projected = malloc(sizeof(t_point) * 1000);
+//	model->triangles = malloc(sizeof(t_triangle) * 1000);
+
 //	model = malloc(sizeof(t_model));
 //	model->triangles = malloc(sizeof(t_triangle) * instance->model->triangles_count);/////
 //	model->vertexes = malloc(sizeof(t_vertex) * instance->model->vertexes_count);/////
 	//model->projected = malloc(sizeof(t_vertex) * instance->model->vertexes_count);/////
+
 	model->vertexes_count = 0;
 	model->triangles_count = 0;
+	model->uvs_count = 0;
 
 	t_vertex4 tmp;
 	tmp = multiply_m_v(transform, (t_vertex4){
@@ -557,12 +569,14 @@ t_model *transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *sc
 		i++;
 	}
 	i = 0;
-	int distances[5][3];
+//	int distances[5][3];
 	t_triangle curr;
 	while (i < instance->model->triangles_count)
 	{
 		curr = instance->model->triangles[i];
 		
+
+
 	// 	t_vertex tt;
 	// 	add(&tt, &model->vertexes[curr.indexes[0]], &model->vertexes[curr.indexes[1]]);
 	// 	add(&tt, &model->vertexes[curr.indexes[2]], &tt);
@@ -578,19 +592,24 @@ t_model *transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *sc
 	// 	curr.normal = (t_vertex){tp.x, tp.y, tp.z};
 	//	printf("%f %f %f\n", curr.normal.x, curr.normal.y,curr.normal.z);
 		int k = 0;
-		int flag = 1;
+	//	int flag = 1;
 		
 		// if (dot(&tt, &curr.normal) < 0)
 		// 	flag = 0;
-		t_triangle ters[40];
+		//t_triangle ters[40];
 		int ters_count = 1;
-		ters[0] = curr;
+		//ters[0] = curr;
 
 		//while (k < 5)
 		//{
-		flag = clip_triangle(ters, &ters_count, scene->clipping_planes, model);
+		clip_triangle(&curr, &ters_count, scene->clipping_planes, model);
 
-
+	//	model->triangles[model->triangles_count] = instance->model->triangles[i];;
+	//	model->triangles_count++;
+		/*if (model->triangles[i].indexes[0] > 1000 || model->triangles[i].indexes[0] < 0 ||
+			model->triangles[i].indexes[1] > 1000 || model->triangles[i].indexes[1] < 0 ||
+			model->triangles[i].indexes[2] > 1000 || model->triangles[i].indexes[2] < 0)
+			printf("TransformClipALARMMMM\n");*/
 		//	k++;
 		//}
 	//	if (flag)
@@ -677,6 +696,14 @@ void	render_scene(int *image_data, t_scene *scene)
 		}
 //		printf("%d\n", i);
 		
+
+		// for (int y = 0; y < model->triangles_count; y++)
+		// {
+		// 	if (model->triangles[y].indexes[0] > 1000 || model->triangles[y].indexes[0] < 0 ||
+		// 	model->triangles[y].indexes[1] > 1000 || model->triangles[y].indexes[1] < 0 ||
+		// 	model->triangles[y].indexes[2] > 1000 || model->triangles[y].indexes[2] < 0)
+		// 		printf("RenderSceneALARMMMM\n");
+		// }
 
 		render_model(image_data, model, scene);
 	//	free(model->vertexes);

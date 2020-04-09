@@ -1,20 +1,25 @@
 # include <SDL2/SDL.h>
 
-# define W 800
-# define H 800
-# define H_2 400
-# define W_2 400
-# define HxW 640000
+# define W 700
+# define H 700
+# define H_2 350
+# define W_2 350
+# define HxW 490000
 
 
-# define CH 2
-# define CW 2
+# define CH 1
+# define CW 1
 # define V_SIZE 1
 # define PROJ_PLANE_Z 1
 
 # include "data.h"
 # include "linear_algebra.h"
 # include <string.h>
+# include <fcntl.h>
+# include "libft/libft.h"
+# include "get_next_line/get_next_line.h"
+
+
 
 
 void			put_pixel(int *image_data, int x, int y, int color);
@@ -38,6 +43,7 @@ t_mat4x4	update_instance_transform(t_instance *instance);
 // int		get_texel(int *image_data, float u, float v, int pitch);
 
 int		get_texel(int *image_data, float u, float v, int pitch);
+int		get_texel_n(int **image_data, float u, float v, int pitch);
 
 void	render_scene(int *image_data, t_scene *scene);
 
@@ -46,3 +52,9 @@ void	render_scene(int *image_data, t_scene *scene);
 
 
  float get_inter_d(float i0, float d0, float i1, float d1);
+
+
+
+void read_obj(t_model *model, char *file_name);
+
+void read_map(char *name, t_model *model, int **tex);
