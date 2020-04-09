@@ -1,22 +1,92 @@
 #include "duke.h"
 
 
+void	event_handle(SDL_Event *event, void *doom_ptr, int *quit)
+{
+	t_doom *doom;
+
+	doom = (t_doom *)doom_ptr;
+	if (event->type == SDL_MOUSEBUTTONDOWN)
+	{
+		if (event->button.button == SDL_BUTTON_LEFT)
+			doom->mouse_pressed = 1;
+		else if (event->button.button == SDL_BUTTON_RIGHT)
+			doom->mouse_right_pressed = 1;
+		doom->prev_x = event->button.x;
+		doom->prev_y = event->button.y;
+	}
+	else if (event->type == SDL_MOUSEBUTTONUP)
+	{
+				//if (event.button.button == SDL_BUTTON_LEFT)
+		doom->mouse_pressed = 0;
+		doom->mouse_right_pressed = 0;
+	
+	}
+	else if (event->type == SDL_MOUSEMOTION)
+	{
+		if (doom->mouse_pressed)
+		{
+					//rect.x += event.motion.x - prev_x;
+					//rect.y += event.motion.y - prev_y;
+			doom->beta += (event->motion.x - doom->prev_x);
+				//	scene.instances[0].position.x += (event.motion.x - prev_x) * 0.05;
+			doom->scene.instances[0].position.y -= (event->motion.y - doom->prev_y) * 0.005;
+				//	for (int h = 0; h < 27; h++)
+				//	printf("event: %d beta: %f\n",event.motion.x, beta);
+						
+		}
+		else if (doom->mouse_right_pressed)
+		{
+			doom->gamma += (event->motion.x - doom->prev_x) * 0.5;
+				//	printf("event: %d gamma: %f\n",event.motion.x, gamma);
+		}
+		doom->prev_x = event->motion.x;
+		doom->prev_y = event->motion.y;
+	}
+	else if (event->type == SDL_KEYDOWN )
+	{
+		if (event->key.keysym.sym == SDLK_w)
+		{
+			doom->scene.camera.position.z += 0.1 * cos(doom->gamma / 180 * 3.1415);
+			doom->scene.camera.position.x -= 0.1 * sin(doom->gamma / 180 * 3.1415);
+		}
+		else if (event->key.keysym.sym == SDLK_s)
+		{
+			doom->scene.camera.position.z -= 0.1 * cos(doom->gamma / 180 * 3.1415);
+			doom->scene.camera.position.x += 0.1 * sin(doom->gamma / 180 * 3.1415);
+		}
+		else if (event->key.keysym.sym == SDLK_a)
+			doom->scene.camera.position.x -= 0.1;
+		else if (event->key.keysym.sym == SDLK_d)
+			doom->scene.camera.position.x += 0.1;
+	}
+}
+
+void	update(void *doom_ptr, int *pixels)
+{
+	t_doom *doom;
+
+	doom = (t_doom *)doom_ptr;
+	doom->scene.camera.orientation =	make_oy_rot_matrix(doom->gamma);
+	bzero(pixels, sizeof(int) * HxW);
+	doom->scene.instances[0].orientation = make_oy_rot_matrix(doom->beta);
+	clear_z_buffer(doom->scene.z_buffer);
+	render_scene(pixels, &doom->scene);
+}
+
 
 
 int		main()
 {
-	SDL_Init(SDL_INIT_EVERYTHING);
-
-	SDL_Window *window = SDL_CreateWindow("lol", 50, 50, W, H, SDL_WINDOW_SHOWN);
-	SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
+	
+	t_mgl *mgl = mgl_init("Doom_Quaekem", W, H);
 
 
-	SDL_Surface *surface = SDL_CreateRGBSurface(0, W, H, 32, 0, 0, 0, 0);
 	SDL_Surface *tex = SDL_CreateRGBSurface(0, 500, 500, 32, 0, 0, 0, 0);
 
 	SDL_Surface *texture = SDL_LoadBMP("lol.bmp");
 
-//	SDL_Surface *tex = SDL_CreateRGBSurface(0, 500, 500, 32, 0, 0, 0, 0);
+	
 	t_scene scene;
 	t_model model;
 
@@ -66,230 +136,21 @@ int		main()
 
 	//read_obj(&model, "ak.obj");
 
-	read_map("map.map", &model, new_tex);
-/*	model.vertexes[0] = (t_vertex){ 1, 1, 1};
-	model.vertexes[1] = (t_vertex){-1, 1, 1};
-	model.vertexes[2] = (t_vertex){-1,-1, 1};
-	model.vertexes[3] = (t_vertex){ 1,-1, 1};
-	model.vertexes[4] = (t_vertex){ 1, 1,-1};
-	model.vertexes[5] = (t_vertex){-1, 1,-1};
-	model.vertexes[6] = (t_vertex){-1,-1,-1};
-	model.vertexes[7] = (t_vertex){ 1,-1,-1};
+	//read_map("map.map", &model, new_tex, tex->pixels);
 
-	model.bounds_center = (t_vertex){0,0,0};
-	model.bounds_radius = sqrt(3.0);
-
-	model.triangles[0].indexes[0] = 0;
-	model.triangles[0].indexes[1] = 1;
-	model.triangles[0].indexes[2] = 2;
-	model.triangles[0].normal = (t_vertex){ 0,0,1};
-
-	
-	model.triangles[0].texture = tex->pixels;
-	model.triangles[0].new_tex = new_tex;
-
-	model.triangles[0].color = 0xff0000;
-	
-	model.triangles[0].uvs[0] = (t_point){0,0, 0};
-	model.triangles[0].uvs[1] = (t_point){1,0, 0};
-	model.triangles[0].uvs[2] = (t_point){1,1, 0};
-
-
-	model.triangles[1].indexes[0] = 0;
-	model.triangles[1].indexes[1] = 2;
-	model.triangles[1].indexes[2] = 3;
-	model.triangles[1].normal = (t_vertex){ 0,0,1};
-
-
-	model.triangles[1].texture = tex->pixels;
-	model.triangles[1].new_tex = new_tex;
-
-	model.triangles[1].color = 0xff0000;
-
-	
-	model.triangles[1].uvs[0] = (t_point){0,0, 0};
-	model.triangles[1].uvs[1] = (t_point){1,1, 0};
-	model.triangles[1].uvs[2] = (t_point){0,1, 0};
-
-
-	model.triangles[2].indexes[0] = 4;
-	model.triangles[2].indexes[1] = 0;
-	model.triangles[2].indexes[2] = 3;
-	model.triangles[2].normal = (t_vertex){ 1,0,0};
-
-	model.triangles[2].texture = tex->pixels;
-	model.triangles[2].new_tex = new_tex;
-
-	model.triangles[2].color = 0x00ff00;
-
-	
-	model.triangles[2].uvs[0] = (t_point){0,0, 0};
-	model.triangles[2].uvs[1] = (t_point){1,0, 0};
-	model.triangles[2].uvs[2] = (t_point){1,1, 0};
-
-
-	model.triangles[3].indexes[0] = 4;
-	model.triangles[3].indexes[1] = 3;
-	model.triangles[3].indexes[2] = 7;
-	model.triangles[3].normal = (t_vertex){ 1,0,0};
-
-	model.triangles[3].texture = tex->pixels;
-	model.triangles[3].new_tex = new_tex;
-
-	model.triangles[3].color = 0x00ff00;
-
-	
-	model.triangles[3].uvs[0] = (t_point){0,0, 0};
-	model.triangles[3].uvs[1] = (t_point){1,1, 0};
-	model.triangles[3].uvs[2] = (t_point){0,1, 0};
-
-
-	model.triangles[4].indexes[0] = 5;
-	model.triangles[4].indexes[1] = 4;
-	model.triangles[4].indexes[2] = 7;
-	model.triangles[4].normal = (t_vertex){0,0,-1};
-
-	model.triangles[4].texture = tex->pixels;
-	model.triangles[4].new_tex = new_tex;
-
-	model.triangles[4].color = 0x0000ff;
-
-	
-	model.triangles[4].uvs[0] = (t_point){0,0, 0};
-	model.triangles[4].uvs[1] = (t_point){1,0, 0};
-	model.triangles[4].uvs[2] = (t_point){1,1, 0};
-
-
-	model.triangles[5].indexes[0] = 5;
-	model.triangles[5].indexes[1] = 7;
-	model.triangles[5].indexes[2] = 6;
-	model.triangles[5].normal = (t_vertex){0,0,-1};
-
-	model.triangles[5].texture = tex->pixels;
-	model.triangles[5].new_tex = new_tex;
-
-	model.triangles[5].color = 0x0000ff;
-
-	
-	model.triangles[5].uvs[0] = (t_point){0,0, 0};
-	model.triangles[5].uvs[1] = (t_point){1,1, 0};
-	model.triangles[5].uvs[2] = (t_point){0,1, 0};
-
-
-
-
-
-	model.triangles[6].indexes[0] = 1;
-	model.triangles[6].indexes[1] = 5;
-	model.triangles[6].indexes[2] = 6;
-	model.triangles[6].normal = (t_vertex){-1,0,0};
-
-	model.triangles[6].texture = tex->pixels;
-	model.triangles[6].new_tex = new_tex;
-
-	model.triangles[6].color = 0xffff00;
-
-
-	model.triangles[6].uvs[0] = (t_point){0,0, 0};
-	model.triangles[6].uvs[1] = (t_point){1,0, 0};
-	model.triangles[6].uvs[2] = (t_point){1,1, 0};
-
-
-	model.triangles[7].indexes[0] = 1;
-	model.triangles[7].indexes[1] = 6;
-	model.triangles[7].indexes[2] = 2;
-	model.triangles[7].normal = (t_vertex){-1,0,0};
-
-	model.triangles[7].texture = tex->pixels;
-	model.triangles[7].new_tex = new_tex;
-
-	model.triangles[7].color = 0xffff00;
-
-	
-	model.triangles[7].uvs[0] = (t_point){0,0, 0};
-	model.triangles[7].uvs[1] = (t_point){1,1, 0};
-	model.triangles[7].uvs[2] = (t_point){0,1, 0};
-
-
-	model.triangles[8].indexes[0] = 1;
-	model.triangles[8].indexes[1] = 0;
-	model.triangles[8].indexes[2] = 5;
-	model.triangles[8].normal = (t_vertex){0,1,0};
-
-	model.triangles[8].texture = tex->pixels;
-	model.triangles[8].new_tex = new_tex;
-
-	model.triangles[8].color = 0x00ffff;
-
-	
-	model.triangles[8].uvs[0] = (t_point){0,0, 0};
-	model.triangles[8].uvs[1] = (t_point){1,0, 0};
-	model.triangles[8].uvs[2] = (t_point){1,1, 0};
-
-
-	model.triangles[9].indexes[0] = 5;
-	model.triangles[9].indexes[1] = 0;
-	model.triangles[9].indexes[2] = 4;
-	model.triangles[9].normal = (t_vertex){0,1,0};
-
-	model.triangles[9].texture = tex->pixels;
-	model.triangles[9].new_tex = new_tex;
-
-	model.triangles[9].color = 0x00ffff;
-
-	
-	model.triangles[9].uvs[0] = (t_point){0,1, 0};
-	model.triangles[9].uvs[1] = (t_point){1,1, 0};
-	model.triangles[9].uvs[2] = (t_point){0,0, 0};
-
-
-	model.triangles[10].indexes[0] = 2;
-	model.triangles[10].indexes[1] = 6;
-	model.triangles[10].indexes[2] = 7;
-	model.triangles[10].normal = (t_vertex){0,-1,0};
-
-	model.triangles[10].texture = tex->pixels;
-	model.triangles[10].new_tex = new_tex;
-
-	model.triangles[10].color = 0xff00ff;
-
-	
-	model.triangles[10].uvs[0] = (t_point){0,0, 0};
-	model.triangles[10].uvs[1] = (t_point){1,0, 0};
-	model.triangles[10].uvs[2] = (t_point){1,1, 0};
-
-
-	model.triangles[11].indexes[0] = 2;
-	model.triangles[11].indexes[1] = 7;
-	model.triangles[11].indexes[2] = 3;
-	model.triangles[11].normal = (t_vertex){0,-1,0};
-
-	model.triangles[11].texture = tex->pixels;
-	model.triangles[11].new_tex = new_tex;
-https://www.3ds-models.org/tag/obj
-	model.triangles[11].color = 0xff00ff;
-
-	
-	model.triangles[11].uvs[0] = (t_point){0,0, 0};
-	model.triangles[11].uvs[1] = (t_point){1,1, 0};
-	model.triangles[11].uvs[2] = (t_point){0,1, 0};
-
-	model.triangles_count = 12;
-	model.vertexes_count = 8;
-*/
-
+	create_box(&model, new_tex, tex->pixels);
 
 	t_instance instance;
 	instance.model = &model;
 	instance.position = (t_vertex){ 0, 0, 10};
 	//instance.projected = malloc(sizeof(t_point) * 10);
 	instance.clipped = malloc(sizeof(t_vertex) * 10);
-	instance.scale = 0.02;
+	instance.scale = 0.2;
 	instance.orientation = make_oy_rot_matrix(0.0);
 
 	scene.instances = malloc(sizeof(t_instance) * 30);
 	scene.instances[0] = instance;
-	scene.instances[0].scale = 1.0;
+	scene.instances[0].scale = 0.2;
 	scene.instances[0].position = (t_vertex){0, 0, 0};
 	scene.instances[1] = instance;
 	scene.instances[1].position = (t_vertex){0, 0.5, 2};
@@ -349,7 +210,7 @@ https://www.3ds-models.org/tag/obj
 
 
 	scene.z_buffer = create_z_buffer();
-	scene.instances_count = 1;
+	scene.instances_count = 27;
 	scene.camera.orientation = make_oy_rot_matrix(360.0);
 	scene.camera.position = (t_vertex){0,0, -2};
 
@@ -381,19 +242,6 @@ https://www.3ds-models.org/tag/obj
 
 
 
-//	render_scene(surface->pixels, &scene);
-
-	SDL_Texture *text;
-	SDL_Rect rect;
-	rect.h = H;
-	rect.w = W;
-	rect.x = 0;
-	rect.y = 0;
-	//SDL_FreeSurface(bmp);
-//	SDL_RenderClear(renderer);
-//	SDL_RenderCopy(renderer, text, NULL, &rect);
-//	SDL_RenderPresent(renderer);
-
 	int quit = 0;
 	
 
@@ -413,130 +261,18 @@ https://www.3ds-models.org/tag/obj
 	scene.clipping_planes[3] = (t_plane){(t_vertex){0.0,-coss,sins}, 0.0};//top
 	scene.clipping_planes[4] = (t_plane){(t_vertex){0.0,coss,sins}, 0.0};//bottom
 
-	// printf("%f %f %f, %f", scene.clipping_planes[3].normal.x,
-	// 						scene.clipping_planes[3].normal.y,
-	// 						scene.clipping_planes[3].normal.z,
-	// 						scene.clipping_planes[3].distance);
-
-
-
 	
-	float lstTime = 0.0 ;
-  	float currTime;
- SDL_Event event;
-	// lstTime = 1.0;
-	//printf("%d\n", last_time);
-	 float fps;
-	 int frame = 0;
-	while (!quit)
-	{
-		if (frame == 60)
-		{
-			currTime = SDL_GetTicks() / 1000.0;
 
-			fps = 1.0 / (currTime - lstTime) * 60.0;
-			lstTime = currTime;
-			printf("fps: %f\n", fps);
-			frame = 0;;
-		}
-		frame++;	
+	t_doom doom;
+	doom.scene = scene;
+	doom.beta = 0.0;
+	doom.gamma = 0.0;
+	doom.mouse_pressed = 0;
+	doom.mouse_right_pressed = 0;
 
-		while (SDL_PollEvent(&event))
-		{
-			//SDL_PumpEvents();
-			if (event.type == SDL_QUIT)
-				quit = 1;
-			else if (event.type == SDL_MOUSEBUTTONDOWN)
-			{
-				if (event.button.button == SDL_BUTTON_LEFT)
-					mouse_pressed = 1;
-				else if (event.button.button == SDL_BUTTON_RIGHT)
-					mouse_right_pressed = 1;
-				prev_x = event.button.x;
-				prev_y = event.button.y;
-			}
-			else if (event.type == SDL_MOUSEBUTTONUP)
-			{
-				//if (event.button.button == SDL_BUTTON_LEFT)
-					mouse_pressed = 0;
-					mouse_right_pressed = 0;
-	
-			}
-			else if (event.type == SDL_MOUSEMOTION)
-			{
-				if (mouse_pressed)
-				{
-					//rect.x += event.motion.x - prev_x;
-					//rect.y += event.motion.y - prev_y;
-					beta += (event.motion.x - prev_x);
-				//	scene.instances[0].position.x += (event.motion.x - prev_x) * 0.05;
-					scene.instances[0].position.y -= (event.motion.y - prev_y) * 0.005;
-				//	for (int h = 0; h < 27; h++)
-				//	printf("event: %d beta: %f\n",event.motion.x, beta);
-						
-				} else if (mouse_right_pressed)
-				{
-					gamma += (event.motion.x - prev_x) * 0.5;
-				//	printf("event: %d gamma: %f\n",event.motion.x, gamma);
-				}
-				prev_x = event.motion.x;
-				prev_y = event.motion.y;
-			} else if (event.type == SDL_KEYDOWN )
-			{
-				if (event.key.keysym.sym == SDLK_w)
-				{
-					scene.camera.position.z += 0.1 * cos(gamma / 180 * 3.1415);
-					scene.camera.position.x -= 0.1 * sin(gamma / 180 * 3.1415);
-
-				}
-				else if (event.key.keysym.sym == SDLK_s)
-				{
-					scene.camera.position.z -= 0.1 * cos(gamma / 180 * 3.1415);
-					scene.camera.position.x += 0.1 * sin(gamma / 180 * 3.1415);
-
-				}
-				else if (event.key.keysym.sym == SDLK_a)
-					scene.camera.position.x -= 0.1;
-				else if (event.key.keysym.sym == SDLK_d)
-					scene.camera.position.x += 0.1;
-			}
-
-		}
-			for (int h = 0; h < 27; h++)
-			scene.instances[h].orientation = make_oy_rot_matrix(beta);
+	mgl_run(mgl, update, event_handle, &doom);
 
 
-			
-		scene.camera.orientation =	make_oy_rot_matrix(gamma);
-			bzero(surface->pixels, sizeof(int) * HxW);
-	//		instance.orientation = make_oy_rot_matrix(beta);
-			clear_z_buffer(scene.z_buffer);
-			render_scene(surface->pixels, &scene);
-
-
-			SDL_RenderClear(renderer);
-			text = SDL_CreateTextureFromSurface(renderer, surface);
-			SDL_RenderCopy(renderer, text, NULL, &rect);
-			SDL_RenderPresent(renderer);
-			SDL_DestroyTexture(text);
-
-		//	curr_tim = time(NULL);
-		
-		//	printf("fps: %d", fps);
-
-			//quit = 1;
-	}
-
-
-
-
-
-	SDL_DestroyTexture(text);
-
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
-
-
+	mgl_quit(mgl);
 	return (0);
 }

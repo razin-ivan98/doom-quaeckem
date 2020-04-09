@@ -152,7 +152,7 @@ int				get_next_line(const int fd, char **line)
 	i = copy_to_chr(line, (char**)&curr->content, '\n');
 	if (i < (int)ft_strlen(curr->content))
 		curr->content = ft_strsupersub(curr->content, i + 1,
-							ft_strlen(&curr->content[i + 1] - 1));
+							ft_strlen(curr->content + i));         //ft_strlen(&(curr->content[i + 1]) - 1));
 	else
 		ft_strclr(curr->content);
 	return (1);

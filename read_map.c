@@ -16,7 +16,7 @@ int get_sizes(char *name, int *h, int *w)
     close(fd);
 }
 
-void create_ver_poly(t_model *model, int y, int x, int **tex)
+void create_ver_poly(t_model *model, int y, int x, int **tex, int *texture)
 {
     t_triangle tr1;
     t_triangle tr2;
@@ -53,7 +53,10 @@ void create_ver_poly(t_model *model, int y, int x, int **tex)
     model->vertexes_count++;
 
     tr1.new_tex = tex;
+    tr1.texture = texture;
+
     tr2.new_tex = tex;
+    tr2.texture = texture;
 
 
 
@@ -63,7 +66,7 @@ void create_ver_poly(t_model *model, int y, int x, int **tex)
     model->triangles_count++;
 }
 
-void create_gor_poly(t_model *model, int y, int x, int **tex)
+void create_gor_poly(t_model *model, int y, int x, int **tex, int *texture)
 {
     t_triangle tr1;
     t_triangle tr2;
@@ -98,7 +101,10 @@ void create_gor_poly(t_model *model, int y, int x, int **tex)
     model->vertexes_count++;
 
     tr1.new_tex = tex;
+    tr1.texture = texture;
+
     tr2.new_tex = tex;
+    tr2.texture = texture;
 
 
 
@@ -109,7 +115,7 @@ void create_gor_poly(t_model *model, int y, int x, int **tex)
 
 }
 
-void create_top_bottom(t_model *model, int x, int y, int **tex)
+void create_top_bottom(t_model *model, int x, int y, int **tex, int *texture)
 {
     t_triangle tr1;
     t_triangle tr2;
@@ -144,7 +150,10 @@ void create_top_bottom(t_model *model, int x, int y, int **tex)
     model->vertexes_count++;
 
     tr1.new_tex = tex;
+    tr1.texture = texture;
+
     tr2.new_tex = tex;
+    tr2.texture = texture;
 
 
 
@@ -187,7 +196,10 @@ v = (t_vertex){(float)(0.0), 0.5, (float)(0.0)};
     model->vertexes_count++;
 
     tr1.new_tex = tex;
+    tr1.texture = texture;
+
     tr2.new_tex = tex;
+    tr2.texture = texture;
 
 
 
@@ -197,7 +209,7 @@ v = (t_vertex){(float)(0.0), 0.5, (float)(0.0)};
     model->triangles_count++;
 }
 
-void read_map(char *name, t_model *model, int **tex)
+void read_map(char *name, t_model *model, int **tex, int *texture)
 {
     char *line;
     int fd;
@@ -237,15 +249,15 @@ void read_map(char *name, t_model *model, int **tex)
         }
         i++;
     }
-    create_top_bottom(model, w, h, tex);
+    create_top_bottom(model, w, h, tex, texture);
     for (int i = 1; i < h; i++)
     {
         for (int j = 1; j < w; j++)
         {
             if (map[i][j] == 1 && map[i][j - 1] == 1)
-                create_gor_poly(model, i, j, tex);
+                create_gor_poly(model, i, j, tex, texture);
             if (map[i][j] == 1 && map[i - 1][j] == 1)
-                create_ver_poly(model, i, j, tex);
+                create_ver_poly(model, i, j, tex, texture);
         }
     }
 

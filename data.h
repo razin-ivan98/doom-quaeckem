@@ -148,4 +148,17 @@ typedef struct	s_scene
 	t_render	render_tr;
 }				t_scene;
 
+
+
+typedef struct	s_doom
+{
+	t_scene		scene;
+	float		gamma;
+	float		beta;
+	int			prev_x;
+	int			prev_y;
+	int			mouse_pressed;
+	int			mouse_right_pressed;
+}				t_doom;
+
 #endif

@@ -1,4 +1,4 @@
-# include <SDL2/SDL.h>
+// # include <SDL2/SDL.h>
 
 # define W 700
 # define H 700
@@ -11,6 +11,8 @@
 # define CW 1
 # define V_SIZE 1
 # define PROJ_PLANE_Z 1
+
+#include "my_graphics_lib.h"
 
 # include "data.h"
 # include "linear_algebra.h"
@@ -57,4 +59,6 @@ void	render_scene(int *image_data, t_scene *scene);
 
 void read_obj(t_model *model, char *file_name);
 
-void read_map(char *name, t_model *model, int **tex);
+void read_map(char *name, t_model *model, int **tex, int *texture);
+
+void create_box(t_model *model, int **new_tex, int *tex);
