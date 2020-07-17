@@ -9,7 +9,7 @@ void	put_pixel(int *image_data, int x, int y, int color){
 int		get_texel(int *image_data, float u, float v, int pitch)
 {
 	int index = (int)(pitch * v) * pitch + (int)(pitch * u);
-	if (index >= 0 && index < 250000)
+	if (index >= 0 && index < 4194304)
 		return (image_data[index]);
 	return 0;
 }

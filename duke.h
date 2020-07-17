@@ -5,6 +5,7 @@
 # define H_2 350
 # define W_2 350
 # define HxW 490000
+# define EPSILON 0.00001
 
 
 # define CH 1
@@ -62,3 +63,7 @@ void read_obj(t_model *model, char *file_name);
 void read_map(char *name, t_model *model, int **tex, int *texture);
 
 void create_box(t_model *model, int **new_tex, int *tex);
+
+
+
+t_bsp_node	*create_bsp(t_model *model);

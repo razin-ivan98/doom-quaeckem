@@ -250,7 +250,7 @@ void read_map(char *name, t_model *model, int **tex, int *texture)
         i++;
     }
     create_top_bottom(model, w, h, tex, texture);
-    for (int i = 1; i < h; i++)
+  /*  for (int i = 1; i < h; i++)
     {
         for (int j = 1; j < w; j++)
         {
@@ -259,7 +259,7 @@ void read_map(char *name, t_model *model, int **tex, int *texture)
             if (map[i][j] == 1 && map[i - 1][j] == 1)
                 create_ver_poly(model, i, j, tex, texture);
         }
-    }
+    }*/
 
     
     close(fd);

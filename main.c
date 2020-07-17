@@ -82,9 +82,9 @@ int		main()
 	t_mgl *mgl = mgl_init("Doom_Quaekem", W, H);
 
 
-	SDL_Surface *tex = SDL_CreateRGBSurface(0, 500, 500, 32, 0, 0, 0, 0);
+	SDL_Surface *tex = SDL_CreateRGBSurface(0, 2048, 2048, 32, 0, 0, 0, 0);
 
-	SDL_Surface *texture = SDL_LoadBMP("lol.bmp");
+	SDL_Surface *texture = SDL_LoadBMP("brick.bmp");
 
 	
 	t_scene scene;
@@ -95,16 +95,16 @@ int		main()
 
 	int **new_tex;
 
-	new_tex = malloc(sizeof(int *) * 500);
+	new_tex = malloc(sizeof(int *) * 2048);
 
 	char *tmptr;
 
-	for (int a = 0; a < 500; a++)
+	for (int a = 0; a < 2048; a++)
 	{
-		new_tex[a] = malloc(sizeof(int) * 500);
-		for (int u = 0; u < 500; u++)
+		new_tex[a] = malloc(sizeof(int) * 2048);
+		for (int u = 0; u < 2048; u++)
 		{
-			int inds = 500 * a + u;
+			int inds = 2048 * a + u;
 
 			tmptr = (char *)&new_tex[a][u];
 
@@ -116,7 +116,7 @@ int		main()
 	}
 
 
-	for (int i = 0; i < 500 * 500; i++){
+	for (int i = 0; i < 2048 * 2048; i++){
 		ptr1[i * 4] = ptr2[i * 3];
 		ptr1[i * 4 + 1] = ptr2[i * 3 + 1];
 		ptr1[i * 4 + 2] = ptr2[i * 3 + 2];
@@ -135,10 +135,10 @@ int		main()
 	model.new_tex = new_tex;
 
 	//read_obj(&model, "ak.obj");
+	
+		read_map("map.map", &model, new_tex, tex->pixels);
 
-	//read_map("map.map", &model, new_tex, tex->pixels);
-
-	create_box(&model, new_tex, tex->pixels);
+	//create_box(&model, new_tex, tex->pixels);
 
 	t_instance instance;
 	instance.model = &model;
@@ -210,7 +210,7 @@ int		main()
 
 
 	scene.z_buffer = create_z_buffer();
-	scene.instances_count = 27;
+	scene.instances_count = 1;
 	scene.camera.orientation = make_oy_rot_matrix(360.0);
 	scene.camera.position = (t_vertex){0,0, -2};
 
@@ -240,7 +240,7 @@ int		main()
 	scene.render_tr.rendered.projected = malloc(sizeof(t_point) * 30000);
 	scene.render_tr.rendered.triangles = malloc(sizeof(t_triangle) * 30000);
 
-
+	scene.bsp_model = create_bsp(&model);
 
 	int quit = 0;
 	

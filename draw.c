@@ -159,7 +159,7 @@ void	render_triangle(int *image_data, t_model *model, t_triangle *tr, t_scene *s
 		{
 			if (set_z_buffer(scene->z_buffer, x_it, y_it, inv_z))
 			{
-				int color = get_texel(tr->texture, u / inv_z, v / inv_z, 500);
+				int color = get_texel(tr->texture, u / inv_z, v / inv_z, 2048);
 
 				put_pixel(image_data, x_it, y_it, color);
 			}
@@ -390,6 +390,59 @@ int		clip_triangle(t_triangle *trs, int *count, t_plane *planes, t_model *model)
 	}	
 }
 
+int		classify_point(t_vertex cam, t_plane pl)
+{
+	float dot_v;
+	dot_v = dot(pl.normal, cam) + pl.distance;
+	if (dot_v < 0)
+		return (BACK);
+	return (FRONT);
+}
+
+
+void	bsp_obhod(t_bsp_node *node, t_scene *scene)
+{
+	int			i;
+	t_triangle	curr;
+
+	if (node->is_leaf == 1)
+	{
+		i = 0;
+		while (i < node->triangles_count)
+		{
+			int ters_count = 1;
+
+			curr = node->triangles[i];
+
+			clip_triangle(&curr, &ters_count, scene->clipping_planes, &scene->render_tr.rendered);
+
+		//	scene->render_tr.rendered.triangles[scene->render_tr.rendered.triangles_count] = node->triangles[i];
+		//	scene->render_tr.rendered.triangles_count++;
+			i++;
+		}
+		return ;
+	}
+	if (node->is_leaf == -1)
+	{
+		return ;
+	}
+// printf("lolol");
+	int result = classify_point(scene->camera.position, node->plane);
+
+	if (result == FRONT)
+	{
+		bsp_obhod(node->back, scene);
+		
+		bsp_obhod(node->front, scene);
+	}
+	else
+	{
+		bsp_obhod(node->front, scene);
+
+		bsp_obhod(node->back, scene);
+	}
+}
+
 t_model *transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *scene)
 {
 	t_model *model = &scene->render_tr.rendered;
@@ -433,7 +486,7 @@ t_model *transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *sc
 		model->vertexes_count++;
 		i++;
 	}
-	i = 0;
+/*	i = 0;
 	t_triangle curr;
 	while (i < instance->model->triangles_count)
 	{
@@ -446,7 +499,11 @@ t_model *transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *sc
 		clip_triangle(&curr, &ters_count, scene->clipping_planes, model);
 
 		i++;
-	}
+	}*/
+	printf("before: %d\n", instance->model->triangles_count);
+	bsp_obhod(scene->bsp_model, scene);
+	printf("after: %d\n\n", scene->render_tr.rendered.triangles_count);
+
 	return (model);
 }
 
@@ -477,6 +534,10 @@ void	render_scene(int *image_data, t_scene *scene)
 			i++;
 			continue;
 		}
+
+		//  t_bsp_node *bsp = create_bsp(model);
+
+
 		render_model(image_data, model, scene);
 
 		i++;

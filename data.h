@@ -1,6 +1,12 @@
 #ifndef DATA_H
 # define DATA_H
 
+
+# define COMPLANAR 1
+# define CUTTED 2
+# define FRONT 3
+# define BACK 4
+
 typedef struct	s_point
 {
 	float		x;
@@ -130,13 +136,22 @@ typedef struct	s_redner
 
 }				t_render;
 
+typedef struct			s_bsp_node
+{
+	struct s_bsp_node	*front;
+	struct s_bsp_node	*back;
+	t_plane				plane;
+	int					is_leaf;
+	t_triangle			*triangles;
+	int					triangles_count;
+}						t_bsp_node;
 
 typedef struct	s_scene
 {
 	t_model		*models;
 	int			models_count;
 
-
+	t_bsp_node	*bsp_model;
 
 	t_instance	*instances;
 	int			instances_count;
@@ -160,5 +175,18 @@ typedef struct	s_doom
 	int			mouse_pressed;
 	int			mouse_right_pressed;
 }				t_doom;
+
+
+
+
+typedef struct			s_tr_list
+{
+	t_triangle			tr;
+	struct s_tr_list	*next;
+}						t_tr_list;
+
+
+
+
 
 #endif
