@@ -1,10 +1,10 @@
 // # include <SDL2/SDL.h>
 
-# define W 700
-# define H 700
-# define H_2 350
-# define W_2 350
-# define HxW 490000
+# define W 1500
+# define H 1500
+# define H_2 750
+# define W_2 750
+# define HxW 2250000
 # define EPSILON 0.00001
 
 
@@ -33,7 +33,7 @@ t_e_i_output	get_edge_inter(t_e_i_input in);
 
 void            concat(t_float_array *first, t_float_array *second);
 
-void	draw_line(int *image_data, t_point *p0, t_point *p1, int color);
+//void	draw_line(int *image_data, t_point *p0, t_point *p1, int color);
 
 
 

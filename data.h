@@ -7,6 +7,12 @@
 # define FRONT 3
 # define BACK 4
 
+typedef struct	s_int_v
+{
+	int			x;
+	int			y;
+}				t_int_v;
+
 typedef struct	s_point
 {
 	float		x;
@@ -48,6 +54,7 @@ typedef struct	s_triangle
 	int			**new_tex;
 	int			color;
 	t_point		uvs[3];
+	int			used;
 }				t_triangle;
 
 typedef struct	s_model

@@ -17,6 +17,7 @@ t_mat4x4	make_scaling_matrix(float scale);
 t_vertex4	multiply_m_v(t_mat4x4 mat, t_vertex4 vec);
 t_mat4x4	multiply_m_m(t_mat4x4 m1, t_mat4x4 m2);
 t_mat4x4	transposed_m(t_mat4x4 mat);
+t_vertex	normalize(t_vertex v);
 
 t_vertex	triangle_normal(t_vertex v0, t_vertex v1, t_vertex v2);
 

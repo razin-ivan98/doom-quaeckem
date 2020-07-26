@@ -1,6 +1,5 @@
 #include "duke.h"
 
-
 void	event_handle(SDL_Event *event, void *doom_ptr, int *quit)
 {
 	t_doom *doom;
@@ -24,18 +23,18 @@ void	event_handle(SDL_Event *event, void *doom_ptr, int *quit)
 	}
 	else if (event->type == SDL_MOUSEMOTION)
 	{
-		if (doom->mouse_pressed)
-		{
-					//rect.x += event.motion.x - prev_x;
-					//rect.y += event.motion.y - prev_y;
-			doom->beta += (event->motion.x - doom->prev_x);
-				//	scene.instances[0].position.x += (event.motion.x - prev_x) * 0.05;
-			doom->scene.instances[0].position.y -= (event->motion.y - doom->prev_y) * 0.005;
-				//	for (int h = 0; h < 27; h++)
-				//	printf("event: %d beta: %f\n",event.motion.x, beta);
+		// if (doom->mouse_pressed)
+		// {
+		// 			//rect.x += event.motion.x - prev_x;
+		// 			//rect.y += event.motion.y - prev_y;
+		// 	doom->beta += (event->motion.x - doom->prev_x);
+		// 		//	scene.instances[0].position.x += (event.motion.x - prev_x) * 0.05;
+		// 	doom->scene.instances[0].position.y -= (event->motion.y - doom->prev_y) * 0.005;
+		// 		//	for (int h = 0; h < 27; h++)
+		// 		//	printf("event: %d beta: %f\n",event.motion.x, beta);
 						
-		}
-		else if (doom->mouse_right_pressed)
+		// }
+		if (doom->mouse_pressed)
 		{
 			doom->gamma += (event->motion.x - doom->prev_x) * 0.5;
 				//	printf("event: %d gamma: %f\n",event.motion.x, gamma);
@@ -132,25 +131,28 @@ int		main()
 	model.uvs_count = 0;
 	model.bounds_center = (t_vertex){0,0,0};
 	model.bounds_radius = 100;
-	model.new_tex = new_tex;
+	model.new_tex = tex->pixels;
 
-	//read_obj(&model, "ak.obj");
+	read_obj(&model, "map_editor/map_ed.obj");
 	
-		read_map("map.map", &model, new_tex, tex->pixels);
+//	read_map("easy.map", &model, new_tex, tex->pixels);
 
-	//create_box(&model, new_tex, tex->pixels);
+	//printf("Init: %d\n", model.triangles_count);
+
+
+//	create_box(&model, new_tex, tex->pixels);
 
 	t_instance instance;
 	instance.model = &model;
 	instance.position = (t_vertex){ 0, 0, 10};
 	//instance.projected = malloc(sizeof(t_point) * 10);
 	instance.clipped = malloc(sizeof(t_vertex) * 10);
-	instance.scale = 0.2;
+	instance.scale = 1.0;
 	instance.orientation = make_oy_rot_matrix(0.0);
 
 	scene.instances = malloc(sizeof(t_instance) * 30);
 	scene.instances[0] = instance;
-	scene.instances[0].scale = 0.2;
+	scene.instances[0].scale = 1.0;
 	scene.instances[0].position = (t_vertex){0, 0, 0};
 	scene.instances[1] = instance;
 	scene.instances[1].position = (t_vertex){0, 0.5, 2};
@@ -241,7 +243,7 @@ int		main()
 	scene.render_tr.rendered.triangles = malloc(sizeof(t_triangle) * 30000);
 
 	scene.bsp_model = create_bsp(&model);
-
+//если это включить получается сегфолт
 	int quit = 0;
 	
 

@@ -46,7 +46,7 @@ t_triangle *get_cutter(t_triangle *triangles, int count)
 	i = 0;
 	while (i < count)
 	{
-		if (triangles[i].color == 0)
+		if (triangles[i].used == 0)
 			return (&triangles[i]);
 		i++;
 	}
@@ -59,8 +59,8 @@ void		cut_triangle(t_triangle *front, int *fr_count, t_triangle *back, int *b_co
 	// int i;
 
 	int i;
-
-	int dot_v;
+printf("%d\n", *fr_count);
+	float dot_v;
 	// int j;
 	int outside_count;
 	int inside_count;
@@ -93,7 +93,7 @@ void		cut_triangle(t_triangle *front, int *fr_count, t_triangle *back, int *b_co
 			complanars[complanar_count] = i;
 			complanar_count++;
 		}
-		else if (dot_v < 0.0)
+		else if (dot_v < 0.0f)
 		{
 			outsides[outside_count] = i;
 			outside_count++;
@@ -105,6 +105,7 @@ void		cut_triangle(t_triangle *front, int *fr_count, t_triangle *back, int *b_co
 		}
 		i++;
 	}
+	
 
 	if (outside_count == 2)
 	{
@@ -175,11 +176,11 @@ void		cut_triangle(t_triangle *front, int *fr_count, t_triangle *back, int *b_co
 		back_tr2.uvs[2] = tr.uvs[outsides[1]];
 
 		front[*fr_count] = front_tr;
-		*fr_count++;
+		(*fr_count)++;
 		back[*b_count] = back_tr1;
-		*b_count++;
+		(*b_count)++;
 		back[*b_count] = back_tr2;
-		*b_count++;
+		(*b_count)++;
 	}
 	else if (complanar_count == 1 && inside_count == 1)
 	{
@@ -227,9 +228,9 @@ void		cut_triangle(t_triangle *front, int *fr_count, t_triangle *back, int *b_co
 
 
 		front[*fr_count] = front_tr;
-		*fr_count++;
+		(*fr_count)++;
 		back[*b_count] = back_tr;
-		*b_count++;
+		(*b_count)++;
 
 	}
 	else
@@ -312,13 +313,16 @@ void		cut_triangle(t_triangle *front, int *fr_count, t_triangle *back, int *b_co
 		back_tr2.uvs[1].x = front_tr.uvs[2].x;
 		back_tr2.uvs[1].y = front_tr.uvs[2].y;
 		back_tr2.uvs[2] = tr.uvs[outsides[1]];
+// printf("%d\n", *fr_count);
 
 		back[*b_count] = front_tr;
-		*b_count++;
+		(*b_count)++;
 		front[*fr_count] = back_tr1;
-		*fr_count++;
+		(*fr_count)++;
+// printf("%d\n", *fr_count);
+
 		front[*fr_count] = back_tr2;
-		*fr_count++;
+		(*fr_count)++;
 	}
 	
 }
@@ -341,7 +345,7 @@ int			classify_tr(t_triangle tr, t_plane pl, t_model *model)
 		dot_v = dot(pl.normal, model->vertexes[tr.indexes[i]]) + pl.distance;
 		if (fabsf(dot_v) < EPSILON)
 			complanar_count++;
-		else if (dot_v < 0.0)
+		else if (dot_v < 0.0f)
 			outside_count++;
 		else
 			inside_count++;
@@ -375,6 +379,7 @@ void		bsp_recurse(t_bsp_node *node, t_triangle *triangles, int trs_count, t_mode
 
 	front_trs = (t_triangle *)malloc(sizeof(t_triangle) * 1000);//////////////////
 	back_trs =  (t_triangle *)malloc(sizeof(t_triangle) * 1000);///////////////////
+	puts("go recurse1");
 
 
 	///if (trs_count == 0)
@@ -384,6 +389,7 @@ void		bsp_recurse(t_bsp_node *node, t_triangle *triangles, int trs_count, t_mode
 		free(triangles);
 		return ;
 	}
+	puts("go recurse2");
 
 	cutter = get_cutter(triangles, trs_count);/////////if NULL
 
@@ -396,10 +402,10 @@ void		bsp_recurse(t_bsp_node *node, t_triangle *triangles, int trs_count, t_mode
 	}
 
 
-	cutter->color = 1;
+	cutter->used = 1;
 
 	node->plane = get_plane(*cutter, model);
-	cutter->color = 1;
+	cutter->used = 1;
 
 	//front_trs[0] = *cutter;
 	//front_count = 1;
@@ -413,7 +419,7 @@ void		bsp_recurse(t_bsp_node *node, t_triangle *triangles, int trs_count, t_mode
 
 		if (result == COMPLANAR)
 		{
-			curr.color = 1;
+			curr.used = 1;
 			front_trs[front_count] = curr;
 			front_count++;
 		}
@@ -433,15 +439,23 @@ void		bsp_recurse(t_bsp_node *node, t_triangle *triangles, int trs_count, t_mode
 		}
 		i++;
 	}
+	puts("recurse1");
 	
 	free(triangles);
+	puts("recurse2");
+
 	add_node(&node->back);
+	puts("recurse3");
+
 	bsp_recurse(node->back, back_trs, back_count, model);
+	puts("recurse4");
 
 	add_node(&node->front);
+	puts("recurse5");
+
 	bsp_recurse(node->front, front_trs, front_count, model);
 
-	
+	puts("recurse6");
 
 }
 
@@ -459,13 +473,19 @@ t_bsp_node	*create_bsp(t_model *model)
 	while (i < model->triangles_count)
 	{
 		trs[i] = model->triangles[i];
-		trs[i].color = 0;
+		trs[i].used = 0;
 		i++;
 	}
 
 	add_node(&root);
-
+	puts("Start recurse");
 	bsp_recurse(root, trs, model->triangles_count, model);
 
+	int fd = open("tree.graph", O_WRONLY | O_CREAT);
+
+
+
+
+	close(fd);
 	return (root);
 }

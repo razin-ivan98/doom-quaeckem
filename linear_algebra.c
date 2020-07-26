@@ -13,6 +13,11 @@ float		dot(t_vertex v1, t_vertex v2)
 	return (v1.x * v2.x + v1.y * v2.y + v1.z * v2.z);
 }
 
+t_vertex	normalize(t_vertex v)
+{
+	return (multiply(v, 1.0 / length(v)));
+}
+
 t_vertex	sub(t_vertex v1, t_vertex v2)
 {
 	return ((t_vertex){

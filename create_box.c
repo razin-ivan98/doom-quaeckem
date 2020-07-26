@@ -10,6 +10,9 @@ void create_box(t_model *model, int **new_tex, int *tex)
 	model->vertexes[5] = (t_vertex){-1, 1,-1};
 	model->vertexes[6] = (t_vertex){-1,-1,-1};
 	model->vertexes[7] = (t_vertex){ 1,-1,-1};
+	model->vertexes[8] = (t_vertex){ 2,1,-1};
+	model->vertexes[9] = (t_vertex){ 2,1,1};
+
 
 	model->bounds_center = (t_vertex){0,0,0};
 	model->bounds_radius = sqrt(3.0);
@@ -153,18 +156,38 @@ void create_box(t_model *model, int **new_tex, int *tex)
 	model->triangles[11].indexes[1] = 7;
 	model->triangles[11].indexes[2] = 3;
 	model->triangles[11].normal = (t_vertex){0,-1,0};
-
 	model->triangles[11].texture = tex;
 	model->triangles[11].new_tex = new_tex;
-
 	model->triangles[11].color = 0xff00ff;
-
-	
 	model->triangles[11].uvs[0] = (t_point){0,0, 0};
 	model->triangles[11].uvs[1] = (t_point){1,1, 0};
 	model->triangles[11].uvs[2] = (t_point){0,1, 0};
 
-	model->triangles_count = 12;
-	model->vertexes_count = 8;
+
+	model->triangles[12].indexes[0] = 4;
+	model->triangles[12].indexes[1] = 8;
+	model->triangles[12].indexes[2] = 9;
+	model->triangles[12].normal = (t_vertex){0,-1,0};
+	model->triangles[12].texture = tex;
+	model->triangles[12].new_tex = new_tex;
+	model->triangles[12].color = 0x555555;
+	model->triangles[12].uvs[0] = (t_point){0,0, 0};
+	model->triangles[12].uvs[1] = (t_point){1,0, 0};
+	model->triangles[12].uvs[2] = (t_point){1,1, 0};
+
+
+	model->triangles[13].indexes[0] = 4;
+	model->triangles[13].indexes[1] = 0;
+	model->triangles[13].indexes[2] = 9;
+	model->triangles[13].normal = (t_vertex){0,-1,0};
+	model->triangles[13].texture = tex;
+	model->triangles[13].new_tex = new_tex;
+	model->triangles[13].color = 0x555555;
+	model->triangles[13].uvs[0] = (t_point){0,0, 0};
+	model->triangles[13].uvs[1] = (t_point){1,1, 0};
+	model->triangles[13].uvs[2] = (t_point){0,1, 0};
+
+	model->triangles_count = 14;
+	model->vertexes_count = 10;
 
 }
