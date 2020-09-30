@@ -19,7 +19,7 @@ int			get_i_plus_2(int i, int max)
 }
 
 
-void		delete_by_index(t_pt_id *points, int index, int *count)
+void		delete_by_index(t_point *points, int index, int *count)
 {
 	int i;
 
@@ -32,7 +32,7 @@ void		delete_by_index(t_pt_id *points, int index, int *count)
 	}
 }
 
-void		insert_by_index(t_pt_id *points, int index, int *count, t_pt_id p)
+void		insert_by_index(t_point *points, int index, int *count, t_point p)
 {
 	int i;
 
@@ -46,40 +46,17 @@ void		insert_by_index(t_pt_id *points, int index, int *count, t_pt_id p)
 	(*count)++;
 }
 
-int			add_vt(t_map_editor *ed, t_pt_id point)
+void		create_tr(t_point *pts, t_map_editor *ed, int *pts_count, int i)
 {
-	int i;
+	t_tr	res;
 
-	i = 0;
-	while (i < ed->map.vrts_count)
-	{
-		if (ed->map.vrts[i].id == point.id && ed->map.vrts[i].c_id == point.c_id)
-			return (i);
-		i++;
-	}
-	ed->map.vrts[ed->map.vrts_count].id = point.id;
-	ed->map.vrts[ed->map.vrts_count].c_id = point.c_id;
+	res.points[0] = pts[i];
+	res.points[1] = pts[get_i_plus_1(i, *pts_count)];
+	res.points[2] = pts[get_i_plus_2(i, *pts_count)];
 
-	ed->map.vrts[ed->map.vrts_count].vt.x = point.pt.x;
-	ed->map.vrts[ed->map.vrts_count].vt.y = point.pt.y;
-	ed->map.vrts[ed->map.vrts_count].vt.z = -1.0;
+	ed->map.trs[ed->map.trs_count] = res;
 
-	(ed->map.vrts_count)++;
-	return (ed->map.vrts_count - 1);
-}
-
-void		create_tr(t_pt_id *pts, t_map_editor *ed, int *pts_count, int i)
-{
-	t_tr_idx	res;
-
-	res.ids[0] = add_vt(ed, pts[i]);
-	res.ids[1] = add_vt(ed, pts[get_i_plus_1(i, *pts_count)]);
-	res.ids[2] = add_vt(ed, pts[get_i_plus_2(i, *pts_count)]);
-
-	ed->map.trs_ids[ed->map.trs_ids_count] = res;
-
-
-	(ed->map.trs_ids_count)++;
+	(ed->map.trs_count)++;
 
 	delete_by_index(pts, get_i_plus_1(i, *pts_count), pts_count);
 }
@@ -137,7 +114,7 @@ int			if_intersect(t_vertex v11, t_vertex v12, t_vertex v21, t_vertex v22)
 
 }
 
-int			check_intersection(t_vertex new1, t_vertex new2, t_pt_id *pts, int pts_count)
+int			check_intersection(t_vertex new1, t_vertex new2, t_point *pts, int pts_count)
 {
 	int j;
 	int k;
@@ -150,13 +127,13 @@ int			check_intersection(t_vertex new1, t_vertex new2, t_pt_id *pts, int pts_cou
 	{
 
 		v1 = (t_vertex){
-				pts[j].pt.x,
-				pts[j].pt.y,
+				pts[j].x,
+				pts[j].y,
 				0.0
 					};
 		v2 = (t_vertex){
-				pts[get_i_plus_1(j, pts_count)].pt.x,
-				pts[get_i_plus_1(j, pts_count)].pt.y,
+				pts[get_i_plus_1(j, pts_count)].x,
+				pts[get_i_plus_1(j, pts_count)].y,
 				0.0
 					};
 
@@ -170,20 +147,14 @@ int			check_intersection(t_vertex new1, t_vertex new2, t_pt_id *pts, int pts_cou
 	return (-1);
 }
 
-int			check_intersection_with_trs(t_vtx_id new1, t_vtx_id new2, t_map_editor *ed)
+int			check_intersection_with_trs(t_vertex new1, t_vertex new2, t_map_editor *ed)
 {
 	int j;
 
 	j = 0;
-	while (j < ed->map.trs_ids_count)
+	while (j < ed->map.trs_count)
 	{
-		t_pt_id pts[3];
-
-		pts[0] = (t_pt_id){ed->map.trs[j].points[0], 0};
-		pts[1] = (t_pt_id){ed->map.trs[j].points[1], 0};
-		pts[2] = (t_pt_id){ed->map.trs[j].points[2], 0};
-
-		if (check_intersection(new1.vt, new2.vt, pts, 3) == 1)
+		if (check_intersection(new1, new2, ed->map.trs[j].points, 3) == 1)
 			return (1);
 
 
@@ -210,7 +181,7 @@ int			check_intersection_with_trs(t_vtx_id new1, t_vtx_id new2, t_map_editor *ed
 	return (-1);
 }
 
-int			check_fictive_cut_in_figure(t_pt_id *pts, int pts_count, int i, t_map_editor *ed, t_pt_id new_p)
+int			check_fictive_cut_in_figure(t_point *pts, int pts_count, int i, t_map_editor *ed, t_point new_p)
 {
 	t_vertex new;
 	t_vertex base;
@@ -219,18 +190,18 @@ int			check_fictive_cut_in_figure(t_pt_id *pts, int pts_count, int i, t_map_edit
 	t_vertex sub2;
 
 	base = normalize((t_vertex){
-						pts[get_i_minus_1(i, pts_count)].pt.x - pts[i].pt.x,
-						pts[get_i_minus_1(i, pts_count)].pt.y - pts[i].pt.y,
+						pts[get_i_minus_1(i, pts_count)].x - pts[i].x,
+						pts[get_i_minus_1(i, pts_count)].y - pts[i].y,
 						0.0
 				});
 	new = normalize((t_vertex){
-						new_p.pt.x - pts[i].pt.x,
-						new_p.pt.y - pts[i].pt.y,
+						new_p.x - pts[i].x,
+						new_p.y - pts[i].y,
 						0.0
 					});
 	end = normalize((t_vertex){
-						pts[get_i_plus_1(i, pts_count)].pt.x - pts[i].pt.x,
-						pts[get_i_plus_1(i, pts_count)].pt.y - pts[i].pt.y,
+						pts[get_i_plus_1(i, pts_count)].x - pts[i].x,
+						pts[get_i_plus_1(i, pts_count)].y - pts[i].y,
 						0.0
 				});
 
@@ -247,7 +218,7 @@ int			check_fictive_cut_in_figure(t_pt_id *pts, int pts_count, int i, t_map_edit
 	return (0);
 }
 
-int			check_in_figure(t_pt_id *pts, int pts_count, int i, t_map_editor *ed)
+int			check_in_figure(t_point *pts, int pts_count, int i, t_map_editor *ed)
 {
 	t_vertex new;
 	t_vertex base;
@@ -256,18 +227,18 @@ int			check_in_figure(t_pt_id *pts, int pts_count, int i, t_map_editor *ed)
 	t_vertex sub2;
 
 	base = normalize((t_vertex){
-						pts[get_i_minus_1(i, pts_count)].pt.x - pts[i].pt.x,
-						pts[get_i_minus_1(i, pts_count)].pt.y - pts[i].pt.y,
+						pts[get_i_minus_1(i, pts_count)].x - pts[i].x,
+						pts[get_i_minus_1(i, pts_count)].y - pts[i].y,
 						0.0
 				});
 	new = normalize((t_vertex){
-						pts[get_i_plus_2(i, pts_count)].pt.x - pts[i].pt.x,
-						pts[get_i_plus_2(i, pts_count)].pt.y - pts[i].pt.y,
+						pts[get_i_plus_2(i, pts_count)].x - pts[i].x,
+						pts[get_i_plus_2(i, pts_count)].y - pts[i].y,
 						0.0
 					});
 	end = normalize((t_vertex){
-						pts[get_i_plus_1(i, pts_count)].pt.x - pts[i].pt.x,
-						pts[get_i_plus_1(i, pts_count)].pt.y - pts[i].pt.y,
+						pts[get_i_plus_1(i, pts_count)].x - pts[i].x,
+						pts[get_i_plus_1(i, pts_count)].y - pts[i].y,
 						0.0
 				});
 	// sub1 = sub(base, new);
@@ -312,7 +283,7 @@ int			check_in_figure(t_pt_id *pts, int pts_count, int i, t_map_editor *ed)
 //	return (1);
 }
 
-void		fictive_cut(t_pt_id *pts, int *pts_count, t_pt_id *hole_pts, int hole_pts_count ,int j, int k)
+void		fictive_cut(t_point *pts, int *pts_count, t_point *hole_pts, int hole_pts_count ,int j, int k)
 {
 	int i;
 
@@ -333,28 +304,28 @@ void		fictive_cut(t_pt_id *pts, int *pts_count, t_pt_id *hole_pts, int hole_pts_
 
 }
 
-int			check_intersection_with_all(t_vtx_id new1, t_vtx_id new2, t_map_editor *ed)
+int			check_intersection_with_all(t_vertex new1, t_vertex new2, t_map_editor *ed)
 {
 	int		i;
-	t_pt_id	hole_pts[30];
+	t_point	hole_pts[30];
 	int		hole_pts_count;
 
 	i = 0;
 	while (i < ed->map.circuits_count)
 	{
-		ft_memcpy(hole_pts, ed->map.circuits[i].points, sizeof(t_pt_id) * (ed->map.circuits[i].points_count - 1));
+		ft_memcpy(hole_pts, ed->map.circuits[i].points, sizeof(t_point) * (ed->map.circuits[i].points_count - 1));
 		hole_pts_count = ed->map.circuits[i].points_count - 1;
-		if (check_intersection(new1.vt, new2.vt, hole_pts, hole_pts_count) == 1)
+		if (check_intersection(new1, new2, hole_pts, hole_pts_count) == 1)
 			return (1);
 		i++;
 	}
 	return (-1);
 }
 
-void		pts_rev(t_pt_id *pts, int pts_count)
+void		pts_rev(t_point *pts, int pts_count)
 {
 	int		i;
-	t_pt_id	swap;
+	t_point	swap;
 
 	i = 0;
 	while (1)
@@ -368,16 +339,16 @@ void		pts_rev(t_pt_id *pts, int pts_count)
 	}
 }
 
-int		integrate_hole(t_map_editor *ed, int i, t_pt_id *pts, int *pts_count)
+int		integrate_hole(t_map_editor *ed, int i, t_point *pts, int *pts_count)
 {
 	int j;
 	int k;
-	t_pt_id	hole_pts[30];
+	t_point	hole_pts[30];
 	int		hole_pts_count;
-	t_vtx_id new1;
-	t_vtx_id new2;
+	t_vertex new1;
+	t_vertex new2;
 
-	ft_memcpy(hole_pts, ed->map.circuits[i].points, sizeof(t_pt_id) * (ed->map.circuits[i].points_count - 1));
+	ft_memcpy(hole_pts, ed->map.circuits[i].points, sizeof(t_point) * (ed->map.circuits[i].points_count - 1));
 	hole_pts_count = ed->map.circuits[i].points_count - 1;
 
 	if (ed->map.circuits[i].normal_dir == -1)
@@ -385,19 +356,17 @@ int		integrate_hole(t_map_editor *ed, int i, t_pt_id *pts, int *pts_count)
 		pts_rev(hole_pts, hole_pts_count);
 	}
 
-
-
 	j = 0;
 	while (j < *pts_count)
 	{
-		new1 = (t_vtx_id){(t_vertex){pts[j].pt.x, pts[j].pt.y, 0.0}, 0, 0};
+		new1 = (t_vertex){pts[j].x, pts[j].y, 0.0};
 		k = 0;
 		while (k < hole_pts_count)
 		{
-			new2 = (t_vtx_id){(t_vertex){hole_pts[k].pt.x, hole_pts[k].pt.y, 0.0}, 0, 0};
+			new2 = (t_vertex){hole_pts[k].x, hole_pts[k].y, 0.0};
 
-			if (check_intersection(new1.vt, new2.vt, pts, *pts_count) == -1
-				&& check_intersection(new1.vt, new2.vt, hole_pts, hole_pts_count) == -1
+			if (check_intersection(new1, new2, pts, *pts_count) == -1
+				&& check_intersection(new1, new2, hole_pts, hole_pts_count) == -1
 				&& check_intersection_with_all(new1, new2, ed) == -1
 				&& check_fictive_cut_in_figure(pts, *pts_count, j, ed, hole_pts[k]) == 1)
 			{
@@ -416,30 +385,18 @@ int		integrate_hole(t_map_editor *ed, int i, t_pt_id *pts, int *pts_count)
 
 void		triangulate(t_map_editor *ed)
 {
-	t_pt_id		pts[100];
+	t_point		pts[100];
 	int			pts_count;
 	int 		i;
 
 	int p;
 
-	t_vtx_id new1;
-	t_vtx_id new2;
+	t_vertex new1;
+	t_vertex new2;
 
 	ed->map.trs_count = 0;
-
-	i = 0;
-	while (i < ed->map.circuits_count)
-	{
-		p = 0;
-		while (p < ed->map.circuits[i].points_count)
-		{
-			ed->map.circuits[i].points[p].id = p;
-			p++;
-		}
-		i++;
-	}
 	
-	ft_memcpy(pts, ed->map.circuits[0].points, sizeof(t_pt_id) * (ed->map.circuits[0].points_count - 1));
+	ft_memcpy(pts, ed->map.circuits[0].points, sizeof(t_point) * (ed->map.circuits[0].points_count - 1));
 	pts_count = ed->map.circuits[0].points_count - 1;
 
 	if (ed->map.circuits[0].normal_dir == -1)
@@ -456,7 +413,7 @@ void		triangulate(t_map_editor *ed)
 		while (i < ed->map.circuits_count)
 		{
 			if (ed->map.circuits[i].integrated == 0)
-				if (integrate_hole(ed, i, pts, &pts_count) == 0)//////
+				if (integrate_hole(ed, i, pts, &pts_count) == 0)
 					flag = 0;
 			i++;
 		}
@@ -478,30 +435,17 @@ void		triangulate(t_map_editor *ed)
 	p = 0;
 	while (pts_count > 3)
 	{
-		new1 = (t_vtx_id)
-			{
-				(t_vertex)
-				{
-					pts[i].pt.x,
-					pts[i].pt.y,
-					0.0
-				},
-				pts[i].id
-			};
-			
-		new2 = (t_vtx_id)
-			{
-				(t_vertex)
-				{
-					pts[get_i_plus_2(i, pts_count)].pt.x,
-					pts[get_i_plus_2(i, pts_count)].pt.y,
-					0.0
-				},
-				pts[get_i_plus_2(i, pts_count)].id,
-			};
-		
-			
-		if (check_intersection(new1.vt, new2.vt, pts, pts_count) == -1 &&
+		new1 = (t_vertex){
+				pts[i].x,
+				pts[i].y,
+				0.0
+					};
+		new2 = (t_vertex){
+				pts[get_i_plus_2(i, pts_count)].x,
+				pts[get_i_plus_2(i, pts_count)].y,
+				0.0
+					};
+		if (check_intersection(new1, new2, pts, pts_count) == -1 &&
 						check_intersection_with_trs(new1, new2, ed) == -1 &&
 						check_in_figure(pts, pts_count, i, ed) == 1)
 		{
@@ -626,8 +570,8 @@ t_vertex	get_face_normal(t_map_editor *editor, int i, int j)
 	t_point p1;
 	t_point p2;
 
-	p1 = editor->map.circuits[i].points[j - 1].pt;
-	p2 = editor->map.circuits[i].points[j].pt;
+	p1 = editor->map.circuits[i].points[j - 1];
+	p2 = editor->map.circuits[i].points[j];
 
 	ret.x = cos(atan2(p2.y - p1.y, p2.x - p1.x) +
 				(float)editor->map.circuits[i].normal_dir * M_PI / 2);
@@ -664,10 +608,10 @@ void	save_map(t_map_editor *editor)
 	// ft_putendl_fd("v 4.0 1.0 -4.0", fd);
 	// ft_putendl_fd("v 4.0 1.0 4.0", fd);
 
-	// ft_putendl_fd("vt 0.0 0.0", fd);
-	// ft_putendl_fd("vt 0.0 1.0", fd);
-	// ft_putendl_fd("vt 1.0 1.0", fd);
-	// ft_putendl_fd("vt 1.0 0.0", fd);
+	ft_putendl_fd("vt 0.0 0.0", fd);
+	ft_putendl_fd("vt 0.0 1.0", fd);
+	ft_putendl_fd("vt 1.0 1.0", fd);
+	ft_putendl_fd("vt 1.0 0.0", fd);
 
 	// ft_putendl_fd("vn 0.0 1.0 0.0", fd);
 	// ft_putendl_fd("vn 0.0 -1.0 0.0", fd);
@@ -680,20 +624,66 @@ void	save_map(t_map_editor *editor)
 
 	// editor->vertexes_count = 8;
 	// editor->normals_count = 2;
-	// editor->uvss_count = 4;
-
+	editor->uvss_count = 4;
 	i = 0;
-
-	while (i < editor->map.trs_count)
+	while (i < editor->map.vts_count)
 	{
-/////
+		ft_putstr_fd("v ", fd);
+		ptr = ft_ftoa(editor->map.vts[i].x);
+		ft_putstr_fd(ptr, fd);
+		free(ptr);
+		
+		if (i == editor->map.vts_count / 2)
+		{
+			ft_putstr_fd(" -3.1 ", fd);
+		}
+		else
+		{
+			ft_putstr_fd(" -1.1 ", fd);
+		}
+
+		ptr = ft_ftoa(editor->map.vts[i].y);
+		ft_putstr_fd(ptr, fd);
+		free(ptr);
+		ft_putstr_fd("\n", fd);
+		editor->vertexes_count += 1;
+
+		i++;
+	}
+	ft_putstr_fd("vn ", fd);////normal
+
+	ft_putstr_fd(" 0.0 0.0 1.0", fd);
+	ft_putstr_fd("\n\n", fd);
+	editor->normals_count += 1;
+	i = 0;
+	while (i < editor->map.vt_trs_count)
+	{
+		ft_putstr_fd("f ", fd);///face1
+		ft_putnbr_fd(editor->map.vt_trs[i].ids[0] + 1, fd);
+		ft_putstr_fd("/", fd);
+		ft_putnbr_fd(1, fd);
+		ft_putstr_fd("/", fd);
+		ft_putnbr_fd(editor->normals_count, fd);
+		ft_putstr_fd(" ", fd);
+		ft_putnbr_fd(editor->map.vt_trs[i].ids[1] + 1, fd);
+		ft_putstr_fd("/", fd);
+		ft_putnbr_fd(2, fd);
+		ft_putstr_fd("/", fd);
+		ft_putnbr_fd(editor->normals_count, fd);
+		ft_putstr_fd(" ", fd);
+		ft_putnbr_fd(editor->map.vt_trs[i].ids[2] + 1, fd);
+		ft_putstr_fd("/", fd);
+		ft_putnbr_fd(3, fd);
+		ft_putstr_fd("/", fd);
+		ft_putnbr_fd(editor->normals_count, fd);
+		ft_putstr_fd("\n", fd);
+
+
 		i++;
 	}
 
-	i = 0;
-
 	ft_putendl_fd("", fd);
-
+	i = 0;
 	while (i < editor->map.circuits_count)
 	{
 		j = 0;
@@ -707,41 +697,41 @@ void	save_map(t_map_editor *editor)
 
 
 			ft_putstr_fd("v ", fd);//////1
-			ptr = ft_ftoa(editor->map.circuits[i].points[j - 1].pt.x);
+			ptr = ft_ftoa(editor->map.circuits[i].points[j - 1].x);
 			ft_putstr_fd(ptr, fd);
 			free(ptr);
 			ft_putstr_fd(" 1.0 ", fd);
-			ptr = ft_ftoa(editor->map.circuits[i].points[j - 1].pt.y);
+			ptr = ft_ftoa(editor->map.circuits[i].points[j - 1].y);
 			ft_putstr_fd(ptr, fd);
 			free(ptr);
 			ft_putstr_fd("\n", fd);
 			
 			ft_putstr_fd("v ", fd);//////2
-			ptr = ft_ftoa(editor->map.circuits[i].points[j - 1].pt.x);
+			ptr = ft_ftoa(editor->map.circuits[i].points[j - 1].x);
 			ft_putstr_fd(ptr, fd);
 			free(ptr);
 			ft_putstr_fd(" -1.0 ", fd);
-			ptr = ft_ftoa(editor->map.circuits[i].points[j - 1].pt.y);
+			ptr = ft_ftoa(editor->map.circuits[i].points[j - 1].y);
 			ft_putstr_fd(ptr, fd);
 			free(ptr);
 			ft_putstr_fd("\n", fd);
 
 			ft_putstr_fd("v ", fd);//////3
-			ptr = ft_ftoa(editor->map.circuits[i].points[j].pt.x);
+			ptr = ft_ftoa(editor->map.circuits[i].points[j].x);
 			ft_putstr_fd(ptr, fd);
 			free(ptr);
 			ft_putstr_fd(" -1.0 ", fd);
-			ptr = ft_ftoa(editor->map.circuits[i].points[j].pt.y);
+			ptr = ft_ftoa(editor->map.circuits[i].points[j].y);
 			ft_putstr_fd(ptr, fd);
 			free(ptr);
 			ft_putstr_fd("\n", fd);
 
 			ft_putstr_fd("v ", fd);//////4
-			ptr = ft_ftoa(editor->map.circuits[i].points[j].pt.x);
+			ptr = ft_ftoa(editor->map.circuits[i].points[j].x);
 			ft_putstr_fd(ptr, fd);
 			free(ptr);
 			ft_putstr_fd(" 1.0 ", fd);
-			ptr = ft_ftoa(editor->map.circuits[i].points[j].pt.y);
+			ptr = ft_ftoa(editor->map.circuits[i].points[j].y);
 			ft_putstr_fd(ptr, fd);
 			free(ptr);
 			ft_putstr_fd("\n\n", fd);
@@ -838,12 +828,55 @@ void	map_new_point(t_map *map, float x, float y)
 	}
 
 	index = map->circuits[map->circuits_count - 1].points_count;
-	map->circuits[map->circuits_count - 1].points[index].pt.x = x;
-	map->circuits[map->circuits_count - 1].points[index].pt.y = y;
-	map->circuits[map->circuits_count - 1].points[index].c_id = map->circuits_count - 1;
-
-
+	map->circuits[map->circuits_count - 1].points[index].x = x;
+	map->circuits[map->circuits_count - 1].points[index].y = y;
 	map->circuits[map->circuits_count - 1].points_count++;
+}
+
+int		add_vt(t_map_editor *ed, t_vertex vt)
+{
+	int i;
+
+	i = 0;
+	while (i < ed->map.vts_count)
+	{
+		printf("\n\nKEK %d\n\n", ed->map.vts_count);
+		
+		if (ed->map.vts[i].x == vt.x && ed->map.vts[i].y == vt.y)
+			return (i);
+		i++;
+	}
+	ed->map.vts[ed->map.vts_count] = vt;
+	(ed->map.vts_count)++;
+
+	return (ed->map.vts_count - 1);
+}
+
+void	to_obj_format(t_map_editor *ed)
+{
+	int			i;
+	int			j;
+
+	t_vt_tr		new;
+	t_vertex	vt;
+
+	i = 0;
+	while (i < ed->map.trs_count)
+	{
+		vt = (t_vertex){ed->map.trs[i].points[0].x, ed->map.trs[i].points[0].y, -1.0};
+		new.ids[0] = add_vt(ed, vt);
+
+		vt = (t_vertex){ed->map.trs[i].points[1].x, ed->map.trs[i].points[1].y, -1.0};
+		new.ids[1] = add_vt(ed, vt);
+
+		vt = (t_vertex){ed->map.trs[i].points[2].x, ed->map.trs[i].points[2].y, -1.0};
+		new.ids[2] = add_vt(ed, vt);
+
+		ed->map.vt_trs[ed->map.vt_trs_count] = new;
+		(ed->map.vt_trs_count)++;
+
+		i++;
+	}
 }
 
 void	event_handle(SDL_Event *event, void *map_ptr, int *quit)
@@ -869,8 +902,8 @@ void	event_handle(SDL_Event *event, void *map_ptr, int *quit)
 		}
 		else if (event->key.keysym.sym == SDLK_e)
 		{
-			map_new_point(&map->map, map->map.circuits[map->map.circuits_count - 1].points[0].pt.x,
-									map->map.circuits[map->map.circuits_count - 1].points[0].pt.y);
+			map_new_point(&map->map, map->map.circuits[map->map.circuits_count - 1].points[0].x,
+									map->map.circuits[map->map.circuits_count - 1].points[0].y);
 			map->map.active = 0;
 		}
 		else if (event->key.keysym.sym == SDLK_n)
@@ -887,6 +920,8 @@ void	event_handle(SDL_Event *event, void *map_ptr, int *quit)
 				if (map->mode == LINES)
 				{
 					triangulate(map);
+					to_obj_format(map);
+
 					map->mode = TRS;
 				}
 				else
@@ -901,12 +936,12 @@ void	event_handle(SDL_Event *event, void *map_ptr, int *quit)
 				
 			}
 		}
-		// else if (event->key.keysym.sym == SDLK_p)
-		// {
-		// 	map->curr_tr++;
-		// 	if (map->curr_tr == map->map.trs_count)
-		// 		map->curr_tr = -1;
-		// }
+		else if (event->key.keysym.sym == SDLK_p)
+		{
+			map->curr_tr++;
+			if (map->curr_tr == map->map.trs_count)
+				map->curr_tr = -1;
+		}
 		else if (event->key.keysym.sym == SDLK_c)
 		{
 			map->error = 0;
@@ -915,9 +950,9 @@ void	event_handle(SDL_Event *event, void *map_ptr, int *quit)
 			map->map.active = 0;
 			map->map.circuits_count = 0;
 			map->map.trs_count = 0;
-			map->map.trs_ids_count = 0;
-			map->map.trs_ids_count = 0;
-			map->map.vrts_count = 0;
+			map->map.vts_count = 0;
+			map->map.vt_trs_count = 0;
+
 
 		}
 	}
@@ -942,34 +977,14 @@ void	update(void *map_editor, int *pixels)
 
 	if (ed->mode == TRS)
 	{
-		while (i < ed->map.trs_ids_count)
-		{//////переписать
-			t_point pt_1;
-			t_point pt_2;
-			t_point pt_3;
-
-
-			pt_1 = (t_point)
-				{
-					ed->map.vrts[ed->map.trs_ids[i].ids[0]].vt.x,
-					ed->map.vrts[ed->map.trs_ids[i].ids[0]].vt.y,
-				};
-			pt_2 = (t_point)
-				{
-					ed->map.vrts[ed->map.trs_ids[i].ids[1]].vt.x,
-					ed->map.vrts[ed->map.trs_ids[i].ids[1]].vt.y,
-				};
-			pt_3 = (t_point)
-				{
-					ed->map.vrts[ed->map.trs_ids[i].ids[2]].vt.x,
-					ed->map.vrts[ed->map.trs_ids[i].ids[2]].vt.y,
-				};
-			draw_line(pixels, (int)(pt_1.x * 200), (int)(pt_1.y * 200),
-							(int)(pt_2.x * 200), (int)(pt_2.y * 200), 0xFFFF00);
-			draw_line(pixels, (int)(pt_2.x * 200), (int)(pt_2.y * 200),
-							(int)(pt_3.x * 200), (int)(pt_3.y * 200), 0xFFFF00);
-			draw_line(pixels, (int)(pt_3.x * 200), (int)(pt_3.y * 200),
-							(int)(pt_1.x * 200), (int)(pt_1.y * 200), 0xFFFF00);
+		while (i < ed->map.trs_count)
+		{
+			draw_line(pixels, (int)(ed->map.trs[i].points[0].x * 200), (int)(ed->map.trs[i].points[0].y * 200),
+							(int)(ed->map.trs[i].points[1].x * 200), (int)(ed->map.trs[i].points[1].y * 200), 0xFFFF00);
+			draw_line(pixels, (int)(ed->map.trs[i].points[1].x * 200), (int)(ed->map.trs[i].points[1].y * 200),
+							(int)(ed->map.trs[i].points[2].x * 200), (int)(ed->map.trs[i].points[2].y * 200), 0xFFFF00);
+			draw_line(pixels, (int)(ed->map.trs[i].points[2].x * 200), (int)(ed->map.trs[i].points[2].y * 200),
+							(int)(ed->map.trs[i].points[0].x * 200), (int)(ed->map.trs[i].points[0].y * 200), 0xFFFF00);
 			i++;
 		}
 		
@@ -984,11 +999,11 @@ void	update(void *map_editor, int *pixels)
 					continue ;
 				}
 					
-				p1.x = (int)(ed->map.circuits[0].points[j - 1].pt.x * 200);///справтить для норм экрана
-				p1.y = (int)(ed->map.circuits[0].points[j - 1].pt.y * 200);
+				p1.x = (int)(ed->map.circuits[0].points[j - 1].x * 200);///справтить для норм экрана
+				p1.y = (int)(ed->map.circuits[0].points[j - 1].y * 200);
 
-				p2.x = (int)(ed->map.circuits[0].points[j].pt.x * 200);
-				p2.y = (int)(ed->map.circuits[0].points[j].pt.y * 200);
+				p2.x = (int)(ed->map.circuits[0].points[j].x * 200);
+				p2.y = (int)(ed->map.circuits[0].points[j].y * 200);
 
 
 				draw_line(pixels, p1.x, p1.y, p2.x, p2.y, 0x00FF00);
@@ -1007,22 +1022,22 @@ void	update(void *map_editor, int *pixels)
 		if (ed->curr_tr != -1)
 		{
 			j = 0;
-			// while (j < ed->curr_tr)
-			// {
-			// 	draw_line(pixels, (int)(ed->map.trs[j].points[0].pt.x * 200), (int)(ed->map.trs[j].points[0].pt.y * 200),
-			// 				(int)(ed->map.trs[j].points[1].pt.x * 200), (int)(ed->map.trs[j].points[1].pt.y * 200), 0x0000ff);
-			// 	draw_line(pixels, (int)(ed->map.trs[j].points[1].x * 200), (int)(ed->map.trs[j].points[1].pt.y * 200),
-			// 				(int)(ed->map.trs[j].points[2].pt.x * 200), (int)(ed->map.trs[j].points[2].pt.y * 200), 0x0000ff);
-			// 	draw_line(pixels, (int)(ed->map.trs[j].points[2].x * 200), (int)(ed->map.trs[j].points[2].pt.y * 200),
-			// 				(int)(ed->map.trs[j].points[0].pt.x * 200), (int)(ed->map.trs[j].points[0].pt.y * 200), 0x0000ff);
-			// 	j++;
-			// }
-			// draw_line(pixels, (int)(ed->map.trs[ed->curr_tr].points[0].pt.x * 200), (int)(ed->map.trs[ed->curr_tr].points[0].pt.y * 200),
-			// 				(int)(ed->map.trs[ed->curr_tr].points[1].pt.x * 200), (int)(ed->map.trs[ed->curr_tr].points[1].pt.y * 200), 0xff0000);
-			// draw_line(pixels, (int)(ed->map.trs[ed->curr_tr].points[1].pt.x * 200), (int)(ed->map.trs[ed->curr_tr].points[1].pt.y * 200),
-			// 				(int)(ed->map.trs[ed->curr_tr].points[2].pt.x * 200), (int)(ed->map.trs[ed->curr_tr].points[2].pt.y * 200), 0xff0000);
-			// draw_line(pixels, (int)(ed->map.trs[ed->curr_tr].points[2].pt.x * 200), (int)(ed->map.trs[ed->curr_tr].points[2].pt.y * 200),
-			// 				(int)(ed->map.trs[ed->curr_tr].points[0].pt.x * 200), (int)(ed->map.trs[ed->curr_tr].points[0].pt.y * 200), 0xff0000);
+			while (j < ed->curr_tr)
+			{
+				draw_line(pixels, (int)(ed->map.trs[j].points[0].x * 200), (int)(ed->map.trs[j].points[0].y * 200),
+							(int)(ed->map.trs[j].points[1].x * 200), (int)(ed->map.trs[j].points[1].y * 200), 0x0000ff);
+				draw_line(pixels, (int)(ed->map.trs[j].points[1].x * 200), (int)(ed->map.trs[j].points[1].y * 200),
+							(int)(ed->map.trs[j].points[2].x * 200), (int)(ed->map.trs[j].points[2].y * 200), 0x0000ff);
+				draw_line(pixels, (int)(ed->map.trs[j].points[2].x * 200), (int)(ed->map.trs[j].points[2].y * 200),
+							(int)(ed->map.trs[j].points[0].x * 200), (int)(ed->map.trs[j].points[0].y * 200), 0x0000ff);
+				j++;
+			}
+			draw_line(pixels, (int)(ed->map.trs[ed->curr_tr].points[0].x * 200), (int)(ed->map.trs[ed->curr_tr].points[0].y * 200),
+							(int)(ed->map.trs[ed->curr_tr].points[1].x * 200), (int)(ed->map.trs[ed->curr_tr].points[1].y * 200), 0xff0000);
+			draw_line(pixels, (int)(ed->map.trs[ed->curr_tr].points[1].x * 200), (int)(ed->map.trs[ed->curr_tr].points[1].y * 200),
+							(int)(ed->map.trs[ed->curr_tr].points[2].x * 200), (int)(ed->map.trs[ed->curr_tr].points[2].y * 200), 0xff0000);
+			draw_line(pixels, (int)(ed->map.trs[ed->curr_tr].points[2].x * 200), (int)(ed->map.trs[ed->curr_tr].points[2].y * 200),
+							(int)(ed->map.trs[ed->curr_tr].points[0].x * 200), (int)(ed->map.trs[ed->curr_tr].points[0].y * 200), 0xff0000);
 		}
 		return ;
 	}
@@ -1039,11 +1054,11 @@ void	update(void *map_editor, int *pixels)
 				continue ;
 			}
 				
-			p1.x = (int)(ed->map.circuits[i].points[j - 1].pt.x * 200);///справтить для норм экрана
-			p1.y = (int)(ed->map.circuits[i].points[j - 1].pt.y * 200);
+			p1.x = (int)(ed->map.circuits[i].points[j - 1].x * 200);///справтить для норм экрана
+			p1.y = (int)(ed->map.circuits[i].points[j - 1].y * 200);
 
-			p2.x = (int)(ed->map.circuits[i].points[j].pt.x * 200);
-			p2.y = (int)(ed->map.circuits[i].points[j].pt.y * 200);
+			p2.x = (int)(ed->map.circuits[i].points[j].x * 200);
+			p2.y = (int)(ed->map.circuits[i].points[j].y * 200);
 
 
 			draw_line(pixels, p1.x, p1.y, p2.x, p2.y, 0xFFFFFF);
@@ -1067,8 +1082,6 @@ void	map_init(t_map *map)
 {
 	map->circuits_count = 0;
 	map->active = 0;
-	map->trs_ids_count = 0;
-	map->vrts_count = 0;
 	
 }
 
@@ -1084,14 +1097,16 @@ int main(int ac, char **av)
 	map_editor.error = 0;
 	map_editor.curr_tr = -1;
 
+	map_editor.map.vts_count = 0;
+	map_editor.map.vt_trs_count = 0;
 
-	map_editor.map.trs_ids_count = 0;
-	map_editor.map.vrts_count = 0;
 
 	t_mgl *mgl = mgl_init("Map Editor", W, H);
 
 
+
 	mgl_run(mgl, update, event_handle, &map_editor);
+
 
 	mgl_quit(mgl);
 	return (0);
