@@ -5,7 +5,7 @@
 # define H_2 750
 # define W_2 750
 # define HxW 2250000
-# define EPSILON 0.00001
+# define EPSILON 0.000001
 
 
 # define CH 1
@@ -13,7 +13,7 @@
 # define V_SIZE 1
 # define PROJ_PLANE_Z 1
 
-#include "my_graphics_lib.h"
+#include "my_graphics_lib/my_graphics_lib.h"
 
 # include "data.h"
 # include "linear_algebra.h"

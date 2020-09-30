@@ -29,7 +29,7 @@ void	event_handle(SDL_Event *event, void *doom_ptr, int *quit)
 		// 			//rect.y += event.motion.y - prev_y;
 		// 	doom->beta += (event->motion.x - doom->prev_x);
 		// 		//	scene.instances[0].position.x += (event.motion.x - prev_x) * 0.05;
-		// 	doom->scene.instances[0].position.y -= (event->motion.y - doom->prev_y) * 0.005;
+		// 	//doom->scene.instances[0].position.y -= (event->motion.y - doom->prev_y) * 0.005;
 		// 		//	for (int h = 0; h < 27; h++)
 		// 		//	printf("event: %d beta: %f\n",event.motion.x, beta);
 						

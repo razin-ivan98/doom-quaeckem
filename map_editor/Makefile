@@ -10,13 +10,13 @@ all:
 ifeq ($(UNAME_S), Darwin)
 	@echo MAC OS
 	make re -C $(FTPATH)
-	gcc -g map_editor.c ../my_graphics_lib/my_graphics_lib.c ../image_handle.c \
+	gcc -g map_editor.c ../my_graphics_lib/my_graphics_lib.c ../image_handle.c ../linear_algebra.c \
 	-lm -L./../libft -lft \
 	$(FRAMEWORKS) $(INCLUDES) -o MapEditor
 else
 	@echo Linux
 	make -C $(FTPATH)
-	gcc -g3 map_editor.c ../my_graphics_lib/my_graphics_lib.c -lSDL2 -lm -L./../libft -lft
+	gcc -g3 map_editor.c ../my_graphics_lib/my_graphics_lib.c ../image_handle.c ../linear_algebra.c -lSDL2 -lm -L./../libft -lft
 endif
 	@echo ГОТОВО ЕПТА
 
