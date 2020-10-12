@@ -10,7 +10,7 @@ all:
 ifeq ($(UNAME_S), Darwin)
 	@echo MAC OS
 	make re -C $(FTPATH)
-	gcc -g main.c image_handle.c draw.c interpolate.c linear_algebra.c depth_buffer.c \
+	gcc -g -O3 main.c image_handle.c draw.c interpolate.c linear_algebra.c depth_buffer.c \
 				get_next_line/get_next_line.c load_obj.c read_map.c my_graphics_lib/my_graphics_lib.c create_box.c \
 				bsp_create.c \
 				-lm -L./libft -lft $(FRAMEWORKS) $(INCLUDES) -o DoomQuaeckem
@@ -23,7 +23,3 @@ else
 				-lSDL2 -lm -L./libft -lft
 endif
 	@echo ГОТОВО ЕПТА
-
-
-	
-	

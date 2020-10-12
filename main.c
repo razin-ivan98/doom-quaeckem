@@ -66,7 +66,7 @@ void	update(void *doom_ptr, int *pixels)
 	t_doom *doom;
 
 	doom = (t_doom *)doom_ptr;
-	doom->scene.camera.orientation =	make_oy_rot_matrix(doom->gamma);
+	doom->scene.camera.orientation = make_oy_rot_matrix(doom->gamma);
 	bzero(pixels, sizeof(int) * HxW);
 	doom->scene.instances[0].orientation = make_oy_rot_matrix(doom->beta);
 	clear_z_buffer(doom->scene.z_buffer);

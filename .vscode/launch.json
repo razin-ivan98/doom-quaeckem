@@ -1,21 +1,21 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "gcc - Сборка и отладка активного файла",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "/Users/a18577628/Desktop/doom-quaeckem/map_editor/MapEditor",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "/Users/a18577628/Desktop/doom-quaeckem/map_editor",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "lldb",
-            "preLaunchTask": "C/C++: gcc build active file"
-        }
-    ]
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "gcc - Сборка и отладка активного файла",
+			"type": "cppdbg",
+			"request": "launch",
+			"program": "/Users/a18577628/Desktop/doom-quaeckem/bsp_evaluate/BSPEval",
+			"args": [],
+			"stopAtEntry": false,
+			"cwd": "/Users/a18577628/Desktop/doom-quaeckem/bsp_evaluate",
+			"environment": [],
+			"externalConsole": false,
+			"MIMode": "lldb",
+			"preLaunchTask": "C/C++: gcc build active file"
+		}
+	]
 }

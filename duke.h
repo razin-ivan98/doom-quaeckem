@@ -67,3 +67,4 @@ void create_box(t_model *model, int **new_tex, int *tex);
 
 
 t_bsp_node	*create_bsp(t_model *model);
+
