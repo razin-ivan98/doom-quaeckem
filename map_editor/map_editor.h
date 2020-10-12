@@ -23,6 +23,8 @@ typedef struct	s_tr
 typedef struct	s_vt_tr
 {
 	int			ids[3];
+	int			n_ids[3];
+	int			uv_ids[3];
 }				t_vt_tr;
 
 
@@ -36,8 +38,15 @@ typedef struct  s_map
 
 	t_vt_tr		vt_trs[1000];
 	t_vertex	vts[10000];
+	t_vertex	nrmls[1000];
+	t_point		uvs[1000];
+
+
 	int			vts_count;
 	int			vt_trs_count;
+	int			nrmls_count;
+	int			uvs_count;
+
 }               t_map;
 
 typedef struct	s_map_editor

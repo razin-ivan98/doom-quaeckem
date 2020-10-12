@@ -1,6 +1,5 @@
 #include "map_editor.h"
 
-
 int			get_i_plus_1(int i, int max)
 {
 	return ((i + 1) % max);
@@ -608,10 +607,44 @@ void	save_map(t_map_editor *editor)
 	// ft_putendl_fd("v 4.0 1.0 -4.0", fd);
 	// ft_putendl_fd("v 4.0 1.0 4.0", fd);
 
-	ft_putendl_fd("vt 0.0 0.0", fd);
-	ft_putendl_fd("vt 0.0 1.0", fd);
-	ft_putendl_fd("vt 1.0 1.0", fd);
-	ft_putendl_fd("vt 1.0 0.0", fd);
+	i = 0;
+	while (i < editor->map.uvs_count)
+	{
+		ft_putstr_fd("vt ", fd);
+		ptr = ft_ftoa(editor->map.uvs[i].x);
+		ft_putstr_fd(ptr, fd);
+		ft_putstr_fd(" ", fd);
+		free(ptr);
+
+		ptr = ft_ftoa(editor->map.uvs[i].y);
+		ft_putstr_fd(ptr, fd);
+		free(ptr);
+		ft_putstr_fd("\n", fd);
+		editor->uvss_count += 1;
+
+		i++;
+	}
+
+	i = 0;
+	while (i < editor->map.nrmls_count)
+	{
+		ft_putstr_fd("vn ", fd);
+		ptr = ft_ftoa(editor->map.nrmls[i].x);
+		ft_putstr_fd(ptr, fd);
+		ft_putstr_fd(" ", fd);
+		free(ptr);
+		ptr = ft_ftoa(editor->map.nrmls[i].z);
+		ft_putstr_fd(ptr, fd);
+		ft_putstr_fd(" ", fd);
+		free(ptr);
+		ptr = ft_ftoa(editor->map.nrmls[i].y);
+		ft_putstr_fd(ptr, fd);
+		free(ptr);
+		ft_putstr_fd("\n", fd);
+		editor->normals_count += 1;
+
+		i++;
+	}
 
 	// ft_putendl_fd("vn 0.0 1.0 0.0", fd);
 	// ft_putendl_fd("vn 0.0 -1.0 0.0", fd);
@@ -624,24 +657,18 @@ void	save_map(t_map_editor *editor)
 
 	// editor->vertexes_count = 8;
 	// editor->normals_count = 2;
-	editor->uvss_count = 4;
 	i = 0;
 	while (i < editor->map.vts_count)
 	{
 		ft_putstr_fd("v ", fd);
 		ptr = ft_ftoa(editor->map.vts[i].x);
 		ft_putstr_fd(ptr, fd);
+		ft_putstr_fd(" ", fd);
 		free(ptr);
-		
-		if (i == editor->map.vts_count / 2)
-		{
-			ft_putstr_fd(" -3.1 ", fd);
-		}
-		else
-		{
-			ft_putstr_fd(" -1.1 ", fd);
-		}
-
+		ptr = ft_ftoa(editor->map.vts[i].z);
+		ft_putstr_fd(ptr, fd);
+		ft_putstr_fd(" ", fd);
+		free(ptr);
 		ptr = ft_ftoa(editor->map.vts[i].y);
 		ft_putstr_fd(ptr, fd);
 		free(ptr);
@@ -650,32 +677,32 @@ void	save_map(t_map_editor *editor)
 
 		i++;
 	}
-	ft_putstr_fd("vn ", fd);////normal
+	// ft_putstr_fd("vn ", fd);////normal
 
-	ft_putstr_fd(" 0.0 0.0 1.0", fd);
-	ft_putstr_fd("\n\n", fd);
-	editor->normals_count += 1;
+	// ft_putstr_fd(" 0.0 0.0 1.0", fd);
+	// ft_putstr_fd("\n\n", fd);
+	// editor->normals_count += 1;
 	i = 0;
 	while (i < editor->map.vt_trs_count)
 	{
 		ft_putstr_fd("f ", fd);///face1
 		ft_putnbr_fd(editor->map.vt_trs[i].ids[0] + 1, fd);
 		ft_putstr_fd("/", fd);
-		ft_putnbr_fd(1, fd);
+		ft_putnbr_fd(editor->map.vt_trs[i].uv_ids[0] + 1, fd);
 		ft_putstr_fd("/", fd);
-		ft_putnbr_fd(editor->normals_count, fd);
+		ft_putnbr_fd(editor->map.vt_trs[i].n_ids[0] + 1, fd);
 		ft_putstr_fd(" ", fd);
 		ft_putnbr_fd(editor->map.vt_trs[i].ids[1] + 1, fd);
 		ft_putstr_fd("/", fd);
-		ft_putnbr_fd(2, fd);
+		ft_putnbr_fd(editor->map.vt_trs[i].uv_ids[1] + 1, fd);
 		ft_putstr_fd("/", fd);
-		ft_putnbr_fd(editor->normals_count, fd);
+		ft_putnbr_fd(editor->map.vt_trs[i].n_ids[1] + 1, fd);
 		ft_putstr_fd(" ", fd);
 		ft_putnbr_fd(editor->map.vt_trs[i].ids[2] + 1, fd);
 		ft_putstr_fd("/", fd);
-		ft_putnbr_fd(3, fd);
+		ft_putnbr_fd(editor->map.vt_trs[i].uv_ids[2] + 1, fd);
 		ft_putstr_fd("/", fd);
-		ft_putnbr_fd(editor->normals_count, fd);
+		ft_putnbr_fd(editor->map.vt_trs[i].n_ids[2] + 1, fd);
 		ft_putstr_fd("\n", fd);
 
 
@@ -683,130 +710,129 @@ void	save_map(t_map_editor *editor)
 	}
 
 	ft_putendl_fd("", fd);
-	i = 0;
-	while (i < editor->map.circuits_count)
-	{
-		j = 0;
-		while (j < editor->map.circuits[i].points_count)
-		{
-			if (j == 0)
-			{
-				j++;
-				continue ;
-			}
+	// i = 0;
+	// while (i < editor->map.circuits_count)
+	// {
+	// 	j = 0;
+	// 	while (j < editor->map.circuits[i].points_count)
+	// 	{
+	// 		if (j == 0)
+	// 		{
+	// 			j++;
+	// 			continue ;
+	// 		}
 
-
-			ft_putstr_fd("v ", fd);//////1
-			ptr = ft_ftoa(editor->map.circuits[i].points[j - 1].x);
-			ft_putstr_fd(ptr, fd);
-			free(ptr);
-			ft_putstr_fd(" 1.0 ", fd);
-			ptr = ft_ftoa(editor->map.circuits[i].points[j - 1].y);
-			ft_putstr_fd(ptr, fd);
-			free(ptr);
-			ft_putstr_fd("\n", fd);
+	// 		ft_putstr_fd("v ", fd);//////1
+	// 		ptr = ft_ftoa(editor->map.circuits[i].points[j - 1].x);
+	// 		ft_putstr_fd(ptr, fd);
+	// 		free(ptr);
+	// 		ft_putstr_fd(" 1.0 ", fd);
+	// 		ptr = ft_ftoa(editor->map.circuits[i].points[j - 1].y);
+	// 		ft_putstr_fd(ptr, fd);
+	// 		free(ptr);
+	// 		ft_putstr_fd("\n", fd);
 			
-			ft_putstr_fd("v ", fd);//////2
-			ptr = ft_ftoa(editor->map.circuits[i].points[j - 1].x);
-			ft_putstr_fd(ptr, fd);
-			free(ptr);
-			ft_putstr_fd(" -1.0 ", fd);
-			ptr = ft_ftoa(editor->map.circuits[i].points[j - 1].y);
-			ft_putstr_fd(ptr, fd);
-			free(ptr);
-			ft_putstr_fd("\n", fd);
+	// 		ft_putstr_fd("v ", fd);//////2
+	// 		ptr = ft_ftoa(editor->map.circuits[i].points[j - 1].x);
+	// 		ft_putstr_fd(ptr, fd);
+	// 		free(ptr);
+	// 		ft_putstr_fd(" -1.0 ", fd);
+	// 		ptr = ft_ftoa(editor->map.circuits[i].points[j - 1].y);
+	// 		ft_putstr_fd(ptr, fd);
+	// 		free(ptr);
+	// 		ft_putstr_fd("\n", fd);
 
-			ft_putstr_fd("v ", fd);//////3
-			ptr = ft_ftoa(editor->map.circuits[i].points[j].x);
-			ft_putstr_fd(ptr, fd);
-			free(ptr);
-			ft_putstr_fd(" -1.0 ", fd);
-			ptr = ft_ftoa(editor->map.circuits[i].points[j].y);
-			ft_putstr_fd(ptr, fd);
-			free(ptr);
-			ft_putstr_fd("\n", fd);
+	// 		ft_putstr_fd("v ", fd);//////3
+	// 		ptr = ft_ftoa(editor->map.circuits[i].points[j].x);
+	// 		ft_putstr_fd(ptr, fd);
+	// 		free(ptr);
+	// 		ft_putstr_fd(" -1.0 ", fd);
+	// 		ptr = ft_ftoa(editor->map.circuits[i].points[j].y);
+	// 		ft_putstr_fd(ptr, fd);
+	// 		free(ptr);
+	// 		ft_putstr_fd("\n", fd);
 
-			ft_putstr_fd("v ", fd);//////4
-			ptr = ft_ftoa(editor->map.circuits[i].points[j].x);
-			ft_putstr_fd(ptr, fd);
-			free(ptr);
-			ft_putstr_fd(" 1.0 ", fd);
-			ptr = ft_ftoa(editor->map.circuits[i].points[j].y);
-			ft_putstr_fd(ptr, fd);
-			free(ptr);
-			ft_putstr_fd("\n\n", fd);
-
-
-
-			ft_putstr_fd("vn ", fd);////normal
-
-			t_vertex normal = get_face_normal(editor, i, j);
-			ptr = ft_ftoa(normal.x);
-			ft_putstr_fd(ptr, fd);
-			free(ptr);
-			ft_putstr_fd(" 0.0 ", fd);
-			ptr = ft_ftoa(normal.z);
-			ft_putstr_fd(ptr, fd);
-			free(ptr);
-			ft_putstr_fd("\n\n", fd);
-
-			editor->vertexes_count += 4;
-			editor->normals_count += 1;
-
-
-			ft_putstr_fd("f ", fd);///face1
-			ft_putnbr_fd(editor->vertexes_count - 3, fd);
-			ft_putstr_fd("/", fd);
-			ft_putnbr_fd(1, fd);
-			ft_putstr_fd("/", fd);
-			ft_putnbr_fd(editor->normals_count, fd);
-			ft_putstr_fd(" ", fd);
-			ft_putnbr_fd(editor->vertexes_count - 2, fd);
-			ft_putstr_fd("/", fd);
-			ft_putnbr_fd(2, fd);
-			ft_putstr_fd("/", fd);
-			ft_putnbr_fd(editor->normals_count, fd);
-			ft_putstr_fd(" ", fd);
-			ft_putnbr_fd(editor->vertexes_count - 1, fd);
-			ft_putstr_fd("/", fd);
-			ft_putnbr_fd(3, fd);
-			ft_putstr_fd("/", fd);
-			ft_putnbr_fd(editor->normals_count, fd);
-			ft_putstr_fd("\n", fd);
+	// 		ft_putstr_fd("v ", fd);//////4
+	// 		ptr = ft_ftoa(editor->map.circuits[i].points[j].x);
+	// 		ft_putstr_fd(ptr, fd);
+	// 		free(ptr);
+	// 		ft_putstr_fd(" 1.0 ", fd);
+	// 		ptr = ft_ftoa(editor->map.circuits[i].points[j].y);
+	// 		ft_putstr_fd(ptr, fd);
+	// 		free(ptr);
+	// 		ft_putstr_fd("\n\n", fd);
 
 
 
-			ft_putstr_fd("f ", fd);////face2
-			ft_putnbr_fd(editor->vertexes_count - 3, fd);
-			ft_putstr_fd("/", fd);
-			ft_putnbr_fd(1, fd);
-			ft_putstr_fd("/", fd);
-			ft_putnbr_fd(editor->normals_count, fd);
-			ft_putstr_fd(" ", fd);
-			ft_putnbr_fd(editor->vertexes_count - 1, fd);
-			ft_putstr_fd("/", fd);
-			ft_putnbr_fd(3, fd);
-			ft_putstr_fd("/", fd);
-			ft_putnbr_fd(editor->normals_count, fd);
-			ft_putstr_fd(" ", fd);
-			ft_putnbr_fd(editor->vertexes_count, fd);
-			ft_putstr_fd("/", fd);
-			ft_putnbr_fd(4, fd);
-			ft_putstr_fd("/", fd);
-			ft_putnbr_fd(editor->normals_count, fd);
-			ft_putstr_fd("\n\n\n", fd);
+	// 		ft_putstr_fd("vn ", fd);////normal
+
+	// 		t_vertex normal = get_face_normal(editor, i, j);
+	// 		ptr = ft_ftoa(normal.x);
+	// 		ft_putstr_fd(ptr, fd);
+	// 		free(ptr);
+	// 		ft_putstr_fd(" 0.0 ", fd);
+	// 		ptr = ft_ftoa(normal.z);
+	// 		ft_putstr_fd(ptr, fd);
+	// 		free(ptr);
+	// 		ft_putstr_fd("\n\n", fd);
+
+	// 		editor->vertexes_count += 4;
+	// 		editor->normals_count += 1;
 
 
+	// 		ft_putstr_fd("f ", fd);///face1
+	// 		ft_putnbr_fd(editor->vertexes_count - 3, fd);
+	// 		ft_putstr_fd("/", fd);
+	// 		ft_putnbr_fd(1, fd);
+	// 		ft_putstr_fd("/", fd);
+	// 		ft_putnbr_fd(editor->normals_count, fd);
+	// 		ft_putstr_fd(" ", fd);
+	// 		ft_putnbr_fd(editor->vertexes_count - 2, fd);
+	// 		ft_putstr_fd("/", fd);
+	// 		ft_putnbr_fd(2, fd);
+	// 		ft_putstr_fd("/", fd);
+	// 		ft_putnbr_fd(editor->normals_count, fd);
+	// 		ft_putstr_fd(" ", fd);
+	// 		ft_putnbr_fd(editor->vertexes_count - 1, fd);
+	// 		ft_putstr_fd("/", fd);
+	// 		ft_putnbr_fd(3, fd);
+	// 		ft_putstr_fd("/", fd);
+	// 		ft_putnbr_fd(editor->normals_count, fd);
+	// 		ft_putstr_fd("\n", fd);
+
+
+
+	// 		ft_putstr_fd("f ", fd);////face2
+	// 		ft_putnbr_fd(editor->vertexes_count - 3, fd);
+	// 		ft_putstr_fd("/", fd);
+	// 		ft_putnbr_fd(1, fd);
+	// 		ft_putstr_fd("/", fd);
+	// 		ft_putnbr_fd(editor->normals_count, fd);
+	// 		ft_putstr_fd(" ", fd);
+	// 		ft_putnbr_fd(editor->vertexes_count - 1, fd);
+	// 		ft_putstr_fd("/", fd);
+	// 		ft_putnbr_fd(3, fd);
+	// 		ft_putstr_fd("/", fd);
+	// 		ft_putnbr_fd(editor->normals_count, fd);
+	// 		ft_putstr_fd(" ", fd);
+	// 		ft_putnbr_fd(editor->vertexes_count, fd);
+	// 		ft_putstr_fd("/", fd);
+	// 		ft_putnbr_fd(4, fd);
+	// 		ft_putstr_fd("/", fd);
+	// 		ft_putnbr_fd(editor->normals_count, fd);
+	// 		ft_putstr_fd("\n\n\n", fd);
 
 
 
 
 
-			j++;
-		}
+
+
+	// 		j++;
+	// 	}
 		
-		i++;
-	}
+	// 	i++;
+	// }
 
 	close(fd);
 }
@@ -832,7 +858,23 @@ void	map_new_point(t_map *map, float x, float y)
 	map->circuits[map->circuits_count - 1].points[index].y = y;
 	map->circuits[map->circuits_count - 1].points_count++;
 }
+int		add_n(t_map_editor *ed, t_vertex n)
+{
+	int i;
 
+	i = 0;
+	while (i < ed->map.nrmls_count)
+	{
+		
+		if (ed->map.nrmls[i].x == n.x && ed->map.nrmls[i].y == n.y && ed->map.nrmls[i].z == n.z)
+			return (i);
+		i++;
+	}
+	ed->map.nrmls[ed->map.nrmls_count] = n;
+	(ed->map.nrmls_count)++;
+
+	return (ed->map.nrmls_count - 1);
+}
 int		add_vt(t_map_editor *ed, t_vertex vt)
 {
 	int i;
@@ -840,9 +882,7 @@ int		add_vt(t_map_editor *ed, t_vertex vt)
 	i = 0;
 	while (i < ed->map.vts_count)
 	{
-		printf("\n\nKEK %d\n\n", ed->map.vts_count);
-		
-		if (ed->map.vts[i].x == vt.x && ed->map.vts[i].y == vt.y)
+		if (ed->map.vts[i].x == vt.x && ed->map.vts[i].y == vt.y && ed->map.vts[i].z == vt.z)
 			return (i);
 		i++;
 	}
@@ -850,6 +890,22 @@ int		add_vt(t_map_editor *ed, t_vertex vt)
 	(ed->map.vts_count)++;
 
 	return (ed->map.vts_count - 1);
+}
+int		add_uv(t_map_editor *ed, t_point uv)
+{
+	int i;
+
+	i = 0;
+	while (i < ed->map.uvs_count)
+	{
+		if (ed->map.uvs[i].x == uv.x && ed->map.uvs[i].y == uv.y)
+			return (i);
+		i++;
+	}
+	ed->map.uvs[ed->map.uvs_count] = uv;
+	(ed->map.uvs_count)++;
+
+	return (ed->map.uvs_count - 1);
 }
 
 void	to_obj_format(t_map_editor *ed)
@@ -859,6 +915,9 @@ void	to_obj_format(t_map_editor *ed)
 
 	t_vt_tr		new;
 	t_vertex	vt;
+	t_point		uv;
+
+
 
 	i = 0;
 	while (i < ed->map.trs_count)
@@ -872,11 +931,197 @@ void	to_obj_format(t_map_editor *ed)
 		vt = (t_vertex){ed->map.trs[i].points[2].x, ed->map.trs[i].points[2].y, -1.0};
 		new.ids[2] = add_vt(ed, vt);
 
+		vt = triangle_normal(ed->map.vts[new.ids[0]], ed->map.vts[new.ids[1]], ed->map.vts[new.ids[2]]);
+		new.n_ids[0] = add_n(ed, vt);
+		new.n_ids[1] = new.n_ids[0];
+		new.n_ids[2] = new.n_ids[0];
+
+		uv = (t_point){0.0, 1.0, 0.0};
+		new.uv_ids[0] = add_uv(ed, uv);
+		uv = (t_point){0.0, 0.0, 0.0};
+		new.uv_ids[1] = add_uv(ed, uv);
+		uv = (t_point){1.0, 0.0, 0.0};
+		new.uv_ids[2] = add_uv(ed, uv);
+
+		
 		ed->map.vt_trs[ed->map.vt_trs_count] = new;
 		(ed->map.vt_trs_count)++;
 
 		i++;
 	}
+
+
+	i = 0;
+	while (i < ed->map.circuits_count)
+	{
+		j = 0;
+		while (j < ed->map.circuits[i].points_count)
+		{
+			if (j == 0)
+			{
+				j++;
+				continue ;
+			}
+
+			vt = (t_vertex){ed->map.circuits[i].points[j - 1].x, ed->map.circuits[i].points[j - 1].y, 1.0};
+			new.ids[0] = add_vt(ed, vt);
+
+			vt = (t_vertex){ed->map.circuits[i].points[j - 1].x, ed->map.circuits[i].points[j - 1].y, -1.0};
+			new.ids[1] = add_vt(ed, vt);
+
+			vt = (t_vertex){ed->map.circuits[i].points[j].x, ed->map.circuits[i].points[j].y, -1.0};
+			new.ids[2] = add_vt(ed, vt);
+
+			vt = triangle_normal(ed->map.vts[new.ids[2]], ed->map.vts[new.ids[1]], ed->map.vts[new.ids[0]]);
+			new.n_ids[0] = add_n(ed, vt);
+			new.n_ids[1] = new.n_ids[0];
+			new.n_ids[2] = new.n_ids[0];
+
+			uv = (t_point){0.0, 1.0, 0.0};
+			new.uv_ids[0] = add_uv(ed, uv);
+			uv = (t_point){0.0, 0.0, 0.0};
+			new.uv_ids[1] = add_uv(ed, uv);
+			uv = (t_point){1.0, 0.0, 0.0};
+			new.uv_ids[2] = add_uv(ed, uv);
+
+			ed->map.vt_trs[ed->map.vt_trs_count] = new;
+			(ed->map.vt_trs_count)++;
+
+
+			vt = (t_vertex){ed->map.circuits[i].points[j - 1].x, ed->map.circuits[i].points[j - 1].y, 1.0};
+			new.ids[0] = add_vt(ed, vt);
+
+			vt = (t_vertex){ed->map.circuits[i].points[j].x, ed->map.circuits[i].points[j].y, -1.0};
+			new.ids[1] = add_vt(ed, vt);
+
+			vt = (t_vertex){ed->map.circuits[i].points[j].x, ed->map.circuits[i].points[j].y, 1.0};
+			new.ids[2] = add_vt(ed, vt);
+
+			vt = triangle_normal(ed->map.vts[new.ids[2]], ed->map.vts[new.ids[1]], ed->map.vts[new.ids[0]]);
+			new.n_ids[0] = add_n(ed, vt);
+			new.n_ids[1] = new.n_ids[0];
+			new.n_ids[2] = new.n_ids[0];
+
+			uv = (t_point){0.0, 1.0, 0.0};
+			new.uv_ids[0] = add_uv(ed, uv);
+			uv = (t_point){1.0, 0.0, 0.0};
+			new.uv_ids[1] = add_uv(ed, uv);
+			uv = (t_point){1.0, 1.0, 0.0};
+			new.uv_ids[2] = add_uv(ed, uv);
+
+			ed->map.vt_trs[ed->map.vt_trs_count] = new;
+			(ed->map.vt_trs_count)++;
+
+			// ft_putstr_fd("v ", fd);//////1
+			// ptr = ft_ftoa(editor->map.circuits[i].points[j - 1].x);
+			// ft_putstr_fd(ptr, fd);
+			// free(ptr);
+			// ft_putstr_fd(" 1.0 ", fd);
+			// ptr = ft_ftoa(editor->map.circuits[i].points[j - 1].y);
+			// ft_putstr_fd(ptr, fd);
+			// free(ptr);
+			// ft_putstr_fd("\n", fd);
+			
+			// ft_putstr_fd("v ", fd);//////2
+			// ptr = ft_ftoa(editor->map.circuits[i].points[j - 1].x);
+			// ft_putstr_fd(ptr, fd);
+			// free(ptr);
+			// ft_putstr_fd(" -1.0 ", fd);
+			// ptr = ft_ftoa(editor->map.circuits[i].points[j - 1].y);
+			// ft_putstr_fd(ptr, fd);
+			// free(ptr);
+			// ft_putstr_fd("\n", fd);
+
+			// ft_putstr_fd("v ", fd);//////3
+			// ptr = ft_ftoa(editor->map.circuits[i].points[j].x);
+			// ft_putstr_fd(ptr, fd);
+			// free(ptr);
+			// ft_putstr_fd(" -1.0 ", fd);
+			// ptr = ft_ftoa(editor->map.circuits[i].points[j].y);
+			// ft_putstr_fd(ptr, fd);
+			// free(ptr);
+			// ft_putstr_fd("\n", fd);
+
+			// ft_putstr_fd("v ", fd);//////4
+			// ptr = ft_ftoa(editor->map.circuits[i].points[j].x);
+			// ft_putstr_fd(ptr, fd);
+			// free(ptr);
+			// ft_putstr_fd(" 1.0 ", fd);
+			// ptr = ft_ftoa(editor->map.circuits[i].points[j].y);
+			// ft_putstr_fd(ptr, fd);
+			// free(ptr);
+			// ft_putstr_fd("\n\n", fd);
+
+
+
+			// ft_putstr_fd("vn ", fd);////normal
+
+			//t_vertex normal = get_face_normal(editor, i, j);
+			// ptr = ft_ftoa(normal.x);
+			// ft_putstr_fd(ptr, fd);
+			// free(ptr);
+			// ft_putstr_fd(" 0.0 ", fd);
+			// ptr = ft_ftoa(normal.z);
+			// ft_putstr_fd(ptr, fd);
+			// free(ptr);
+			// ft_putstr_fd("\n\n", fd);
+
+			// editor->vertexes_count += 4;
+			// editor->normals_count += 1;
+
+
+			// ft_putstr_fd("f ", fd);///face1
+			// ft_putnbr_fd(editor->vertexes_count - 3, fd);
+			// ft_putstr_fd("/", fd);
+			// ft_putnbr_fd(1, fd);
+			// ft_putstr_fd("/", fd);
+			// ft_putnbr_fd(editor->normals_count, fd);
+			// ft_putstr_fd(" ", fd);
+			// ft_putnbr_fd(editor->vertexes_count - 2, fd);
+			// ft_putstr_fd("/", fd);
+			// ft_putnbr_fd(2, fd);
+			// ft_putstr_fd("/", fd);
+			// ft_putnbr_fd(editor->normals_count, fd);
+			// ft_putstr_fd(" ", fd);
+			// ft_putnbr_fd(editor->vertexes_count - 1, fd);
+			// ft_putstr_fd("/", fd);
+			// ft_putnbr_fd(3, fd);
+			// ft_putstr_fd("/", fd);
+			// ft_putnbr_fd(editor->normals_count, fd);
+			// ft_putstr_fd("\n", fd);
+
+
+
+			// ft_putstr_fd("f ", fd);////face2
+			// ft_putnbr_fd(editor->vertexes_count - 3, fd);
+			// ft_putstr_fd("/", fd);
+			// ft_putnbr_fd(1, fd);
+			// ft_putstr_fd("/", fd);
+			// ft_putnbr_fd(editor->normals_count, fd);
+			// ft_putstr_fd(" ", fd);
+			// ft_putnbr_fd(editor->vertexes_count - 1, fd);
+			// ft_putstr_fd("/", fd);
+			// ft_putnbr_fd(3, fd);
+			// ft_putstr_fd("/", fd);
+			// ft_putnbr_fd(editor->normals_count, fd);
+			// ft_putstr_fd(" ", fd);
+			// ft_putnbr_fd(editor->vertexes_count, fd);
+			// ft_putstr_fd("/", fd);
+			// ft_putnbr_fd(4, fd);
+			// ft_putstr_fd("/", fd);
+			// ft_putnbr_fd(editor->normals_count, fd);
+			// ft_putstr_fd("\n\n\n", fd);
+			j++;
+		}	
+		i++;
+	}
+	// i = 0;
+	// while (i < ed->map.vts_count)
+	// {
+	// 	ed->map.vts[i] = multiply(ed->map.vts[i], 50.0);
+
+	// 	i++;
+	// }
 }
 
 void	event_handle(SDL_Event *event, void *map_ptr, int *quit)
@@ -952,7 +1197,8 @@ void	event_handle(SDL_Event *event, void *map_ptr, int *quit)
 			map->map.trs_count = 0;
 			map->map.vts_count = 0;
 			map->map.vt_trs_count = 0;
-
+			map->map.uvs_count = 0;
+			map->map.nrmls_count = 0;
 
 		}
 	}
@@ -1099,6 +1345,10 @@ int main(int ac, char **av)
 
 	map_editor.map.vts_count = 0;
 	map_editor.map.vt_trs_count = 0;
+	map_editor.map.uvs_count = 0;
+	map_editor.map.nrmls_count = 0;
+
+
 
 
 	t_mgl *mgl = mgl_init("Map Editor", W, H);

@@ -481,11 +481,8 @@ t_bsp_node	*create_bsp(t_model *model)
 	puts("Start recurse");
 	bsp_recurse(root, trs, model->triangles_count, model);
 
-	int fd = open("tree.graph", O_WRONLY | O_CREAT);
+	// int fd = open("tree.graph", O_WRONLY | O_CREAT);
 
-
-
-
-	close(fd);
+	// close(fd);
 	return (root);
 }

@@ -233,7 +233,7 @@ t_vertex	triangle_normal(t_vertex v0, t_vertex v1, t_vertex v2)
 	v0v1 = add(v1, tmp);
 
 	v0v2 = add(v2, tmp);
-	return (cross(v0v1, v0v2));
+	return (normalize(cross(v0v1, v0v2)));
 }
 ///////////////убрать отсюда
 

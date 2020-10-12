@@ -505,7 +505,6 @@ t_model *transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *sc
 		d = dot(centre, normal);
 		if (d >= 0.0)
 		{
-	
 			clip_triangle(&curr, &ters_count, scene->clipping_planes, model);
 		}
 			
@@ -531,7 +530,7 @@ void	render_scene(int *image_data, t_scene *scene)
 	t_model *model;
 
 
-	camera_mat = multiply_m_m(transposed_m(scene->camera.orientation), 
+	camera_mat = multiply_m_m(transposed_m(scene->camera.orientation),
 		make_translation_matrix(multiply(scene->camera.position, -1.0)));
 
 	int i;
@@ -550,7 +549,7 @@ void	render_scene(int *image_data, t_scene *scene)
 			continue;
 		}
 
-		//  t_bsp_node *bsp = create_bsp(model);
+		//t_bsp_node *bsp = create_bsp(model);
 
 
 		render_model(image_data, model, scene);
