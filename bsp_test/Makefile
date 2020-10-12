@@ -16,7 +16,7 @@ ifeq ($(UNAME_S), Darwin)
 else
 	@echo Linux
 	make -C $(FTPATH)
-	gcc -g3 bsp.c ../my_graphics_lib/my_graphics_lib.c ../image_handle.c ../linear_algebra.c -lSDL2 -lm -L./../libft -lft -o BSP
+	gcc -I $(INCLUDES) -g3 bsp.c ../my_graphics_lib/my_graphics_lib.c ../image_handle.c ../linear_algebra.c -lSDL2 -lm -L./../libft -lft -o BSP
 endif
 	@echo ГОТОВО ЕПТА
 

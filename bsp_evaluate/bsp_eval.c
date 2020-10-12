@@ -4,8 +4,7 @@ int b = 0;
 
 int colors[3];
 
-
-static int		strlen_while_dig(char *str)
+static int strlen_while_dig(char *str)
 {
 	int len;
 
@@ -13,21 +12,21 @@ static int		strlen_while_dig(char *str)
 	while (str)
 	{
 		if (!isdigit(*str))
-			break ;
+			break;
 		str++;
 		len++;
 	}
 	return (len);
 }
 
-float			ft_atof(char *str)
+float ft_atof(char *str)
 {
-	float	ret;
-	float	mod;
-	int		neg;
+	float ret;
+	float mod;
+	int neg;
 
 	while ((*str == '\n') || (*str == '\t') || (*str == '\v') ||
-			(*str == ' ') || (*str == '\f') || (*str == '\r'))
+		   (*str == ' ') || (*str == '\f') || (*str == '\r'))
 		str++;
 	neg = (*str == '-' ? 1 : 0);
 	ret = 0.0;
@@ -42,12 +41,11 @@ float			ft_atof(char *str)
 		ret += (neg ? -mod : mod);
 	}
 	return (ret);
-
 }
 
-char		*read_node(t_bsp *node, char *str);
+char *read_node(t_bsp *node, char *str);
 
-char	*add_wall(t_bsp *node, char *str)
+char *add_wall(t_bsp *node, char *str)
 {
 	char key[32];
 	char *ptr;
@@ -91,19 +89,18 @@ char	*add_wall(t_bsp *node, char *str)
 			}
 		}
 		else if (*ptr == '}')
-			break ;
-		
+			break;
 	}
 	(node->walls_count)++;
 	return (ft_strchr(ptr, '}') + 1);
 }
 
-char	*read_walls(t_bsp *node, char *str)
+char *read_walls(t_bsp *node, char *str)
 {
 	char *ptr;
 
 	ptr = str;
-	while (*ptr)//////////
+	while (*ptr) //////////
 	{
 		while (*ptr == ' ' || *ptr == '\t' || *ptr == '\n' || *ptr == ',')
 			ptr++;
@@ -113,17 +110,15 @@ char	*read_walls(t_bsp *node, char *str)
 			ptr = add_wall(node, ptr + 1);
 		}
 		else if (*ptr == ']')
-			break ;
-		
+			break;
 	}
 	return (ft_strchr(ptr, ']') + 1);
-
 }
 
-char	*read_property(t_bsp *node, char *str)
+char *read_property(t_bsp *node, char *str)
 {
-	char	key[32];
-	char	*ptr;
+	char key[32];
+	char *ptr;
 
 	ft_strncpy(key, str, ft_strchr(str, '"') - str);
 	key[ft_strchr(str, '"') - str] = 0;
@@ -162,28 +157,28 @@ char	*read_property(t_bsp *node, char *str)
 	else if (!ft_strcmp(key, "front"))
 	{
 		ptr = ft_strchr(ptr, '{') + 1;
-		node->front = (t_bsp *)malloc(sizeof(t_bsp));////////
+		node->front = (t_bsp *)malloc(sizeof(t_bsp)); ////////
 		return (read_node(node->front, ptr));
 	}
 	else if (!ft_strcmp(key, "back"))
 	{
 		ptr = ft_strchr(ptr, '{') + 1;
-		node->back = (t_bsp *)malloc(sizeof(t_bsp));////////
+		node->back = (t_bsp *)malloc(sizeof(t_bsp)); ////////
 		return (read_node(node->back, ptr));
 	}
 	else
 
-	return (NULL);
+		return (NULL);
 }
 
-char		*read_node(t_bsp *node, char *str)
+char *read_node(t_bsp *node, char *str)
 {
-	char	*ptr;
+	char *ptr;
 
 	node->walls_count = 0;
 
 	ptr = str;
-	while (*ptr)//////////
+	while (*ptr) //////////
 	{
 		while (*ptr == ' ' || *ptr == '\t' || *ptr == '\n' || *ptr == '{' || *ptr == ',')
 			ptr++;
@@ -193,21 +188,19 @@ char		*read_node(t_bsp *node, char *str)
 			ptr = read_property(node, ptr + 1);
 		}
 		else if (*ptr == '}')
-			break ;
-
+			break;
 	}
 
 	return (ft_strchr(ptr, '}') + 1);
 }
 
-void	read_bsp_tree(t_map *map, char *filename)
+void read_bsp_tree(t_map *map, char *filename)
 {
-	int		fd;
-	char	*read_str;
-	int		i;
+	int fd;
+	char *read_str;
+	int i;
 
-	read_str = malloc(262144);/////////////
-
+	read_str = malloc(262144); /////////////
 
 	fd = open(filename, O_RDWR);
 
@@ -217,7 +210,7 @@ void	read_bsp_tree(t_map *map, char *filename)
 	read_node(&map->root, ft_strchr(read_str, '{') + 1);
 }
 
-void	draw_line(int *pixels, int x1, int y1, int x2, int y2, int color)
+void draw_line(int *pixels, int x1, int y1, int x2, int y2, int color)
 {
 	const int deltaX = abs(x2 - x1);
 	const int deltaY = abs(y2 - y1);
@@ -228,17 +221,17 @@ void	draw_line(int *pixels, int x1, int y1, int x2, int y2, int color)
 
 	put_pixel(pixels, x2, y2, color);
 
-	while (x1 != x2 || y1 != y2) 
+	while (x1 != x2 || y1 != y2)
 	{
 		put_pixel(pixels, x1, y1, color);
 		const int error2 = error * 2;
 
-		if (error2 > -deltaY) 
+		if (error2 > -deltaY)
 		{
 			error -= deltaY;
 			x1 += signX;
 		}
-		if (error2 < deltaX) 
+		if (error2 < deltaX)
 		{
 			error += deltaX;
 			y1 += signY;
@@ -246,25 +239,23 @@ void	draw_line(int *pixels, int x1, int y1, int x2, int y2, int color)
 	}
 }
 
-void	event_handle(SDL_Event *event, void *ed_ptr, int *quit)
+void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 {
 	t_map_editor *ed;
 
-    ed = (t_map_editor *)ed_ptr;
+	ed = (t_map_editor *)ed_ptr;
 
 	if (event->type == SDL_MOUSEBUTTONDOWN)
 	{
 		ed->prev_x = event->button.x;
 		ed->prev_y = event->button.y;
 
-		ed->map.player.x = (ed->prev_x - W_2 / 2) / 100.0;
-		ed->map.player.y = (-ed->prev_y + H_2 / 2) / 100.0;
-
+		ed->map.player.x = (ed->prev_x - W_2) / 100.0;
+		ed->map.player.y = (-ed->prev_y + H_2) / 100.0;
 	}
-	
 }
 
-int		classify_point(t_vertex cam, t_vertex line, t_vertex normal)
+int classify_point(t_vertex cam, t_vertex line, t_vertex normal)
 {
 	t_vertex new;
 
@@ -278,9 +269,7 @@ int		classify_point(t_vertex cam, t_vertex line, t_vertex normal)
 	return (FRONT);
 }
 
-
-
-void	bsp_obhod(t_bsp *node, int *pixels, t_vertex cam)
+void bsp_obhod(t_bsp *node, int *pixels, t_vertex cam)
 {
 	int i;
 	t_vertex p1;
@@ -300,11 +289,11 @@ void	bsp_obhod(t_bsp *node, int *pixels, t_vertex cam)
 			p2 = node->walls[i].points[1];
 			n = multiply(node->walls[i].normal, 0.3);
 
-			draw_line(pixels, p1.x * 200, p1.y * 200, p2.x * 200, p2.y * 200, colors[b]);
-			draw_line(pixels, (p1.x + (p2.x - p1.x) / 2) * 200, (p1.y + (p2.y - p1.y) / 2) * 200,
-				(p1.x + (p2.x - p1.x) / 2 + n.x) * 200,
-				(p1.y + (p2.y - p1.y) / 2 + n.y) * 200,
-				0xffff00);
+			draw_line(pixels, p1.x * 100, p1.y * 100, p2.x * 100, p2.y * 100, colors[b]);
+			draw_line(pixels, (p1.x + (p2.x - p1.x) / 2) * 100, (p1.y + (p2.y - p1.y) / 2) * 100,
+					  (p1.x + (p2.x - p1.x) / 2 + n.x) * 100,
+					  (p1.y + (p2.y - p1.y) / 2 + n.y) * 100,
+					  0xffff00);
 			i++;
 		}
 		b++;
@@ -313,7 +302,7 @@ void	bsp_obhod(t_bsp *node, int *pixels, t_vertex cam)
 	{
 		if (classify_point(cam, node->line, node->normal) == FRONT)
 		{
-			
+
 			bsp_obhod(node->back, pixels, cam);
 			bsp_obhod(node->front, pixels, cam);
 		}
@@ -321,22 +310,18 @@ void	bsp_obhod(t_bsp *node, int *pixels, t_vertex cam)
 		{
 			bsp_obhod(node->front, pixels, cam);
 			bsp_obhod(node->back, pixels, cam);
-
 		}
-		
-		
 	}
-	
 }
 
-void	update(void *map_editor, int *pixels)
+void update(void *map_editor, int *pixels)
 {
 	t_map_editor *ed;
 	int i;
 	int j;
-b = 0;
+	b = 0;
 	ed = (t_map_editor *)map_editor;
-	
+
 	bzero(pixels, sizeof(int) * HxW);
 
 	bsp_obhod(&(ed->map.root), pixels, ed->map.player);
@@ -347,15 +332,12 @@ b = 0;
 		j = -2;
 		while (j < 3)
 		{
-			put_pixel(pixels, ed->map.player.x * 200 + i, ed->map.player.y * 200 + j, 0x00ff00);
+			put_pixel(pixels, ed->map.player.x * 100 + i, ed->map.player.y * 100 + j, 0x00ff00);
 			j++;
 		}
 		i++;
 	}
-
-
 }
-
 
 int main(int ac, char **av)
 {
