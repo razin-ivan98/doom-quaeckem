@@ -345,7 +345,7 @@ int main(int ac, char **av)
 
 	t_mgl *mgl = mgl_init("Map Editor BSP", W, H);
 
-	read_bsp_tree(&map_editor.map, "bsp_tree.json");
+	read_bsp_tree(&map_editor.map, av[1]);
 
 	mgl_run(mgl, update, event_handle, &map_editor);
 

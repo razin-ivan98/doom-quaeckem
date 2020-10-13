@@ -132,6 +132,9 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 		}
 		else if (event->key.keysym.sym == SDLK_n)
 		{
+			/*
+				инвертировать нормаль рисуемого сейчас контура
+			*/
 			if (ed->map.active)
 			{
 				ed->map.circuits[ed->map.circuits_count - 1].normal_dir *= -1;
@@ -179,7 +182,7 @@ void update(void *map_editor, int *pixels)
 				continue;
 			}
 
-			p1.x = (int)(ed->map.circuits[i].points[j - 1].x * 100); //////////////////////поменят для норм экрана 200 на 100
+			p1.x = (int)(ed->map.circuits[i].points[j - 1].x * 100);
 			p1.y = (int)(ed->map.circuits[i].points[j - 1].y * 100);
 
 			p2.x = (int)(ed->map.circuits[i].points[j].x * 100);

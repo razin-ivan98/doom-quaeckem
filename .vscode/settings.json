@@ -1,7 +1,0 @@
-{
-	"files.associations": {
-		"random": "c",
-		"locale": "c",
-		"type_traits": "c"
-	}
-}
