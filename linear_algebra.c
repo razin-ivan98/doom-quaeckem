@@ -83,6 +83,39 @@ t_mat4x4	make_oy_rot_matrix(float degrees)
 	return (mat);
 }
 
+t_mat4x4	make_ox_rot_matrix(float degrees)
+{
+	float		sinus;
+	float		cosinus;
+	t_mat4x4	mat;
+
+
+	sinus = sin(degrees * 3.1415f / 180.0f);
+	cosinus = cos(degrees * 3.1415f / 180.0f);
+
+	mat.mat[0][0] = 1;
+	mat.mat[0][1] = 0;
+	mat.mat[0][2] = 0;
+	mat.mat[0][3] = 0;
+
+	mat.mat[1][0] = 0;
+	mat.mat[1][1] = cosinus;
+	mat.mat[1][2] = sinus;
+	mat.mat[1][3] = 0;
+
+	mat.mat[2][0] = 0;
+	mat.mat[2][1] = -sinus;
+	mat.mat[2][2] = cosinus;
+	mat.mat[2][3] = 0;
+
+	mat.mat[3][0] = 0;
+	mat.mat[3][1] = 0;
+	mat.mat[3][2] = 0;
+	mat.mat[3][3] = 1;
+
+	return (mat);
+}
+
 t_mat4x4	make_translation_matrix(t_vertex translation)
 {
 	t_mat4x4	mat;
@@ -181,7 +214,7 @@ t_mat4x4	multiply_m_m(t_mat4x4 m1, t_mat4x4 m2)
 
 	i = 0;
 
-	bzero(&result, sizeof(t_mat4x4));//////////////////////////////
+	ft_bzero(&result, sizeof(t_mat4x4));//////////////////////////////
 	
 	
 	while (i < 4)

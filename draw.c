@@ -39,11 +39,6 @@ void	sort_vertex_indexes(t_triangle *triangle, t_point *projected)
 
 void	render_triangle(int *image_data, t_model *model, t_triangle *tr, t_scene *scene)
 {
-
-
-	
-
-
 	sort_vertex_indexes(tr, model->projected);
 
 	t_vertex vers[3] = {model->vertexes[tr->indexes[0]],
@@ -85,16 +80,13 @@ void	render_triangle(int *image_data, t_model *model, t_triangle *tr, t_scene *s
 
 	t_float_array *x_left, *x_right, *iz_left, *iz_right,
 						*uz_left, *uz_right, *vz_left, *vz_right;
-		// float x_left, x_right, iz_left, iz_right,
-		// 				uz_left, uz_right, vz_left, vz_right;
-		// float x_l_d, x_r_d, z_l_d, z_r_d, u_l_d, u_r_d, v_l_d, v_r_d;
 
 	if (scene->render_tr.x.v02.array[m] < scene->render_tr.x.v012.array[m])
 	{
 		x_left = &scene->render_tr.x.v02;
 		x_right = &scene->render_tr.x.v012;
-		 iz_left = &scene->render_tr.iz.v02;
-		 iz_right = &scene->render_tr.iz.v012;
+		iz_left = &scene->render_tr.iz.v02;
+		iz_right = &scene->render_tr.iz.v012;
 		uz_left = &scene->render_tr.uz.v02;
 		uz_right = &scene->render_tr.uz.v012;
 		vz_left = &scene->render_tr.vz.v02;
@@ -105,8 +97,8 @@ void	render_triangle(int *image_data, t_model *model, t_triangle *tr, t_scene *s
 	{
 		x_left = &scene->render_tr.x.v012;
 		x_right = &scene->render_tr.x.v02;
-		 iz_left = &scene->render_tr.iz.v012;
-		 iz_right = &scene->render_tr.iz.v02;
+		iz_left = &scene->render_tr.iz.v012;
+		iz_right = &scene->render_tr.iz.v02;
 		uz_left = &scene->render_tr.uz.v012;
 		uz_right = &scene->render_tr.uz.v02;
 		vz_left = &scene->render_tr.vz.v012;
@@ -147,7 +139,7 @@ void	render_triangle(int *image_data, t_model *model, t_triangle *tr, t_scene *s
 		{
 			if (set_z_buffer(scene->z_buffer, x_it, y_it, inv_z))
 			{
-				int color = get_texel(tr->texture, u / inv_z, v / inv_z, 2048);
+				int color = get_texel(tr->tex, u / inv_z, v / inv_z);
 				//int color = tr->color;
 				put_pixel(image_data, x_it, y_it, color);
 			}
@@ -176,8 +168,7 @@ void render_model(int *image_data, t_model *model, t_scene *scene)
 	i = 0;
 
 	while (i < model->triangles_count)
-	{
-	//	printf("render %d\n\n", model->triangles_count);	
+	{	
 		render_triangle(image_data, model, &model->triangles[i], scene);
 		i++;
 	}
@@ -379,71 +370,6 @@ int		clip_triangle(t_triangle *trs, int *count, t_plane *planes, t_model *model)
 	}	
 }
 
-int		classify_point(t_vertex cam, t_plane pl)
-{
-	float dot_v;
-	dot_v = dot(pl.normal, cam) + pl.distance;
-	if (dot_v < 0.0)
-		return (BACK);
-	return (FRONT);
-}
-
-
-void	bsp_obhod(t_bsp_node *node, t_scene *scene)
-{
-	int			i;
-	t_triangle	curr;
-	
-	if (node->is_leaf == -1)
-	{
-		return ;
-	}
-	
-	if (node->is_leaf == 1)
-	{
-		i = 0;
-		while (i < node->triangles_count)
-		{
-			int ters_count = 1;
-
-			curr = node->triangles[i];
-
-			t_vertex normal = curr.normal;
-			t_vertex centre;
-			float d;
-			centre = multiply(sub(scene->instances[0].model->vertexes[curr.indexes[0]], scene->camera.position), -1.0);
-			d = dot(centre, normal);
-		//	printf("c %d\n", curr.indexes[0]);
-			if (d >= 0.0){
-		//		printf("normal: %f %f %f\tcentre: %f %f %f\tdot: %f\n", normal.x, normal.y, normal.z, centre.x, centre.y, centre.z,d);
-				clip_triangle(&curr, &ters_count, scene->clipping_planes, &scene->render_tr.rendered);
-			}
-			//clip_triangle(&curr, &ters_count, scene->clipping_planes, &scene->render_tr.rendered);
-
-		//	scene->render_tr.rendered.triangles[scene->render_tr.rendered.triangles_count] = node->triangles[i];
-		//	scene->render_tr.rendered.triangles_count++;
-			i++;
-		}
-		return ;
-	}
-
-// printf("lolol");
-	int result = classify_point(scene->camera.position, node->plane);
-
-	if (result == FRONT)
-	{
-		bsp_obhod(node->back, scene);
-		
-		bsp_obhod(node->front, scene);
-	}
-	else
-	{
-		bsp_obhod(node->front, scene);
-
-		bsp_obhod(node->back, scene);
-	}
-}
-
 t_model *transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *scene)
 {
 	t_model *model = &scene->render_tr.rendered;
@@ -511,12 +437,6 @@ t_model *transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *sc
 
 		i++;
 	}
-//	printf("before: %d\n", instance->model->triangles_count);
-//	bsp_obhod(scene->bsp_model, scene);
-//	printf("after: %d\n\n", scene->render_tr.rendered.triangles_count);
-
-//	printf("position: %f\t%f\t%f\n\n", scene->camera.position.x,scene->camera.position.y,scene->camera.position.z );
-
 
 	return (model);
 }
@@ -529,32 +449,20 @@ void	render_scene(int *image_data, t_scene *scene)
 	t_vertex tmp;
 	t_model *model;
 
-
 	camera_mat = multiply_m_m(transposed_m(scene->camera.orientation),
 		make_translation_matrix(multiply(scene->camera.position, -1.0)));
 
-	int i;
-	i = 0;
+	update_instance_transform(&scene->instance);
+	t_mat4x4 transform;
+	transform = multiply_m_m(camera_mat, 
+							scene->instance.transform);
 
-	while (i < scene->instances_count)
+	if (!(model = transform_and_clip(&scene->instance, transform, scene)))
 	{
-		update_instance_transform(&scene->instances[i]);
-		t_mat4x4 transform;
-		transform = multiply_m_m(camera_mat, 
-									scene->instances[i].transform);
-
-		if (!(model = transform_and_clip(&scene->instances[i], transform, scene)))
-		{
-			i++;
-			continue;
-		}
-
-		//t_bsp_node *bsp = create_bsp(model);
-
-
-		render_model(image_data, model, scene);
-
-		i++;
+		return ;
 	}
+
+	render_model(image_data, model, scene);
+
 }
 

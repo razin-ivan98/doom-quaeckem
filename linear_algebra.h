@@ -12,6 +12,8 @@ t_vertex	add(t_vertex v1, t_vertex v2);
 t_vertex	sub(t_vertex v1, t_vertex v2);
 float		length(t_vertex vec);
 t_mat4x4	make_oy_rot_matrix(float degrees);
+t_mat4x4	make_ox_rot_matrix(float degrees);
+
 t_mat4x4	make_translation_matrix(t_vertex translation);
 t_mat4x4	make_scaling_matrix(float scale);
 t_vertex4	multiply_m_v(t_mat4x4 mat, t_vertex4 vec);

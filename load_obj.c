@@ -89,7 +89,6 @@ void get_normals(t_vertex *normals, int *count, char *file_name)
             i++;
         }
         free(line);
-        printf("%d\n", i);
     }
     close(fd);
 }
@@ -113,7 +112,6 @@ void get_uvss(t_model *model, char *file_name)
             i++;
         }
         free(line);
-        printf("%d\n", i);
     }
     close(fd);
 }
@@ -136,10 +134,8 @@ void get_points(t_model *model, char *file_name)
             model->vertexes_count++;
             i++;
         }
-        printf("%d\n", i);
         free(line);
     }
-    printf("readed\n");
     close(fd);
 }
 
@@ -185,8 +181,7 @@ t_triangle generate_polygon(char *line, t_model *model, t_vertex *normals)
 
 
 
-    ret.texture = model->new_tex;
-    // ret.color = 0xffff00;
+    ret.tex = model->new_tex;
 
     return (ret);
 }
@@ -210,9 +205,7 @@ void get_polygons(t_model *model, char *file_name, t_vertex *normals)
             i++;
         }
         free(line);
-        printf("face %d\n", i);
     }
-    printf("%d\n", model->triangles_count);
     close(fd);
 }
 
@@ -224,21 +217,20 @@ void read_obj(t_model *model, char *file_name)
     normals_count = 0;
 
     normals = malloc(sizeof(t_vertex) * 3000);////////////////////
-   printf("Start\n");
+
     model->vertexes_count = 0;
     get_points(model, file_name);
- printf("OK");
-    model->uvs_count = 0;
-   get_uvss(model, file_name);
- printf("OK");
 
- get_normals(normals, &normals_count, file_name);
-  //  printf("x = %f y = %f z = %f", points[2].x, points[2].y, points[2].z);
+    model->uvs_count = 0;
+    get_uvss(model, file_name);
+
+
+    get_normals(normals, &normals_count, file_name);
+
     model->triangles_count = 0;
     get_polygons(model, file_name, normals);
-   // printf("x = %f y = %f z = %f", rtv1->scene.objs[1].center.x, rtv1->scene.objs[1].center.y, rtv1->scene.objs[1].center.z);
-   printf("OK");
-   free(normals);
+
+    free(normals);
 }
 
 

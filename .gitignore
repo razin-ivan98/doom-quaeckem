@@ -1,0 +1,17 @@
+# Extra
+DoomQuaeckem
+MapEditor
+BSP
+BSPEval
+
+# Object files
+*.o
+
+# Libraries
+*.a
+
+# Executables
+*.out
+
+# Debug files
+*.dSYM/

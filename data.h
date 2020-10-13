@@ -1,6 +1,7 @@
 #ifndef DATA_H
 # define DATA_H
 
+# include "my_graphics_lib/my_graphics_lib.h"
 
 # define COMPLANAR 1
 # define CUTTED 2
@@ -52,6 +53,9 @@ typedef struct	s_triangle
 	t_vertex	normal;
 	int			*texture;
 	int			**new_tex;
+
+	SDL_Surface	*tex;
+
 	int			color;
 	t_point		uvs[3];
 	int			used;
@@ -60,7 +64,8 @@ typedef struct	s_triangle
 typedef struct	s_model
 {
 //	t_point		*uvs;
-	int **new_tex;
+	SDL_Surface	*new_tex;
+	
 	t_vertex	*vertexes;
 	t_point	*uvs;
 	int			uvs_count;
@@ -143,24 +148,12 @@ typedef struct	s_redner
 
 }				t_render;
 
-typedef struct			s_bsp_node
-{
-	struct s_bsp_node	*front;
-	struct s_bsp_node	*back;
-	t_plane				plane;
-	int					is_leaf;
-	t_triangle			*triangles;
-	int					triangles_count;
-}						t_bsp_node;
-
 typedef struct	s_scene
 {
 	t_model		*models;
 	int			models_count;
 
-	t_bsp_node	*bsp_model;
-
-	t_instance	*instances;
+	t_instance	instance;
 	int			instances_count;
 	t_camera	camera;
 	float		*z_buffer;
@@ -175,12 +168,18 @@ typedef struct	s_scene
 typedef struct	s_doom
 {
 	t_scene		scene;
+	float		alpha;
 	float		gamma;
 	float		beta;
 	int			prev_x;
 	int			prev_y;
 	int			mouse_pressed;
 	int			mouse_right_pressed;
+	int			w_pressed;
+	int			s_pressed;
+	int			a_pressed;
+	int			d_pressed;
+
 }				t_doom;
 
 
