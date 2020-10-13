@@ -23,7 +23,17 @@
 
 void	render_init(t_scene *scene);
 void	clipping_planes_init(t_scene *scene);
+void	level_init(t_scene *scene);
+void	controls_init(t_doom *doom);
 SDL_Surface	*create_texture(char *filename);
+
+void	clip_1_outside(t_clip_triangle *cl, t_model *model, int k, int i);
+void	clip_2_outsides(t_clip_triangle *cl, t_model *model, int k, int i);
+
+
+int		clip_triangle(t_triangle *trs, int *count, t_plane *planes, t_model *model);
+
+void	render_triangle(int *image_data, t_model *model, t_triangle *tr, t_scene *scene);
 
 
 

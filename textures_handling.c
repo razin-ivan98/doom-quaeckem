@@ -13,7 +13,7 @@ SDL_Surface	*create_texture(char *filename)
 		ptr1[i * 4] = ptr2[i * 3];
 		ptr1[i * 4 + 1] = ptr2[i * 3 + 1];
 		ptr1[i * 4 + 2] = ptr2[i * 3 + 2];
-		ptr1[i * 4 + 3] = 255;
+		ptr1[i * 4 + 3] = 127;
 	}
 	SDL_FreeSurface(texture);
 	return tex;

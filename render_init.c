@@ -1,5 +1,52 @@
 #include "duke.h"
 
+void	controls_init(t_doom *doom)
+{
+	doom->beta = 0.0;
+	doom->gamma = 0.0;
+	doom->alpha = 0.0;
+
+	doom->w_pressed = 0;
+	doom->s_pressed = 0;
+	doom->a_pressed = 0;
+	doom->d_pressed = 0;
+
+
+	doom->mouse_pressed = 0;
+	doom->mouse_right_pressed = 0;
+}
+
+void	level_init(t_scene *scene)
+{
+	scene->instance.model.vertexes = malloc(sizeof(t_vertex) * 30000);
+	scene->instance.model.vertexes_count = 0;
+	scene->instance.model.triangles = malloc(sizeof(t_triangle) * 30000);
+	scene->instance.model.triangles_count = 0;
+	scene->instance.model.uvs = malloc(sizeof(t_point) * 30000);
+	scene->instance.model.uvs_count = 0;
+	scene->instance.model.bounds_center = (t_vertex){0,0,0};
+	scene->instance.model.bounds_radius = 100;
+
+	read_obj(&scene->instance.model, "map_editor/map_ed.obj");
+
+
+	scene->instance.position = (t_vertex){ 0, 0, 10};
+	scene->instance.clipped = malloc(sizeof(t_vertex) * 10);
+	scene->instance.scale = 1.0;
+	scene->instance.orientation = make_oy_rot_matrix(0.0);
+	scene->instance.scale = 1.0;
+	scene->instance.position = (t_vertex){0, 0, 0};
+
+
+
+	scene->z_buffer = create_z_buffer();
+	scene->instances_count = 1;
+	scene->camera.orientation = make_oy_rot_matrix(360.0);
+	scene->camera.position = (t_vertex){0,0, -2};
+
+
+}
+
 void	clipping_planes_init(t_scene *scene)
 {
 	float sins;
@@ -41,5 +88,4 @@ void	render_init(t_scene *scene)
 	scene->render_tr.rendered.vertexes = malloc(sizeof(t_vertex) * 30000);
 	scene->render_tr.rendered.projected = malloc(sizeof(t_point) * 30000);
 	scene->render_tr.rendered.triangles = malloc(sizeof(t_triangle) * 30000);
-
 }

@@ -6,17 +6,17 @@ FRAMEWORKS = -F./../frameworks -rpath ./../frameworks -framework SDL2 \
 
 INCLUDES = -I./../libft/ -I./../frameworks/SDL2.framework/Headers -I./../my_graphics_lib -I./../
 
+SRCS = bsp.c ../my_graphics_lib/my_graphics_lib.c ../image_handle.c ../linear_algebra.c
+
 all:
 ifeq ($(UNAME_S), Darwin)
 	@echo MAC OS
-	make re -C $(FTPATH)
-	gcc -g bsp.c ../my_graphics_lib/my_graphics_lib.c ../image_handle.c ../linear_algebra.c \
-	-lm -L./../libft -lft \
-	$(FRAMEWORKS) $(INCLUDES) -o BSP
+	make -C $(FTPATH)
+	gcc -g $(SRCS) -lm -L./../libft -lft $(FRAMEWORKS) $(INCLUDES) -o BSP
 else
 	@echo Linux
 	make -C $(FTPATH)
-	gcc -I $(INCLUDES) -g3 bsp.c ../my_graphics_lib/my_graphics_lib.c ../image_handle.c ../linear_algebra.c -lSDL2 -lm -L./../libft -lft -o BSP
+	gcc -I -g $(INCLUDES) $(SRCS) -lSDL2 -lm -L./../libft -lft -o BSP
 endif
 	@echo ГОТОВО ЕПТА
 

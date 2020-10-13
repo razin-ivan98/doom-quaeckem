@@ -290,4 +290,5 @@ t_mat4x4	update_instance_transform(t_instance *instance)
 {
 	instance->transform = multiply_m_m(make_translation_matrix(instance->position),
 					multiply_m_m(instance->orientation, make_scaling_matrix(instance->scale)));
+	return (instance->transform);
 }

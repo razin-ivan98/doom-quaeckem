@@ -80,7 +80,7 @@ typedef struct	s_model
 
 typedef struct	s_instance
 {
-	t_model		*model;
+	t_model		model;
 	t_vertex	*clipped;
 	t_vertex	position;
 	t_mat4x4	orientation;	
@@ -191,6 +191,24 @@ typedef struct			s_tr_list
 	struct s_tr_list	*next;
 }						t_tr_list;
 
+
+typedef struct	s_clip_triangle
+{
+	int			outside_count;
+	int			inside_count;
+	int			outsides[3];
+	int			insides[3];
+	
+	int			l;
+	t_triangle	crop[6][40];
+
+	t_plane		*planes;
+
+	t_vertex	new1;
+	t_vertex	new2;
+	t_point		new_uv1;
+	t_point		new_uv2;
+}				t_clip_triangle;
 
 
 

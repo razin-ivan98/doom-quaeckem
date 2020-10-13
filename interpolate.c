@@ -35,7 +35,7 @@ void		concat(t_float_array *first, t_float_array *second)
 
 	length = first->length + second->length;
 
-	memcpy(first->array + first->length, second->array, sizeof(float) * second->length);
+	ft_memcpy(first->array + first->length, second->array, sizeof(float) * second->length);
 	first->length = length;
 	second->length = 0;
 }
