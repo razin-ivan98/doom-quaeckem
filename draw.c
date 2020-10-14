@@ -1,7 +1,5 @@
 #include "duke.h"
 
-
-
 void render_model(int *image_data, t_model *model, t_scene *scene)
 {
 	int i;
@@ -86,7 +84,7 @@ void	clip_triangles( t_model *model, t_instance *instance, t_scene *scene)
 		curr = instance->model.triangles[i];
 		ters_count = 1;
 		centre = multiply(sub(instance->model.vertexes[curr.indexes[0]],
-				scene->camera.position), -1.0);
+			scene->camera.position), -1.0);
 
 		if (dot(centre, curr.normal) >= 0.0)
 		{
@@ -120,9 +118,9 @@ t_model	*transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *sc
 
 void	render_scene(int *image_data, t_scene *scene)
 {
-	t_mat4x4 camera_mat;
-	t_mat4x4 transform;
-	t_model *model;
+	t_mat4x4	camera_mat;
+	t_mat4x4	transform;
+	t_model		*model;
 
 	camera_mat = multiply_m_m(transposed_m(scene->camera.orientation),
 		make_translation_matrix(multiply(scene->camera.position, -1.0)));

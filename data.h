@@ -143,6 +143,31 @@ typedef struct	s_redner
 	t_float_array		v12;
 	t_float_array		v02;
 
+	t_float_array		*x_left;
+	t_float_array		*x_right;
+	t_float_array		*iz_left;
+	t_float_array		*iz_right;
+	t_float_array		*uz_left;
+	t_float_array		*uz_right;
+	t_float_array		*vz_left;
+	t_float_array		*vz_right;
+
+	float				xl;
+	float				xr;
+	float				zl;
+	float				zr;
+	float				uzl;
+	float				uzr;
+	float				vzl;
+	float				vzr;
+
+	float				d_z;
+	float				d_u;
+	float				d_v;
+
+	t_vertex			vers[3];
+	t_point				pts[3];
+	int					ids[3];
 
 	t_model				rendered;
 
