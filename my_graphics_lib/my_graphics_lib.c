@@ -66,13 +66,13 @@ void mgl_run(t_mgl *mgl, void (*run_callback)(void *, int *), void (*event_callb
 		run_callback(param, mgl->screen_surface->pixels);
 
 		mgl_draw(mgl, param, mgl->screen_surface->pixels);
+		mgl->curr_time = SDL_GetTicks() / 1000.0;
 
+		mgl->fps = 1.0 / (mgl->curr_time - mgl->lst_time);
+		mgl->lst_time = mgl->curr_time;
 		if (frame == 60)
 		{
-			mgl->curr_time = SDL_GetTicks() / 1000.0;
-
-			mgl->fps = 1.0 / (mgl->curr_time - mgl->lst_time) * 60.0;
-			mgl->lst_time = mgl->curr_time;
+			
 			printf("fps: %f\n", mgl->fps);
 			frame = 0;
 			;

@@ -61,10 +61,21 @@ typedef struct	s_triangle
 	int			used;
 }				t_triangle;
 
+typedef struct	s_anim
+{
+	SDL_Surface	**frames;
+	int			length;
+	float		speed;
+	int			curr;
+}				t_anim;
+
+
 typedef struct	s_model
 {
 //	t_point		*uvs;
 	SDL_Surface	*new_tex;
+
+	t_anim		anim;
 	
 	t_vertex	*vertexes;
 	t_point	*uvs;
@@ -205,6 +216,8 @@ typedef struct	s_doom
 	int			a_pressed;
 	int			d_pressed;
 
+	t_mgl		*mgl;
+
 }				t_doom;
 
 
@@ -234,7 +247,6 @@ typedef struct	s_clip_triangle
 	t_point		new_uv1;
 	t_point		new_uv2;
 }				t_clip_triangle;
-
 
 
 

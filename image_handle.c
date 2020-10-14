@@ -9,7 +9,7 @@ void	put_pixel(int *image_data, int x, int y, int color){
 int		get_texel(SDL_Surface *image_data, float u, float v)
 {
 	int pitch = image_data->w;
-	int index = (int)(pitch * v) * pitch + (int)(pitch * u);
+	int index = (int)(image_data->h * v) * pitch + (int)(pitch * u);
 	int *pixels = (int *)image_data->pixels;
 	if (index >= 0 && index < image_data->w * image_data->h) /////////optimize
 		return (pixels[index]);

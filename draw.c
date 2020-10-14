@@ -85,6 +85,7 @@ void	clip_triangles( t_model *model, t_instance *instance, t_scene *scene)
 		ters_count = 1;
 		centre = multiply(sub(instance->model.vertexes[curr.indexes[0]],
 			scene->camera.position), -1.0);
+		curr.tex = instance->model.new_tex;
 
 		if (dot(centre, curr.normal) >= 0.0)
 		{

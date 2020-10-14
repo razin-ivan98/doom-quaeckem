@@ -80,6 +80,12 @@ void	update(void *doom_ptr, int *pixels)
 	ft_bzero(pixels, sizeof(int) * HxW);
 	doom->scene.instance.orientation = make_oy_rot_matrix(doom->beta);
 	clear_z_buffer(doom->scene.z_buffer);
+	int frame = (int)(doom->scene.instance.model.anim.speed * doom->mgl->curr_time)
+			% doom->scene.instance.model.anim.length;
+	if (frame < 0)
+		frame = 0;
+	printf("%d\n", frame);
+	doom->scene.instance.model.new_tex = doom->scene.instance.model.anim.frames[frame];
 	render_scene(pixels, &doom->scene);
 
 	if (doom->w_pressed)
@@ -102,6 +108,7 @@ void	update(void *doom_ptr, int *pixels)
 		doom->scene.camera.position.z += 0.1 * sin(doom->gamma / 180 * 3.1415);
 		doom->scene.camera.position.x += 0.1 * cos(doom->gamma / 180 * 3.1415);
 	}
+	
 }
 
 int		main()
@@ -111,9 +118,25 @@ int		main()
 	t_doom			doom;
 
 	mgl = mgl_init("Doom_Quaekem", W, H);
-	tex = create_texture("textures/lol.bmp");
+
+	doom.mgl = mgl;
+	tex = create_texture("textures/qwq.bmp");
 
 	doom.scene.instance.model.new_tex = tex;
+
+	t_anim anim;
+
+	anim.frames = malloc(sizeof(SDL_Surface *) * 3);
+	anim.frames[0] = create_texture("textures/qwq.bmp");
+	anim.frames[1] = create_texture("textures/lol.bmp");
+	anim.frames[2] = create_texture("textures/brick.bmp");
+
+	anim.length = 3;
+	anim.curr = 0;
+	anim.speed = 1.0;
+
+	doom.scene.instance.model.anim = anim;
+
 
 	level_init(&doom.scene);
 	render_init(&doom.scene);
