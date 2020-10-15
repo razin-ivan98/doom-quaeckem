@@ -15,14 +15,3 @@ int		get_texel(SDL_Surface *image_data, float u, float v)
 		return (pixels[index]);
 	return 0;
 }
-
-int		get_texel_n(int **image_data, float u, float v, int pitch)
-{
-	//int index = (int)(pitch * v) * pitch + (int)(pitch * u);
-	//if (index >= 0 && index < 250000)
-	int x = (int)(u * pitch);
-	int y = (int)(v * pitch);
-	if (x >= 0 && y >= 0 && x < 500 && y < 500)
-		return (image_data[y][x]);
-	return 0;
-}

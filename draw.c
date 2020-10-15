@@ -123,19 +123,32 @@ void	render_scene(int *image_data, t_scene *scene)
 	t_mat4x4	transform;
 	t_model		*model;
 
+
+
+
 	camera_mat = multiply_m_m(transposed_m(scene->camera.orientation),
 		make_translation_matrix(multiply(scene->camera.position, -1.0)));
 
-	update_instance_transform(&scene->instance);
+	update_instance_transform(&scene->level.instance);
 
 	transform = multiply_m_m(camera_mat, 
-							scene->instance.transform);
+							scene->level.instance.transform);
 
-	if (!(model = transform_and_clip(&scene->instance, transform, scene)))
+	if (!(model = transform_and_clip(&scene->level.instance, transform, scene)))
 	{
 		return ;
 	}
 
 	render_model(image_data, model, scene);
+
+update_instance_transform(&scene->enemy);
+transform = multiply_m_m(camera_mat, 
+							scene->enemy.transform);
+	if (!(model = transform_and_clip(&scene->enemy, transform, scene)))
+	{
+		return ;
+	}
+	render_model(image_data, model, scene);
+
 }
 

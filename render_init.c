@@ -18,29 +18,28 @@ void	controls_init(t_doom *doom)
 
 void	level_init(t_scene *scene)
 {
-	scene->instance.model.vertexes = malloc(sizeof(t_vertex) * 30000);
-	scene->instance.model.vertexes_count = 0;
-	scene->instance.model.triangles = malloc(sizeof(t_triangle) * 30000);
-	scene->instance.model.triangles_count = 0;
-	scene->instance.model.uvs = malloc(sizeof(t_point) * 30000);
-	scene->instance.model.uvs_count = 0;
-	scene->instance.model.bounds_center = (t_vertex){0,0,0};
-	scene->instance.model.bounds_radius = 100;
+	scene->level.instance.model.vertexes = malloc(sizeof(t_vertex) * 30000);
+	scene->level.instance.model.vertexes_count = 0;
+	scene->level.instance.model.triangles = malloc(sizeof(t_triangle) * 30000);
+	scene->level.instance.model.triangles_count = 0;
+	scene->level.instance.model.uvs = malloc(sizeof(t_point) * 30000);
+	scene->level.instance.model.uvs_count = 0;
+	scene->level.instance.model.bounds_center = (t_vertex){0,0,0};
+	scene->level.instance.model.bounds_radius = 100;
 
-	read_obj(&scene->instance.model, "map_editor/map_ed.obj");
+	read_obj(&scene->level.instance.model, "map_editor/map_ed.obj");
 
 
-	scene->instance.position = (t_vertex){ 0, 0, 10};
-	scene->instance.clipped = malloc(sizeof(t_vertex) * 10);
-	scene->instance.scale = 1.0;
-	scene->instance.orientation = make_oy_rot_matrix(0.0);
-	scene->instance.scale = 1.0;
-	scene->instance.position = (t_vertex){0, 0, 0};
+	scene->level.instance.position = (t_vertex){ 0, 0, 10};
+	scene->level.instance.clipped = malloc(sizeof(t_vertex) * 10);
+	scene->level.instance.scale = 1.0;
+	scene->level.instance.orientation = make_oy_rot_matrix(0.0);
+	scene->level.instance.scale = 1.0;
+	scene->level.instance.position = (t_vertex){0, 0, 0};
 
 
 
 	scene->z_buffer = create_z_buffer();
-	scene->instances_count = 1;
 	scene->camera.orientation = make_oy_rot_matrix(360.0);
 	scene->camera.position = (t_vertex){0,0, -2};
 

@@ -26,6 +26,7 @@ void	clipping_planes_init(t_scene *scene);
 void	level_init(t_scene *scene);
 void	controls_init(t_doom *doom);
 SDL_Surface	*create_texture(char *filename);
+t_anim		load_anim(char *foldername, float speed);
 
 void	clip_1_outside(t_clip_triangle *cl, t_model *model, int k, int i);
 void	clip_2_outsides(t_clip_triangle *cl, t_model *model, int k, int i);

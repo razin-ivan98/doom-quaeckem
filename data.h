@@ -75,7 +75,7 @@ typedef struct	s_model
 //	t_point		*uvs;
 	SDL_Surface	*new_tex;
 
-	t_anim		anim;
+	t_anim		*anim;
 	
 	t_vertex	*vertexes;
 	t_point	*uvs;
@@ -184,13 +184,43 @@ typedef struct	s_redner
 
 }				t_render;
 
+typedef struct	s_level
+{
+	t_instance	instance;
+
+
+
+}				t_level;
+
+typedef struct	s_sprite
+{
+	t_model		model;
+
+	
+
+}				t_sprite;
+
+typedef struct	s_object
+{
+	t_model		model;
+
+	
+
+}				t_object;
+
 typedef struct	s_scene
 {
+	t_level		level;
+	t_sprite	*sprites;
+	int			sprites_count;
+	t_object	*objects;
+	int			objects_count;
+
+	t_instance	enemy;
+
 	t_model		*models;
 	int			models_count;
 
-	t_instance	instance;
-	int			instances_count;
 	t_camera	camera;
 	float		*z_buffer;
 

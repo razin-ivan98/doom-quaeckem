@@ -107,6 +107,18 @@ void	draw_pixel(t_scene *scene, int *image_data, t_triangle *tr, int y_it)
 	x_it = (int)scene->render_tr.xl;
 	while (x_it <= (int)scene->render_tr.xr)
 	{
+		if (tr->tex->flags)
+		{
+			if (get_texel(tr->tex, u / inv_z, v / inv_z) == tr->tex->flags)
+			{
+				x_it++;
+				inv_z += scene->render_tr.d_z;
+				u += scene->render_tr.d_u;
+				v += scene->render_tr.d_v;
+
+				continue ;///////optimize
+			}
+		}
 		if (set_z_buffer(scene->z_buffer, x_it, y_it, inv_z))
 		{
 			color = get_texel(tr->tex, u / inv_z, v / inv_z);
