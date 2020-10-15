@@ -90,7 +90,9 @@ void	update(void *doom_ptr, int *pixels)
 												make_ox_rot_matrix(doom->alpha));
 
 	ft_bzero(pixels, sizeof(int) * HxW);
-	doom->scene.level.instance.orientation = make_oy_rot_matrix(doom->beta);
+	// doom->scene.level.instance.orientation = make_oy_rot_matrix(doom->beta);
+	doom->scene.enemy.orientation = make_oy_rot_matrix(doom->gamma);
+
 	clear_z_buffer(doom->scene.z_buffer);
 
 	animation_update(&doom->scene, doom->mgl->curr_time);

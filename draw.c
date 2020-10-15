@@ -71,7 +71,7 @@ void	transform_vertexes(t_model *model, t_instance *instance, t_mat4x4 *transfor
 	}
 }
 
-void	clip_triangles( t_model *model, t_instance *instance, t_scene *scene)
+void	clip_triangles( t_model *model, t_instance *instance, t_scene *scene, int lol)///////
 {
 	int			i;
 	t_triangle	curr;
@@ -87,7 +87,7 @@ void	clip_triangles( t_model *model, t_instance *instance, t_scene *scene)
 			scene->camera.position), -1.0);
 		curr.tex = instance->model.new_tex;
 
-		if (dot(centre, curr.normal) >= 0.0)
+		if (dot(centre, curr.normal) >= 0.0 || lol)
 		{
 			clip_triangle(&curr, &ters_count, scene->clipping_planes, model);
 		}
@@ -95,7 +95,7 @@ void	clip_triangles( t_model *model, t_instance *instance, t_scene *scene)
 	}
 }
 
-t_model	*transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *scene)
+t_model	*transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *scene, int lol)
 {
 	t_model		*model;
 	t_vertex4	tmp;
@@ -112,7 +112,7 @@ t_model	*transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *sc
 
 	transform_vertexes(model, instance, &transform);
 	
-	clip_triangles(model, instance, scene);
+	clip_triangles(model, instance, scene, lol);
 
 	return (model);
 }
@@ -134,17 +134,17 @@ void	render_scene(int *image_data, t_scene *scene)
 	transform = multiply_m_m(camera_mat, 
 							scene->level.instance.transform);
 
-	if (!(model = transform_and_clip(&scene->level.instance, transform, scene)))
+	if (!(model = transform_and_clip(&scene->level.instance, transform, scene, 0)))
 	{
 		return ;
 	}
 
 	render_model(image_data, model, scene);
 
-update_instance_transform(&scene->enemy);
-transform = multiply_m_m(camera_mat, 
-							scene->enemy.transform);
-	if (!(model = transform_and_clip(&scene->enemy, transform, scene)))
+	update_instance_transform(&scene->enemy);
+
+	transform = multiply_m_m(camera_mat, scene->enemy.transform);
+	if (!(model = transform_and_clip(&scene->enemy, transform, scene, 1)))
 	{
 		return ;
 	}
