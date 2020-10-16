@@ -69,38 +69,115 @@ void	event_handle(SDL_Event *event, void *doom_ptr, int *quit)
 	}
 }
 
+void	update_sprites(t_doom *doom, float gamma)
+{
+	int i;
+	int	my;
+	int him;
+	int d;
+
+	t_sprite sprite;
+
+	i = 0;
+		
+	doom->scene.sprites_count = 0;
+
+	while (i < doom->enemies_count)
+	{
+		sprite = doom->enemies[i].sprite;
+
+		my = (int)gamma;
+		my %= 360;
+
+		if (my < 0)
+			my += 360;
+
+		him = (int)(doom->enemies[i].beta);
+
+		him %= 360;
+
+		if (him < 0)
+			him += 360;
+
+		d = (my - him);
+
+		if (d < 0)
+			d += 360;
+
+		d /= 45;
+
+		sprite.instance.model.anim = &doom->enemies[i].walking_anims[d];
+
+		doom->scene.sprites[i] = sprite;
+		doom->scene.sprites_count++;
+		i++;
+	}
+}
+
+void	update_objects(t_doom *doom)
+{
+	int i;
+
+	i = 0;
+	doom->scene.objects_count = 0;
+	while (i < doom->objects_count)
+	{
+		doom->scene.objects[i] = doom->objects[i];
+		doom->scene.objects_count++;
+		i++;
+	}
+}
+
+void	update_scene(t_doom *doom, float gamma)
+{
+	update_sprites(doom, gamma);
+
+	update_objects(doom);
+
+
+
+}
+
 void	animation_update(t_scene *scene, float curr_time, float gamma)
 {
-	int my = (int)gamma;
-	my %= 360;
+	int i;
+	int frame;
 
-	if (my < 0)
-		my += 360;
-
-	int him = (int)(scene->enemy.beta);
-
-	him %= 360;
-
-	if (him < 0)
-		him += 360;
-
-	int d = (my - him);
-
-	if (d < 0)
-		d += 360;
-
-	d /= 45;
-
-	scene->enemy.sprite.instance.model.anim = &scene->enemy.walking_anims[d];
-
-	if (!scene->enemy.sprite.instance.model.anim)
-		return ;
-	int frame = (int)(scene->enemy.sprite.instance.model.anim->speed * curr_time)
-			% scene->enemy.sprite.instance.model.anim->length;
-	if (frame < 0)
-		frame = 0;
-	scene->enemy.sprite.instance.model.new_tex =
-			scene->enemy.sprite.instance.model.anim->frames[frame];
+	i = 0;
+	while (i < scene->sprites_count)
+	{
+		if (!scene->sprites[i].instance.model.anim)
+		{
+			i++;
+			continue ;
+		}
+		
+		frame = (int)(scene->sprites[i].instance.model.anim->speed * curr_time)
+				% scene->sprites[i].instance.model.anim->length;
+		if (frame < 0)
+			frame = 0;
+		scene->sprites[i].instance.model.new_tex =
+				scene->sprites[i].instance.model.anim->frames[frame];
+		scene->sprites[i].instance.orientation = make_oy_rot_matrix(gamma);
+		i++;
+	}
+	i = 0;
+	while (i < scene->objects_count)
+	{
+		if (!scene->objects[i].instance.model.anim)
+		{
+			i++;
+			continue ;
+		}
+		
+		frame = (int)(scene->objects[i].instance.model.anim->speed * curr_time)
+				% scene->objects[i].instance.model.anim->length;
+		if (frame < 0)
+			frame = 0;
+		scene->objects[i].instance.model.new_tex =
+				scene->objects[i].instance.model.anim->frames[frame];
+		i++;
+	}
 }
 
 void	update(void *doom_ptr, int *pixels)
@@ -112,11 +189,12 @@ void	update(void *doom_ptr, int *pixels)
 												make_ox_rot_matrix(doom->alpha));
 
 	ft_bzero(pixels, sizeof(int) * HxW);
-	// doom->scene.level.instance.orientation = make_oy_rot_matrix(doom->beta);
-	doom->scene.enemy.sprite.instance.orientation = make_oy_rot_matrix(doom->gamma);
+
+	
 
 	clear_z_buffer(doom->scene.z_buffer);
 
+	update_scene(doom, doom->gamma);
 	animation_update(&doom->scene, doom->mgl->curr_time, doom->gamma);
 
 	render_scene(pixels, &doom->scene);
@@ -148,22 +226,22 @@ void	update(void *doom_ptr, int *pixels)
 	
 }
 
-t_enemy	create_enemy()
+t_enemy	create_enemy(t_vertex pos, float beta)
 {
 	t_enemy enemy;
 	t_model enemy_model;
 
-	enemy_model.bounds_center = (t_vertex) {0.0,0.0,0.0};
+	enemy_model.bounds_center = (t_vertex) {0.0,0.0,0.0};;
 	enemy_model.bounds_radius = 2.0;
 	enemy_model.triangles_count = 2;
 	enemy_model.vertexes_count = 4;
 
 	enemy_model.vertexes = malloc(sizeof(t_vertex) * 4);
 
-	enemy_model.vertexes[0] = (t_vertex) {0.0,0.0,0.0};
-	enemy_model.vertexes[1] = (t_vertex) {0.0,2.0,0.0};
-	enemy_model.vertexes[2] = (t_vertex) {2.0,2.0,0.0};
-	enemy_model.vertexes[3] = (t_vertex) {2.0,0.0,0.0};
+	enemy_model.vertexes[0] = (t_vertex) {-1.0,-1.0,0.0};
+	enemy_model.vertexes[1] = (t_vertex) {-1.0,1.0,0.0};
+	enemy_model.vertexes[2] = (t_vertex) {1.0,1.0,0.0};
+	enemy_model.vertexes[3] = (t_vertex) {1.0,-1.0,0.0};
 
 	enemy_model.triangles = malloc(sizeof(t_triangle) * 2);
 	enemy_model.triangles[0].indexes[0] = 0;
@@ -185,15 +263,13 @@ t_enemy	create_enemy()
 	enemy_model.triangles[1].uvs[1] = (t_point) {1.0, 0.0,0.0};
 	enemy_model.triangles[1].uvs[2] = (t_point) {1.0, 1.0,0.0};
 
-	//t_anim anima = load_anim("textures/animm/front/", 4.0);
-
 
 	enemy.sprite.instance.model = enemy_model;
 	enemy.sprite.instance.scale = 1.0;
-	enemy.sprite.instance.position = (t_vertex) {0.0, -1.0, 0.0};
+	enemy.sprite.instance.position = pos;
 	enemy.sprite.instance.orientation = make_oy_rot_matrix(0.0);
 
-	enemy.beta = 0.0;
+	enemy.beta = beta;
 
 	enemy.walking_anims[0] = load_anim("textures/animm/front/", 4.0);
 	enemy.walking_anims[1] = load_anim("textures/animm/front-left/", 4.0);
@@ -210,6 +286,58 @@ t_enemy	create_enemy()
 	return (enemy);
 }
 
+t_object	create_object(t_vertex pos)
+{
+	t_object object;
+	t_model object_model;
+
+	object_model.bounds_center = (t_vertex) {0.0,0.0,0.0};;
+	object_model.bounds_radius = 3.0;
+	object_model.triangles_count = 2;
+	object_model.vertexes_count = 4;
+
+	object_model.vertexes = malloc(sizeof(t_vertex) * 4);
+
+	object_model.vertexes[0] = (t_vertex) {-1.1,-0.8,0.0};
+	object_model.vertexes[1] = (t_vertex) {-1.1,0.8,0.0};
+	object_model.vertexes[2] = (t_vertex) {1.1,0.8,0.0};
+	object_model.vertexes[3] = (t_vertex) {1.1,-0.8,0.0};
+
+	object_model.triangles = malloc(sizeof(t_triangle) * 2);
+	object_model.triangles[0].indexes[0] = 0;
+	object_model.triangles[0].indexes[1] = 1;
+	object_model.triangles[0].indexes[2] = 2;
+
+	object_model.triangles[1].indexes[0] = 0;
+	object_model.triangles[1].indexes[1] = 2;
+	object_model.triangles[1].indexes[2] = 3;
+
+	object_model.triangles[0].normal = (t_vertex) {0.0,0.0,1.0};
+	object_model.triangles[1].normal = (t_vertex) {0.0,0.0,1.0};
+
+	object_model.triangles[0].uvs[0] = (t_point) {0.0, 1.0,0.0};
+	object_model.triangles[0].uvs[1] = (t_point) {0.0, 0.0,0.0};
+	object_model.triangles[0].uvs[2] = (t_point) {1.0, 0.0,0.0};
+
+	object_model.triangles[1].uvs[0] = (t_point) {0.0, 1.0,0.0};
+	object_model.triangles[1].uvs[1] = (t_point) {1.0, 0.0,0.0};
+	object_model.triangles[1].uvs[2] = (t_point) {1.0, 1.0,0.0};
+
+	t_anim anima = load_anim("textures/anim1/", 15.0);
+
+
+	object.instance.model = object_model;
+	object.instance.scale = 1.0;
+	object.instance.position = pos;
+	object.instance.orientation = make_oy_rot_matrix(0.0);
+
+	object.anim = anima;
+	object.instance.model.anim = &object.anim;
+
+	return (object);
+}
+
+
 int		main()
 {
 	t_mgl			*mgl;
@@ -220,16 +348,27 @@ int		main()
 
 	doom.mgl = mgl;
 
-	t_anim anim;
 
-	anim = load_anim("textures/animm/left/", 4.0);
-
-	doom.scene.level.instance.model.anim = NULL;//&anim;
+	doom.scene.level.instance.model.anim = NULL;
 	doom.scene.level.instance.model.new_tex = create_texture("textures/lol.bmp");
 
-	t_enemy enemy = create_enemy();
 
-	doom.scene.enemy = enemy;
+	doom.scene.sprites = malloc(sizeof(t_sprite) * 3);
+	doom.scene.sprites_count = 0;
+
+	doom.scene.objects = malloc(sizeof(t_object) * 3);
+	doom.scene.objects_count = 0;
+
+	doom.enemies = malloc(sizeof(t_enemy) * 3);
+	doom.enemies[0] =  create_enemy((t_vertex){0.0,0.0,0.0}, 0.0);
+	doom.enemies[1] =  create_enemy((t_vertex){6.0,0.0,6.0}, 0.0);
+	doom.enemies[2] =  create_enemy((t_vertex){3.0,0.0,3.0}, 0.0);
+	doom.enemies_count = 3;
+
+	doom.objects = malloc(sizeof(t_object) * 3);
+	doom.objects[0] = create_object((t_vertex){0.0,0.0,3.3});
+	doom.objects_count = 1;
+
 
 	level_init(&doom.scene);
 	render_init(&doom.scene);

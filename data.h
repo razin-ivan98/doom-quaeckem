@@ -206,13 +206,15 @@ typedef struct	s_object
 	t_instance	instance;
 
 
-	
+	t_anim		anim;
 
 }				t_object;
 
 typedef struct	s_enemy
 {
 	t_sprite	sprite;
+
+	int			health;
 
 	t_anim		walking_anims[8];
 
@@ -257,6 +259,12 @@ typedef struct	s_doom
 	int			s_pressed;
 	int			a_pressed;
 	int			d_pressed;
+
+	t_enemy		*enemies;
+	int			enemies_count;
+
+	t_object	*objects;
+	int			objects_count;
 
 	t_mgl		*mgl;
 

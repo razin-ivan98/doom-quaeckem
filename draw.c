@@ -36,8 +36,8 @@ int		check_bounds_radius(t_instance *instance, t_scene *scene, t_mat4x4 *transfo
 									1.0
 									});
 
-	center = (t_vertex){tmp.x, tmp.y, tmp.z};
 
+	center = (t_vertex){tmp.x, tmp.y, tmp.z};
 	i = 0;
 	while (i < 5)
 	{
@@ -108,7 +108,9 @@ t_model	*transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *sc
 	model->uvs_count = 0;
 
 	if (!check_bounds_radius(instance, scene, &transform))
+	{
 		return (NULL);
+	}
 
 	transform_vertexes(model, instance, &transform);
 	
@@ -117,17 +119,10 @@ t_model	*transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *sc
 	return (model);
 }
 
-void	render_scene(int *image_data, t_scene *scene)
+void	render_level(int *image_data, t_scene *scene, t_mat4x4 camera_mat)
 {
-	t_mat4x4	camera_mat;
 	t_mat4x4	transform;
 	t_model		*model;
-
-
-
-
-	camera_mat = multiply_m_m(transposed_m(scene->camera.orientation),
-		make_translation_matrix(multiply(scene->camera.position, -1.0)));
 
 	update_instance_transform(&scene->level.instance);
 
@@ -140,15 +135,64 @@ void	render_scene(int *image_data, t_scene *scene)
 	}
 
 	render_model(image_data, model, scene);
+}
+void	render_sprites(int *image_data, t_scene *scene, t_mat4x4 camera_mat)
+{
+	t_mat4x4	transform;
+	t_model		*model;
+	int			i;
 
-	update_instance_transform(&scene->enemy.sprite.instance);
+	i = 0;
 
-	transform = multiply_m_m(camera_mat, scene->enemy.sprite.instance.transform);
-	if (!(model = transform_and_clip(&scene->enemy.sprite.instance, transform, scene, 1)))
+	while (i < scene->sprites_count)
 	{
-		return ;
+		update_instance_transform(&scene->sprites[i].instance);
+
+		transform = multiply_m_m(camera_mat, scene->sprites[i].instance.transform);
+		if (!(model = transform_and_clip(&scene->sprites[i].instance, transform, scene, 1)))
+		{
+			i++;
+			continue ;
+		}
+		render_model(image_data, model, scene);
+		i++;
 	}
-	render_model(image_data, model, scene);
+}
+void	render_objects(int *image_data, t_scene *scene, t_mat4x4 camera_mat)
+{
+	t_mat4x4	transform;
+	t_model		*model;
+	int			i;
+
+	i = 0;
+
+	while (i < scene->objects_count)
+	{
+		update_instance_transform(&scene->objects[i].instance);
+
+		transform = multiply_m_m(camera_mat, scene->objects[i].instance.transform);
+		if (!(model = transform_and_clip(&scene->objects[i].instance, transform, scene, 1)))
+		{
+			i++;
+			continue ;
+		}
+		render_model(image_data, model, scene);
+		i++;
+	}
+
+}
+void	render_scene(int *image_data, t_scene *scene)
+{
+	t_mat4x4	camera_mat;
+	t_mat4x4	transform;
+	t_model		*model;
+
+	camera_mat = multiply_m_m(transposed_m(scene->camera.orientation),
+		make_translation_matrix(multiply(scene->camera.position, -1.0)));
+
+	render_level(image_data, scene, camera_mat);
+	render_sprites(image_data, scene, camera_mat);
+	render_objects(image_data, scene, camera_mat);
 
 }
 
