@@ -141,10 +141,10 @@ void	render_scene(int *image_data, t_scene *scene)
 
 	render_model(image_data, model, scene);
 
-	update_instance_transform(&scene->enemy);
+	update_instance_transform(&scene->enemy.sprite.instance);
 
-	transform = multiply_m_m(camera_mat, scene->enemy.transform);
-	if (!(model = transform_and_clip(&scene->enemy, transform, scene, 1)))
+	transform = multiply_m_m(camera_mat, scene->enemy.sprite.instance.transform);
+	if (!(model = transform_and_clip(&scene->enemy.sprite.instance, transform, scene, 1)))
 	{
 		return ;
 	}

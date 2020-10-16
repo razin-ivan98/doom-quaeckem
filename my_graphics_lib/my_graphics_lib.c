@@ -17,6 +17,7 @@ t_mgl *mgl_init(char *win_name, int w, int h)
 
 	mgl->quit = 0;
 
+	mgl->curr_time = SDL_GetTicks() / 1000.0;;
 	//	mgl->trs = (t_triangle *)malloc(sizeof(t_triangle) * 30000);//////////////////////////
 	//	mgl->vs = (t_vertex *)malloc(sizeof(t_vertex) * 30000);/////////////////////////////////
 
@@ -66,10 +67,11 @@ void mgl_run(t_mgl *mgl, void (*run_callback)(void *, int *), void (*event_callb
 		run_callback(param, mgl->screen_surface->pixels);
 
 		mgl_draw(mgl, param, mgl->screen_surface->pixels);
+		mgl->lst_time = mgl->curr_time;
 		mgl->curr_time = SDL_GetTicks() / 1000.0;
 
 		mgl->fps = 1.0 / (mgl->curr_time - mgl->lst_time);
-		mgl->lst_time = mgl->curr_time;
+		
 		if (frame == 60)
 		{
 			

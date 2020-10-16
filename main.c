@@ -69,16 +69,38 @@ void	event_handle(SDL_Event *event, void *doom_ptr, int *quit)
 	}
 }
 
-void	animation_update(t_scene *scene, float curr_time)
+void	animation_update(t_scene *scene, float curr_time, float gamma)
 {
-	if (!scene->enemy.model.anim)
+	int my = (int)gamma;
+	my %= 360;
+
+	if (my < 0)
+		my += 360;
+
+	int him = (int)(scene->enemy.beta);
+
+	him %= 360;
+
+	if (him < 0)
+		him += 360;
+
+	int d = (my - him);
+
+	if (d < 0)
+		d += 360;
+
+	d /= 45;
+
+	scene->enemy.sprite.instance.model.anim = &scene->enemy.walking_anims[d];
+
+	if (!scene->enemy.sprite.instance.model.anim)
 		return ;
-	int frame = (int)(scene->enemy.model.anim->speed * curr_time)
-			% scene->enemy.model.anim->length;
+	int frame = (int)(scene->enemy.sprite.instance.model.anim->speed * curr_time)
+			% scene->enemy.sprite.instance.model.anim->length;
 	if (frame < 0)
 		frame = 0;
-	scene->enemy.model.new_tex =
-			scene->enemy.model.anim->frames[frame];
+	scene->enemy.sprite.instance.model.new_tex =
+			scene->enemy.sprite.instance.model.anim->frames[frame];
 }
 
 void	update(void *doom_ptr, int *pixels)
@@ -91,54 +113,44 @@ void	update(void *doom_ptr, int *pixels)
 
 	ft_bzero(pixels, sizeof(int) * HxW);
 	// doom->scene.level.instance.orientation = make_oy_rot_matrix(doom->beta);
-	doom->scene.enemy.orientation = make_oy_rot_matrix(doom->gamma);
+	doom->scene.enemy.sprite.instance.orientation = make_oy_rot_matrix(doom->gamma);
 
 	clear_z_buffer(doom->scene.z_buffer);
 
-	animation_update(&doom->scene, doom->mgl->curr_time);
+	animation_update(&doom->scene, doom->mgl->curr_time, doom->gamma);
 
 	render_scene(pixels, &doom->scene);
 
+	float speed = 6.0;
+
+	float path = (doom->mgl->curr_time - doom->mgl->lst_time) * speed;
+
 	if (doom->w_pressed)
 	{
-		doom->scene.camera.position.z += 0.1 * cos(doom->gamma / 180 * 3.1415);
-		doom->scene.camera.position.x -= 0.1 * sin(doom->gamma / 180 * 3.1415);
+		doom->scene.camera.position.z += path * cos(doom->gamma / 180 * 3.1415);
+		doom->scene.camera.position.x -= path * sin(doom->gamma / 180 * 3.1415);
 	}
 	if (doom->s_pressed)
 	{
-		doom->scene.camera.position.z -= 0.1 * cos(doom->gamma / 180 * 3.1415);
-		doom->scene.camera.position.x += 0.1 * sin(doom->gamma / 180 * 3.1415);
+		doom->scene.camera.position.z -= path * cos(doom->gamma / 180 * 3.1415);
+		doom->scene.camera.position.x += path * sin(doom->gamma / 180 * 3.1415);
 	}
 	if (doom->a_pressed)
 	{
-		doom->scene.camera.position.z -= 0.1 * sin(doom->gamma / 180 * 3.1415);
-		doom->scene.camera.position.x -= 0.1 * cos(doom->gamma / 180 * 3.1415);
+		doom->scene.camera.position.z -= path * sin(doom->gamma / 180 * 3.1415);
+		doom->scene.camera.position.x -= path * cos(doom->gamma / 180 * 3.1415);
 	}
 	if (doom->d_pressed)
 	{
-		doom->scene.camera.position.z += 0.1 * sin(doom->gamma / 180 * 3.1415);
-		doom->scene.camera.position.x += 0.1 * cos(doom->gamma / 180 * 3.1415);
+		doom->scene.camera.position.z += path * sin(doom->gamma / 180 * 3.1415);
+		doom->scene.camera.position.x += path * cos(doom->gamma / 180 * 3.1415);
 	}
 	
 }
 
-int		main()
+t_enemy	create_enemy()
 {
-	t_mgl			*mgl;
-
-	t_doom			doom;
-
-	mgl = mgl_init("Doom_Quaekem", W, H);
-
-	doom.mgl = mgl;
-
-	t_anim anim;
-
-	anim = load_anim("textures/animm/left/", 4.0);
-
-	doom.scene.level.instance.model.anim = NULL;//&anim;
-	doom.scene.level.instance.model.new_tex = create_texture("textures/lol.bmp");
-
+	t_enemy enemy;
 	t_model enemy_model;
 
 	enemy_model.bounds_center = (t_vertex) {0.0,0.0,0.0};
@@ -173,26 +185,51 @@ int		main()
 	enemy_model.triangles[1].uvs[1] = (t_point) {1.0, 0.0,0.0};
 	enemy_model.triangles[1].uvs[2] = (t_point) {1.0, 1.0,0.0};
 
-	t_anim anima = load_anim("textures/animm/front/", 4.0);
-	enemy_model.anim = &anima;
-	enemy_model.new_tex = enemy_model.anim->frames[0];
+	//t_anim anima = load_anim("textures/animm/front/", 4.0);
 
 
+	enemy.sprite.instance.model = enemy_model;
+	enemy.sprite.instance.scale = 1.0;
+	enemy.sprite.instance.position = (t_vertex) {0.0, -1.0, 0.0};
+	enemy.sprite.instance.orientation = make_oy_rot_matrix(0.0);
 
+	enemy.beta = 0.0;
 
+	enemy.walking_anims[0] = load_anim("textures/animm/front/", 4.0);
+	enemy.walking_anims[1] = load_anim("textures/animm/front-left/", 4.0);
+	enemy.walking_anims[2] = load_anim("textures/animm/left/", 4.0);
+	enemy.walking_anims[3] = load_anim("textures/animm/back-left/", 4.0);
+	enemy.walking_anims[4] = load_anim("textures/animm/back/", 4.0);
+	enemy.walking_anims[5] = load_anim("textures/animm/back-right/", 4.0);
+	enemy.walking_anims[6] = load_anim("textures/animm/right/", 4.0);
+	enemy.walking_anims[7] = load_anim("textures/animm/front-right/", 4.0);
 
+	enemy.sprite.instance.model.anim = &enemy.walking_anims[0];
+	enemy.sprite.instance.model.new_tex = enemy.sprite.instance.model.anim->frames[0];
 
+	return (enemy);
+}
 
+int		main()
+{
+	t_mgl			*mgl;
 
+	t_doom			doom;
 
+	mgl = mgl_init("Doom_Quaekem", W, H);
 
+	doom.mgl = mgl;
 
-	doom.scene.enemy.model = enemy_model;
-	doom.scene.enemy.scale = 1.0;
-	doom.scene.enemy.position = (t_vertex) {0.0, -1.0, 0.0};
-	doom.scene.enemy.orientation = make_oy_rot_matrix(0.0);
+	t_anim anim;
 
+	anim = load_anim("textures/animm/left/", 4.0);
 
+	doom.scene.level.instance.model.anim = NULL;//&anim;
+	doom.scene.level.instance.model.new_tex = create_texture("textures/lol.bmp");
+
+	t_enemy enemy = create_enemy();
+
+	doom.scene.enemy = enemy;
 
 	level_init(&doom.scene);
 	render_init(&doom.scene);

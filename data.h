@@ -194,7 +194,8 @@ typedef struct	s_level
 
 typedef struct	s_sprite
 {
-	t_model		model;
+	t_instance	instance;
+
 
 	
 
@@ -202,11 +203,22 @@ typedef struct	s_sprite
 
 typedef struct	s_object
 {
-	t_model		model;
+	t_instance	instance;
+
 
 	
 
 }				t_object;
+
+typedef struct	s_enemy
+{
+	t_sprite	sprite;
+
+	t_anim		walking_anims[8];
+
+	float		beta;
+	
+}				t_enemy;
 
 typedef struct	s_scene
 {
@@ -216,7 +228,7 @@ typedef struct	s_scene
 	t_object	*objects;
 	int			objects_count;
 
-	t_instance	enemy;
+	t_enemy		enemy;
 
 	t_model		*models;
 	int			models_count;
