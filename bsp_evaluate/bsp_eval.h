@@ -38,6 +38,6 @@ typedef struct	s_map_editor
 }				t_map_editor;
 
 
-
+void	save_json(t_bsp *root);
 
 #endif

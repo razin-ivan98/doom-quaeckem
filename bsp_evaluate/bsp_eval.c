@@ -253,6 +253,14 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 		ed->map.player.x = (ed->prev_x - W_2) / 100.0;
 		ed->map.player.y = (-ed->prev_y + H_2) / 100.0;
 	}
+	else if (event->type == SDL_KEYDOWN )
+	{
+		if (event->key.keysym.sym == SDLK_s)
+		{
+			puts("SAVE JSON");
+			save_json(&ed->map.root);
+		}
+	}
 }
 
 int classify_point(t_vertex cam, t_vertex line, t_vertex normal)

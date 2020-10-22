@@ -346,6 +346,12 @@ int		main()
 
 	mgl = mgl_init("Doom_Quaekem", W, H);
 
+
+	// SDL_Surface *cursor_surface = SDL_LoadBMP("textures/cursor.bmp");
+	// SDL_Cursor *cursor = SDL_CreateColorCursor(cursor_surface, 0, 0);
+	// SDL_SetCursor(cursor);
+
+
 	doom.mgl = mgl;
 
 
@@ -363,10 +369,10 @@ int		main()
 	doom.enemies[0] =  create_enemy((t_vertex){0.0,0.0,0.0}, 0.0);
 	doom.enemies[1] =  create_enemy((t_vertex){6.0,0.0,6.0}, 0.0);
 	doom.enemies[2] =  create_enemy((t_vertex){3.0,0.0,3.0}, 0.0);
-	doom.enemies_count = 3;
+	doom.enemies_count = 1;
 
 	doom.objects = malloc(sizeof(t_object) * 3);
-	doom.objects[0] = create_object((t_vertex){0.0,0.0,3.3});
+	doom.objects[0] = create_object((t_vertex){0.0,0.0,3.2});
 	doom.objects_count = 1;
 
 

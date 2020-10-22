@@ -14,9 +14,10 @@
 */
 typedef struct s_circuit
 {
-	t_point points[100];
+	t_vertex points[100];
 	int points_count;
 	int normal_dir;
+	int integrated;
 
 } t_circuit;
 
@@ -34,19 +35,14 @@ typedef struct s_map
 	int circuits_count;
 } t_map;
 
-typedef struct s_map_editor
-{
-	int prev_x;
-	int prev_y;
-
-	t_map map;
-} t_map_editor;
-
-typedef struct s_wall
+typedef struct	s_wall
 {
 	t_vertex points[2];
 	t_vertex normal;
-} t_wall;
+
+	int			used_in_bsp;
+}				t_wall;
+
 
 /* вот такая структура для bsp-узла */
 
@@ -69,5 +65,21 @@ typedef struct s_bsp
 
 	struct s_bsp *back;		// (только для не листовых узлов)
 } t_bsp;
+
+
+typedef struct s_map_editor
+{
+	int prev_x;
+	int prev_y;
+
+	t_map map;
+
+
+	SDL_Surface *cursor_surface;
+	SDL_Cursor *cursor;
+
+	t_bsp	root;
+} t_map_editor;
+
 
 #endif

@@ -11,9 +11,9 @@ t_mgl *mgl_init(char *win_name, int w, int h)
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 
-	mgl->window = SDL_CreateWindow(win_name, 50, 50, w, h, SDL_WINDOW_SHOWN);
+	mgl->window = SDL_CreateWindow(win_name, 50, 50, w , h, SDL_WINDOW_SHOWN);
 	mgl->renderer = SDL_CreateRenderer(mgl->window, -1, 0);
-	mgl->screen_surface = SDL_CreateRGBSurface(0, w, h, 32, 0, 0, 0, 0);
+	mgl->screen_surface = SDL_CreateRGBSurface(0, w , h, 32, 0, 0, 0, 0);
 
 	mgl->quit = 0;
 

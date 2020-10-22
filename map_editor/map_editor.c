@@ -223,41 +223,19 @@ int check_in_figure(t_point *pts, int pts_count, int i, t_map_editor *ed)
 		pts[get_i_plus_1(i, pts_count)].x - pts[i].x,
 		pts[get_i_plus_1(i, pts_count)].y - pts[i].y,
 		0.0});
-	// sub1 = sub(base, new);
-	// sub2 = sub(base, end);
-
-	// if (atan2f(sub1.x, sub1.y) < atan2f(sub2.x, sub2.y))
-	// 	return (1);
-	// return (0);
 
 	float angle1 = acosf(dot(base, new));
 	float angle2 = acosf(dot(base, end));
-	printf("cos1: %f \n", dot(base, new));
-	printf("cos2: %f \n", dot(base, end));
 
 	if (cross(base, new).z < 0.0)
 		angle1 = 2 * M_PI - angle1;
 	if (cross(base, end).z < 0.0)
 		angle2 = 2 * M_PI - angle2;
 
-	printf("a1: %f \n", angle1);
-	printf("a2: %f \n", angle2);
-
 	if (angle2 < angle1 && angle1 > 0.0)
 		return (1);
 	return (0);
 
-	//	prod = cross(new, v);
-
-	//	if (prod.z * ed->map.circuits[0].normal_dir > 0.0)
-	//		return (0);
-
-	//	prod = cross(new, v);
-
-	//	if (prod.z * ed->map.circuits[0].normal_dir < 0.0)
-	//		return (0);
-
-	//	return (1);
 }
 
 void fictive_cut(t_point *pts, int *pts_count, t_point *hole_pts, int hole_pts_count, int j, int k)
