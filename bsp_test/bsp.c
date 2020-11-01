@@ -623,7 +623,7 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 /*
 	коллбэк обновления экрана
 */
-void update(void *map_editor, int *pixels)
+void update(void *map_editor, int *pixelss)
 {
 	t_map_editor *ed;
 	int i;
@@ -682,6 +682,7 @@ int main(int ac, char **av)
 	*/
 
 	t_mgl *mgl = mgl_init("Map Editor BSP", W, H);
+
 
 
 	map_editor.cursor_surface = SDL_LoadBMP("../textures/cursor.bmp");
