@@ -165,23 +165,26 @@ void	transform_data(t_map_editor *ed, t_wall *walls, int *walls_count)
 	int		j;
 	
 	*walls_count = 0;
-	i = 0;
-	//while (i < ed->map.circuits_count)
-	//{
-		j = 1;
-		while (j < ed->map.circuits[i].points_count)
-		{
-			curr.points[0] = ed->map.circuits[i].points[j - 1];
-			curr.points[1] = ed->map.circuits[i].points[j];
-			curr.normal = get_face_normal(ed, i, j);
-			curr.used_in_bsp = 0;
 
-			walls[*walls_count] = curr;
-			(*walls_count)++;
-			j++;
-		}
-		i++;
-	//}
+
+	j = 1;
+	while (j < ed->map.circuits[i].points_count)
+	{
+		curr.points[0] = ed->map.circuits[i].points[j - 1];
+		curr.points[0].z = 0.0;
+
+		curr.points[1] = ed->map.circuits[i].points[j];
+		curr.points[1].z = 0.0;
+
+		curr.normal = get_face_normal(ed, 0, j);
+		curr.used_in_bsp = 0;
+
+		walls[*walls_count] = curr;
+		(*walls_count)++;
+		j++;
+	}
+	i++;
+
 	printf("%d\n", *walls_count);
 }
 
@@ -248,13 +251,6 @@ int		is_convex_polygon(t_wall *walls, int walls_count)
 		next = walls[get_i_plus_1(i, walls_count)].points[1];
 		prev = walls[i].points[0];
 
-
-		// printf("prev: %f %f     %f\n", prev.x, prev.y, prev.z);
-		// printf("curr: %f %f     %f\n", curr.x, curr.y, curr.z);
-		// printf("next: %f %f     %f\n", next.x, next.y, next.z);
-		// printf("test: %f %f     %f\n\n\n", test.x, test.y, test.z);
-
-
 		if (!check_in_figure(curr, prev, next, test))
 		{
 			return (0);
@@ -319,7 +315,7 @@ void	bsp_compile(t_map_editor *ed)
 		puts("CONVEX");
 	else
 	{
-		puts("NOT");
+		puts("NOTX");
 	}
 	
 
@@ -527,6 +523,9 @@ void triangulate(t_map_editor *ed)
 	t_vertex new1;
 	t_vertex new2;
 
+	if (ed->map.circuits_count == 1)
+		return ;
+
 	ft_memcpy(pts, ed->map.circuits[0].points, sizeof(t_point) * (ed->map.circuits[0].points_count - 1));
 	pts_count = ed->map.circuits[0].points_count - 1;
 
@@ -574,8 +573,8 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 		/*
 			новая точка
 		*/
-		ed->prev_x = event->button.x * 2;
-		ed->prev_y = event->button.y * 2;
+		ed->prev_x = event->button.x;
+		ed->prev_y = event->button.y;
 
 		map_new_point(&(ed->map), (float)(ed->prev_x - W_2) / 100.0,
 						(float)(H_2 - ed->prev_y) / 100.0);
@@ -615,7 +614,7 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 		else if (event->key.keysym.sym == SDLK_b)
 		{
 			/* здеся должен быть вызов bsp-компилятора */
-			triangulate(ed);
+		//	triangulate(ed);
 			bsp_compile(ed);
 		}
 	}
@@ -623,7 +622,7 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 /*
 	коллбэк обновления экрана
 */
-void update(void *map_editor, int *pixelss)
+void update(void *map_editor, int *pixels)
 {
 	t_map_editor *ed;
 	int i;
