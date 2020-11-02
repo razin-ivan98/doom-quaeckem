@@ -6,9 +6,9 @@
 
 typedef struct      s_mgl
 {
-    SDL_Window		*windows;
+    SDL_Window		*window;
 	int				windows_count;
-	SDL_Renderer	*renderers;
+	SDL_Renderer	*renderer;
 	SDL_Surface		*screen_surface;
 	SDL_Texture		*screen_texture;
 	SDL_Event		event;

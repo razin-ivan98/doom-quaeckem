@@ -78,10 +78,10 @@ void mgl_run(t_mgl *mgl, void (*run_callback)(void *, int *), void (*event_callb
 
 		while (i < mgl->windows_count)
 		{
-			SDL_RenderClear(mgl->renderers[i]);
+			SDL_RenderClear(mgl->renderer);
 			mgl->screen_texture = SDL_CreateTextureFromSurface(mgl->renderer, mgl->screen_surface);
-			SDL_RenderCopy(mgl->renderers[i], mgl->screen_texture, NULL, &rect);
-			SDL_RenderPresent(mgl->renderers[i]);
+			SDL_RenderCopy(mgl->renderer, mgl->screen_texture, NULL, &rect);
+			SDL_RenderPresent(mgl->renderer);
 			SDL_DestroyTexture(mgl->screen_texture);
 			i++;
 		}
