@@ -6,7 +6,7 @@ FRAMEWORKS = -F./../frameworks -rpath ./../frameworks -framework SDL2 \
 
 INCLUDES = -I./../libft/ -I./../frameworks/SDL2.framework/Headers -I./../my_graphics_lib -I./../
 
-SRCS = save_json.c bsp_eval.c ../my_graphics_lib/my_graphics_lib.c ../image_handle.c ../linear_algebra.c
+SRCS = save_json.c bsp_eval.c ../my_graphics_lib/my_graphics_lib.c ../image_handle.c ../linear_algebra.c ftoa.c
 
 all:
 ifeq ($(UNAME_S), Darwin)
@@ -19,7 +19,3 @@ else
 	gcc -g3 -I $(INCLUDES) $(SRCS) -lSDL2 -lm -L./../libft -lft -o BSPEval
 endif
 	@echo ГОТОВО ЕПТА
-
-
-	
-	

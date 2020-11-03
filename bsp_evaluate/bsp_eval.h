@@ -4,6 +4,8 @@
 # include "my_graphics_lib.h"
 # include "duke.h"
 
+ #define MAX(a,b) ((a) > (b) ? (a) : (b))
+
 typedef struct	s_wall
 {
 	t_vertex	points[2];
@@ -38,6 +40,10 @@ typedef struct	s_map_editor
 }				t_map_editor;
 
 
-void	save_json(t_bsp *root);
+void	save_json(t_bsp *root, int not_leaves);
+char 	*ftoa(float value, int decimals, char *buf);
+char 	*itoa(int value, char *buf);
+int 	itoa_s(int value, char *buf);
+
 
 #endif

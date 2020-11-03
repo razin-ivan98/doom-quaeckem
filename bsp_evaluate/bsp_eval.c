@@ -239,11 +239,20 @@ void draw_line(int *pixels, int x1, int y1, int x2, int y2, int color)
 	}
 }
 
+int check_levels(t_bsp *node, int levels)
+{
+	if (node == NULL)
+		return (levels);
+	return (MAX(check_levels(node->front, levels + 1), check_levels(node->back, levels + 1)));
+}
+
+
 void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 {
 	t_map_editor *ed;
 
 	ed = (t_map_editor *)ed_ptr;
+	int i = 0;
 
 	if (event->type == SDL_MOUSEBUTTONDOWN)
 	{
@@ -258,7 +267,8 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 		if (event->key.keysym.sym == SDLK_s)
 		{
 			puts("SAVE JSON");
-			save_json(&ed->map.root);
+			i = check_levels(&ed->map.root, i);
+			save_json(&ed->map.root, i - 1);
 		}
 	}
 }
