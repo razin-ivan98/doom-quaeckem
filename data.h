@@ -18,7 +18,7 @@ typedef struct	s_point
 {
 	float		x;
 	float		y;
-	float	h;
+	float		h;
 }				t_point;
 
 typedef struct	s_vertex
