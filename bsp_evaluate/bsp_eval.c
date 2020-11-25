@@ -256,8 +256,8 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 
 	if (event->type == SDL_MOUSEBUTTONDOWN)
 	{
-		ed->prev_x = event->button.x;
-		ed->prev_y = event->button.y;
+		ed->prev_x = event->button.x * 2;
+		ed->prev_y = event->button.y * 2;
 
 		ed->map.player.x = (ed->prev_x - W_2) / 100.0;
 		ed->map.player.y = (-ed->prev_y + H_2) / 100.0;

@@ -1,11 +1,77 @@
 #include "./bsp.h"
 
+t_vertex	lines_intersect(t_vertex a1, t_vertex a2, t_vertex b1, t_vertex b2)
+{
+	float A1, A2, B1, B2, C1, C2;
+
+	A1 = a1.y - a2.y;
+	B1 = a2.x - a1.x;
+	C1 = a1.x * a2.y - a2.x * a1.y;
+
+	A2 = b1.y - b2.y;
+	B2 = b2.x - b1.x;
+	C2 = b1.x * b2.y - b2.x * b1.y;
+
+	float DivXY = A1 * B2 - A2 * B1;
+ 	float DivX = B1 * C2 - B2 * C1;
+	float DivY = C1 * A2 - C2 * A1;
+	return ((t_vertex){DivX / DivXY, DivY / DivXY, 0.0});
+}
+
+int get_i_plus_1(int i, int max)
+{
+	return ((i + 1) % max);
+}
+
+int get_i_minus_1(int i, int max)
+{
+	if (i != 0)
+		return (i - 1);
+	return (max - 1);
+}
+
+int get_i_plus_2(int i, int max)
+{
+	return ((i + 2) % max);
+}
+
+
+void delete_by_index(t_point *points, int index, int *count)
+{
+	int i;
+
+	i = index;
+	(*count)--;
+	while (i < *count)
+	{
+		points[i] = points[i + 1];
+		i++;
+	}
+}
+
+void insert_by_index(t_vertex *points, int index, int *count, t_vertex p)
+{
+	int i;
+
+	i = *count;
+	while (i > index)
+	{
+		points[i] = points[i - 1]; ///////////////
+		i--;
+	}
+	points[index] = p;
+	(*count)++;
+}
+
+
 /*
 	алгоритм брейзенхема или кого там
 */
 
 void draw_line(int *pixels, int x1, int y1, int x2, int y2, int color)
 {
+
+
 	const int deltaX = abs(x2 - x1);
 	const int deltaY = abs(y2 - y1);
 	const int signX = x1 < x2 ? 1 : -1;
@@ -53,9 +119,9 @@ t_vertex get_face_normal(t_map_editor *editor, int i, int j)
 	ret.x = cos(atan2(p2.y - p1.y, p2.x - p1.x) +
 				(float)editor->map.circuits[i].normal_dir * M_PI / 2);
 
-	ret.y = 0.0;
-	ret.z = sin(atan2(p2.y - p1.y, p2.x - p1.x) +
+	ret.y = sin(atan2(p2.y - p1.y, p2.x - p1.x) +
 				(float)editor->map.circuits[i].normal_dir * M_PI / 2);
+	ret.z = 0.0;
 
 	return (normalize(ret));
 }
@@ -67,6 +133,8 @@ t_vertex get_face_normal(t_map_editor *editor, int i, int j)
 void map_new_circuit(t_map *map)
 {
 	map->circuits[map->circuits_count].points_count = 0;
+	map->circuits[map->circuits_count].walls_count = 0;
+
 
 	/*
 		направление нормали
@@ -77,7 +145,7 @@ void map_new_circuit(t_map *map)
 
 	(map->circuits_count)++;
 }
-void map_new_point(t_map *map, float x, float y)
+void map_new_point(t_map *map, float x, float y, int flag)
 {
 	int index;
 
@@ -87,8 +155,24 @@ void map_new_point(t_map *map, float x, float y)
 
 	if (!map->active)
 	{
+		if (map->circuits_count > 0 && !map->on_point && !map->on_line)
+		{
+			return ;
+		}
 		map_new_circuit(map);
 		map->active = 1;
+	}
+	if (map->on_line && !flag)
+	{
+		insert_by_index(map->circuits[map->on_circuit_i].points,
+			get_i_plus_1(map->on_point_i, map->circuits[map->on_circuit_i].points_count),
+			&map->circuits[map->on_circuit_i].points_count,
+			(t_vertex){x, y, 0.0});
+	}
+	else if (map->on_point && !flag)
+	{
+		x = map->circuits[map->on_circuit_i].points[map->on_point_i].x;
+		y = map->circuits[map->on_circuit_i].points[map->on_point_i].y;
 	}
 
 	index = map->circuits[map->circuits_count - 1].points_count;
@@ -98,28 +182,33 @@ void map_new_point(t_map *map, float x, float y)
 	map->circuits[map->circuits_count - 1].points_count++;
 }
 
-t_wall	get_big_wall(t_wall wall)
+t_wall	get_big_wall(t_wall wall, t_bsp *bsp)
 {
-	float dx;
+	float a;
+	float b;
+	float c;
 
-	if (wall.points[0].y == wall.points[1].y)
+	a = wall.points[0].y - wall.points[1].y;
+	b = wall.points[1].x - wall.points[0].x;
+	c = wall.points[0].x * wall.points[1].y - wall.points[1].x * wall.points[0].y;
+
+	bsp->line.x = -(a / b);
+	bsp->line.y = -(c / b);
+	bsp->line.z = 0.0;
+
+	if (fabsf(a) > fabsf(b))
 	{
-		wall.points[0].x = -99999.0;
-		wall.points[1].x = 99999.0;
-	}
-	else if (wall.points[0].x == wall.points[1].x)
-	{
-		wall.points[0].y = -99999.0;
-		wall.points[1].y = 99999.0;
+		wall.points[0].y = -9999.0;
+		wall.points[1].y = 9999.0;
+		wall.points[0].x = (-b * wall.points[0].y - c) / a;
+		wall.points[1].x = (-b * wall.points[1].y - c) / a;
 	}
 	else
 	{
-		dx = (wall.points[1].x - wall.points[0].x) /
-					(wall.points[1].y - wall.points[0].y);
-		wall.points[0].y = -99999.0;
-		wall.points[1].y = 99999.0;
-		wall.points[0].x = -99999.0 * dx;
-		wall.points[1].x = 99999.0 * dx;
+		wall.points[0].x = -9999.0;
+		wall.points[1].x = 9999.0;
+		wall.points[0].y = (-a * wall.points[0].x - c) / b;
+		wall.points[1].y = (-a * wall.points[1].x - c) / b;
 	}
 	return (wall);
 }
@@ -158,34 +247,88 @@ int if_intersect(t_vertex v11, t_vertex v12, t_vertex v21, t_vertex v22)
 	return 1;
 }
 
-void	transform_data(t_map_editor *ed, t_wall *walls, int *walls_count)
+int		walls_cmp(t_wall w1, t_wall w2)
+{
+	if ((w1.points[0].x == w2.points[0].x && w1.points[0].y == w2.points[0].y &&
+		w1.points[1].x == w2.points[1].x && w1.points[1].y == w2.points[1].y) || 
+		(w1.points[0].x == w2.points[1].x && w1.points[0].y == w2.points[1].y &&
+		w1.points[1].x == w2.points[0].x && w1.points[1].y == w2.points[0].y))
+		return (1);
+	return (0);
+}
+
+void	analyze_wall(t_wall *wall, t_map_editor *ed, int n)
+{
+	int i;
+	int j;
+
+	i = 0;
+	while (i < ed->map.circuits_count)
+	{
+		if (i == n)
+		{
+			i++;
+			continue ;
+		}
+		j = 0;
+		while (j < ed->map.circuits[i].walls_count)
+		{
+			if (walls_cmp(ed->map.circuits[i].walls[j], *wall))
+			{
+				wall->type = WALL_TYPE_SECTOR_BORDER;
+			}
+			j++;
+		}
+
+		i++;
+	}
+}
+
+void	transform_data(t_map_editor *ed)
 {
 	t_wall	curr;
+	int		walls_count;
 	int		i;
 	int		j;
+
+	i = 0;
 	
-	*walls_count = 0;
-
-
-	j = 1;
-	while (j < ed->map.circuits[i].points_count)
+	while (i < ed->map.circuits_count)
 	{
-		curr.points[0] = ed->map.circuits[i].points[j - 1];
-		curr.points[0].z = 0.0;
+		j = 1;
+		walls_count = 0;
+		while (j < ed->map.circuits[i].points_count)
+		{
+			curr.points[0] = ed->map.circuits[i].points[j - 1];
+			curr.points[0].z = 0.0;
 
-		curr.points[1] = ed->map.circuits[i].points[j];
-		curr.points[1].z = 0.0;
+			curr.points[1] = ed->map.circuits[i].points[j];
+			curr.points[1].z = 0.0;
 
-		curr.normal = get_face_normal(ed, 0, j);
-		curr.used_in_bsp = 0;
+			curr.normal = get_face_normal(ed, i, j);
+			curr.used_in_bsp = 0;
 
-		walls[*walls_count] = curr;
-		(*walls_count)++;
-		j++;
+			curr.type = WALL_TYPE_WALL;
+
+			ed->map.circuits[i].walls[walls_count] = curr;
+			walls_count++;
+			j++;
+		}
+		ed->map.circuits[i].walls_count = walls_count;
+		i++;
 	}
-	i++;
 
-	printf("%d\n", *walls_count);
+	i = 0;
+	while (i < ed->map.circuits_count)
+	{
+		j = 0;
+		while (j < ed->map.circuits[i].walls_count)
+		{
+			analyze_wall(&ed->map.circuits[i].walls[j], ed, i);
+			j++;
+		}
+		i++;
+	}
 }
 
 int check_in_figure(t_vertex curr, t_vertex prev, t_vertex next, t_vertex test)
@@ -211,25 +354,6 @@ int check_in_figure(t_vertex curr, t_vertex prev, t_vertex next, t_vertex test)
 	if (angle2 <= angle1 && angle1 >= 0.0)
 		return (1);
 	return (0);
-}
-
-
-
-int get_i_plus_1(int i, int max)
-{
-	return ((i + 1) % max);
-}
-
-int get_i_minus_1(int i, int max)
-{
-	if (i != 0)
-		return (i - 1);
-	return (max - 1);
-}
-
-int get_i_plus_2(int i, int max)
-{
-	return ((i + 2) % max);
 }
 
 /*
@@ -261,127 +385,239 @@ int		is_convex_polygon(t_wall *walls, int walls_count)
 	return (1);
 }
 
-int		get_cutter(t_wall *walls, int walls_count)
+void		get_cutter(t_circuit *circuits, int circuits_count, int *cutter_cir, int *cutter_wall)
 {
 	int i;
+	int j;
 
 	i = 0;
-	while (i < walls_count)
+	while (i < circuits_count)
 	{
-		//if (!walls[i].used_in_bsp && )
+		j = 0;
+		while (j < circuits[i].walls_count)
+		{
+			if (circuits[i].walls[j].type == WALL_TYPE_SECTOR_BORDER &&
+				!circuits[i].walls[j].used_in_bsp && length(circuits[i].walls[j].normal))
+			{
+				*cutter_cir = i;
+				*cutter_wall = j;
+				return ;
+			}
+			j++;
+		}
 		i++;
 	}
+	*cutter_cir = -1;
+	*cutter_wall = -1;
+	////надо еще обычные каттеры
 }
 
-// void	bsp_recurse(t_bsp *bsp, t_wall *walls, int walls_count)
-// {
-// 	t_wall	*front;
-// 	t_wall	*back;
-// 	int		front_count;
-// 	int		back_count;
-// 	int		i;
-// 	int		result;
-// 	int		cutter;
+int		classify_wall(t_wall cutter, t_wall wall)
+{
+	t_vertex base;
+	t_vertex p1;
+	t_vertex p2;
+	t_vertex cross1;
+	t_vertex cross2;
 
-// 	if (is_convex_polygon(walls, walls_count))
-// 	{
-// 		front = NULL;
-// 		front = NULL;
-// 		bsp->is_leaf = 1;
-// 		bsp->walls_count = walls_count;
-// 		bsp->walls = walls;
-// 		return ;
-// 	}
-// 	bsp->is_leaf = 0;
+	base = sub(cutter.points[1], cutter.points[0]);
+	p1 = sub(cutter.points[1], wall.points[0]);
+	p2 = sub(cutter.points[1], wall.points[1]);
+	//printf("%f\n%f\n", cross(base, add(base, multiply(wall.normal, 9999))).z);
+	if (cross(base, add(base, cutter.normal)).z > 0.0)
+	{
+		base = sub(cutter.points[0], cutter.points[1]);
+		p1 = sub(cutter.points[0], wall.points[0]);
+		p2 = sub(cutter.points[0], wall.points[1]);
+	}
 
-// 	front = malloc(sizeof(t_wall) * 3000);
-// 	back = malloc(sizeof(t_wall) * 3000);
+	base.z = 0.0;
+	p1.z = 0.0;
+	p2.z = 0.0;
 
-// 	cutter = get_cutter(walls, walls_count);
+		
+	cross1 = cross(base, p1);
+	cross2 = cross(base, p2);
+
+//	printf("cross1: %f\tcross2: %f\n", cross1.z, cross2.z);
+
+	if (fabsf(cross1.z) < CUTTING_EPSILON && fabsf(cross2.z) < CUTTING_EPSILON)
+		return (COMPLANAR);
+	if ((cross1.z >= -CUTTING_EPSILON && cross2.z >= -CUTTING_EPSILON))
+		return (FRONT);
+	if ((cross1.z <= CUTTING_EPSILON && cross2.z <= CUTTING_EPSILON))
+		return (BACK);
+	if ((cross1.z > -CUTTING_EPSILON && cross2.z < CUTTING_EPSILON) ||
+		(cross1.z < CUTTING_EPSILON && cross2.z > -CUTTING_EPSILON))
+		return (CUTTED);
+}
+
+void	bsp_recurse(t_bsp *bsp, t_circuit *circuits, int circuits_count)
+{
+	t_circuit	*front;
+	t_circuit	*back;
+	int		front_count;
+	int		back_count;
+	int		i;
+	int		j;
+	int		result;
+	int		cutter_cir;
+	int		cutter_wall;
+	t_wall	cutter;
+
+	t_wall	new1;
+	t_wall	new2;
+
 
 	
-// }
+	
+
+	// if (circuits_count == 1 && is_convex_polygon(walls, walls_count))
+	// {
+	// 	front = NULL;
+	// 	back = NULL;
+	// 	bsp->is_leaf = 1;
+	// 	bsp->walls_count = walls_count;
+	// 	bsp->walls = walls;
+	// 	return ;
+	// }
+
+
+
+	get_cutter(circuits, circuits_count, &cutter_cir, &cutter_wall);
+
+	//printf("%f\t%f\t\t%f\t%f\n", circuits[cutter_cir].walls[cutter_wall].points[0].x, circuits[cutter_cir].walls[cutter_wall].points[0].y,
+	//							circuits[cutter_cir].walls[cutter_wall].points[1].x, circuits[cutter_cir].walls[cutter_wall].points[1].y);
+
+	
+	front = NULL;
+	back = NULL;
+
+	bsp->front = NULL;
+	bsp->back = NULL;
+
+
+	cutter = get_big_wall(circuits[cutter_cir].walls[cutter_wall], bsp);
+	
+	if (cutter_cir == -1)
+	{
+		bsp->walls_count = 0;
+		bsp->is_leaf = 1;
+		i = 0;
+		while (i < circuits_count)
+		{
+			j = 0;
+			while (j < circuits[i].walls_count)
+			{
+				bsp->walls[bsp->walls_count] = circuits[i].walls[j];
+				bsp->walls_count++;
+				j++;
+			}
+			i++;
+		}
+		puts("ВСЕ");
+		return ;
+	}
+
+	front = malloc(sizeof(t_circuit) * circuits_count);
+	back = malloc(sizeof(t_circuit) * circuits_count);
+
+	ft_bzero(front, sizeof(t_circuit) * circuits_count);
+	ft_bzero(back, sizeof(t_circuit) * circuits_count);
+	//printf("%f\t%f\t\t%f\t%f\n", cutter.points[0].x, cutter.points[0].y, cutter.points[1].x, cutter.points[1].y);
+
+	bsp->is_leaf = 0;
+	bsp->walls_count = 0;
+	bsp->normal = cutter.normal;
+
+
+	bsp->back = malloc(sizeof(t_bsp));
+	bsp->front = malloc(sizeof(t_bsp));
+
+	i = 0;
+	while (i < circuits_count)
+	{
+		j = 0;
+		while (j < circuits[i].walls_count)
+		{
+			result = classify_wall(cutter, circuits[i].walls[j]);
+
+			if (result == CUTTED)
+			{
+				new1 = circuits[i].walls[j];
+				new2 = circuits[i].walls[j];
+
+				puts("cutted");
+				new1.points[0] = circuits[i].walls[j].points[0];
+				new1.points[1] = lines_intersect(cutter.points[0], cutter.points[1],
+					circuits[i].walls[j].points[0], circuits[i].walls[j].points[1]);
+				new2.points[0] = new1.points[1];
+				new2.points[1] = circuits[i].walls[j].points[1];
+
+				result = classify_wall(cutter, new1);
+				if (result == FRONT)
+				{
+					front[i].walls[front[i].walls_count] = new1;
+					front[i].walls_count++;
+					back[i].walls[back[i].walls_count] = new2;
+					back[i].walls_count++;
+				}
+				else
+				{
+					front[i].walls[front[i].walls_count] = new2;
+					front[i].walls_count++;
+					back[i].walls[back[i].walls_count] = new1;
+					back[i].walls_count++;	
+				}
+			}
+			else if (result == FRONT)
+			{
+				puts("front");
+				front[i].walls[front[i].walls_count] = circuits[i].walls[j];
+				front[i].walls_count++;
+			}
+			else if (result == BACK)
+			{
+				puts("back");
+				back[i].walls[back[i].walls_count] = circuits[i].walls[j];
+				back[i].walls_count++;
+			}
+			else
+			{
+				puts("complanar");
+				circuits[i].walls[j].used_in_bsp = 1;
+				front[i].walls[front[i].walls_count] = circuits[i].walls[j];
+				front[i].walls_count++;
+			}
+
+			j++;
+		}
+		i++;
+	}
+
+
+	bsp_recurse(bsp->back, back, circuits_count);
+	bsp_recurse(bsp->front, front, circuits_count);
+}
 
 void	bsp_compile(t_map_editor *ed)
 {
-	t_wall	walls[300];
-	int		walls_count;
 	int		i;
 	
 
-	transform_data(ed, (t_wall *)walls, &walls_count);
+	transform_data(ed);
 
-	if (is_convex_polygon((t_wall *)walls, walls_count))
-		puts("CONVEX");
-	else
-	{
-		puts("NOTX");
-	}
+	// if (is_convex_polygon((t_wall *)walls, walls_count))
+	// 	puts("CONVEX");
+	// else
+	// {
+	// 	puts("NOTX");
+	// }
 	
 
-	//bsp_recurse(&ed->root, (t_wall *)walls, walls_count);
+	bsp_recurse(&ed->root, ed->map.circuits, ed->map.circuits_count);
 }
 
-void delete_by_index(t_point *points, int index, int *count)
-{
-	int i;
-
-	i = index;
-	(*count)--;
-	while (i < *count)
-	{
-		points[i] = points[i + 1];
-		i++;
-	}
-}
-
-void insert_by_index(t_point *points, int index, int *count, t_point p)
-{
-	int i;
-
-	i = *count;
-	while (i > index)
-	{
-		points[i] = points[i - 1]; ///////////////
-		i--;
-	}
-	points[index] = p;
-	(*count)++;
-}
-
-int check_fictive_cut_in_figure(t_point *pts, int pts_count, int i, t_map_editor *ed, t_point new_p)
-{
-	t_vertex new;
-	t_vertex base;
-	t_vertex end;
-	t_vertex sub1;
-	t_vertex sub2;
-
-	base = normalize((t_vertex){
-		pts[get_i_minus_1(i, pts_count)].x - pts[i].x,
-		pts[get_i_minus_1(i, pts_count)].y - pts[i].y,
-		0.0});
-	new = normalize((t_vertex){
-		new_p.x - pts[i].x,
-		new_p.y - pts[i].y,
-		0.0});
-	end = normalize((t_vertex){
-		pts[get_i_plus_1(i, pts_count)].x - pts[i].x,
-		pts[get_i_plus_1(i, pts_count)].y - pts[i].y,
-		0.0});
-
-	float angle1 = acosf(dot(base, new));
-	float angle2 = acosf(dot(base, end));
-
-	if (cross(base, new).z < 0.0)
-		angle1 = 2 * M_PI - angle1;
-	if (cross(base, end).z < 0.0)
-		angle2 = 2 * M_PI - angle2;
-
-	if (angle2 < angle1 && angle1 > 0.0)
-		return (1);
-	return (0);
-}
 
 int check_intersection(t_vertex new1, t_vertex new2, t_point *pts, int pts_count)
 {
@@ -432,25 +668,6 @@ int check_intersection_with_all(t_vertex new1, t_vertex new2, t_map_editor *ed)
 	return (-1);
 }
 
-void fictive_cut(t_point *pts, int *pts_count, t_point *hole_pts, int hole_pts_count, int j, int k)
-{
-	int i;
-
-	i = 0;
-	//insert_by_index(pts, j + 1, pts_count, hole_pts[k]);
-	while (i < hole_pts_count)
-	{
-		//	printf("i: %d\t j: %d\n",i,j);
-
-		insert_by_index(pts, j + 1 + i, pts_count, hole_pts[k]);
-		k = get_i_plus_1(k, hole_pts_count);
-		i++;
-	}
-	insert_by_index(pts, j + 1 + i, pts_count, hole_pts[k]);
-	insert_by_index(pts, j + 2 + i, pts_count, pts[j]);
-
-	puts("ïnsert");
-}
 
 void pts_rev(t_point *pts, int pts_count)
 {
@@ -470,127 +687,185 @@ void pts_rev(t_point *pts, int pts_count)
 }
 
 
-int integrate_hole(t_map_editor *ed, int i, t_point *pts, int *pts_count)
-{
-	int j;
-	int k;
-	t_point hole_pts[30];
-	int hole_pts_count;
-	t_vertex new1;
-	t_vertex new2;
 
-	ft_memcpy(hole_pts, ed->map.circuits[i].points, sizeof(t_point) * (ed->map.circuits[i].points_count - 1));
-	hole_pts_count = ed->map.circuits[i].points_count - 1;
-
-	if (ed->map.circuits[i].normal_dir == -1)
-	{
-		pts_rev(hole_pts, hole_pts_count);
-	}
-
-	j = 0;
-	while (j < *pts_count)
-	{
-		new1 = (t_vertex){pts[j].x, pts[j].y, 0.0};
-		k = 0;
-		while (k < hole_pts_count)
-		{
-			new2 = (t_vertex){hole_pts[k].x, hole_pts[k].y, 0.0};
-
-			if (check_intersection(new1, new2, pts, *pts_count) == -1 && check_intersection(new1, new2, hole_pts, hole_pts_count) == -1 && check_intersection_with_all(new1, new2, ed) == -1 && check_fictive_cut_in_figure(pts, *pts_count, j, ed, hole_pts[k]) == 1)
-			{
-				fictive_cut(pts, pts_count, hole_pts, hole_pts_count, j, k);
-				ed->map.circuits[i].integrated = 1;
-				puts("POK");
-				return (1);
-			}
-			k++;
-		}
-		j++;
-	}
-	puts("GOVOVNO");
-
-	return (0);
-}
-
-void triangulate(t_map_editor *ed)
-{
-	t_point pts[100];
-	int pts_count;
-	int i;
-
-	int p;
-
-	t_vertex new1;
-	t_vertex new2;
-
-	if (ed->map.circuits_count == 1)
-		return ;
-
-	ft_memcpy(pts, ed->map.circuits[0].points, sizeof(t_point) * (ed->map.circuits[0].points_count - 1));
-	pts_count = ed->map.circuits[0].points_count - 1;
-
-	if (ed->map.circuits[0].normal_dir == -1)
-	{
-		pts_rev(pts, pts_count);
-	}
-
-	int flag;
-	flag = 0;
-	while (flag == 0)
-	{
-		flag = 1;
-		i = 1;
-		while (i < ed->map.circuits_count)
-		{
-			puts("EEEEE");
-			if (ed->map.circuits[i].integrated == 0)
-				if (integrate_hole(ed, i, pts, &pts_count) == 0)
-					flag = 0;
-			i++;
-		}
-	}
-
-	printf("%d\n", pts_count);
-
-	ft_memcpy(ed->map.circuits[0].points, pts, sizeof(t_point) * pts_count);
-	ed->map.circuits[0].points[pts_count] = ed->map.circuits[0].points[0];
-	ed->map.circuits_count = 1;
-	ed->map.circuits[0].points_count = pts_count + 1;
-}
 
 /*
 	коллбэк событий
 */
 
+int		cursor_on_point(t_map_editor *ed)
+{
+	int i;
+	int j;
+	float x;
+	float y;
+	int max;
+
+	i = 0;
+	max = ed->map.circuits_count;
+	if (ed->map.active)
+		max--;
+
+	while (i < max)
+	{
+		j = 0;
+		while (j < ed->map.circuits[i].points_count)
+		{
+			x = ed->map.circuits[i].points[j].x * 100 + W_2;
+			y = H_2 - ed->map.circuits[i].points[j].y * 100;
+			if ((ed->prev_x - x) * (ed->prev_x - x) +
+				(ed->prev_y - y) * (ed->prev_y - y) <= 16)
+			{
+				ed->map.on_line = 0;
+				ed->map.on_point = 1;
+				ed->map.on_circuit_i = i;
+				ed->map.on_point_i = j;
+				return 1;
+			}
+			j++;
+		}
+		i++;
+	}
+	return 0;
+}
+
+int circle_with_cut(t_vertex a, t_vertex b, t_vertex m)
+{
+	float aa = (b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y);
+	float bb = 2 * ((b.x - a.x) * (a.x - m.x) + (b.y - a.y) * (a.y - m.y));
+	float cc = m.x * m.x  + m.y * m.y + a.x * a.x +
+		a.y * a.y - 2 * (m.x * a.x + m.y * a.y) - 16;
+
+	if ( -bb < 0)
+	{
+		return (cc < 0);
+	}
+
+	if ( -bb < (2 * aa))
+	{
+		return (4 * aa * cc - bb * bb < 0);
+	}
+
+	return (aa + bb + cc < 0);
+
+}
+
+int		cursor_on_line(t_map_editor *ed)
+{
+	int i;
+	int j;
+	t_vertex a;
+	t_vertex b;
+	int max;
+
+	i = 0;
+	max = ed->map.circuits_count;
+	if (ed->map.active)
+		max--;
+
+	while (i < max)
+	{
+		j = 0;
+		while (j < ed->map.circuits[i].points_count)
+		{
+			a = ed->map.circuits[i].points[get_i_minus_1(j, ed->map.circuits[i].points_count)];
+			b = ed->map.circuits[i].points[j];
+
+			a.x = a.x * 100 + W_2;
+			b.x = b.x * 100 + W_2;
+			a.z = 0;
+			b.z = 0;
+			a.y = H_2 - a.y * 100;
+			b.y = H_2 - b.y * 100;
+
+			if (circle_with_cut(a, b, (t_vertex){ed->prev_x, ed->prev_y, 0.0}))
+			{
+				ed->map.on_line = 1;
+				ed->map.on_point = 0;
+				ed->map.on_circuit_i = i;
+				ed->map.on_point_i = get_i_minus_1(j, ed->map.circuits[i].points_count);
+				return 1;
+			}
+				
+			j++;
+		}
+		i++;
+	}
+	return 0;
+}
+int check_levels(t_bsp *node, int levels)
+{
+	if (node == NULL)
+		return (levels);
+	return (MAX(check_levels(node->front, levels + 1), check_levels(node->back, levels + 1)));
+}
 void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 {
 	t_map_editor *ed;
 
 	ed = (t_map_editor *)ed_ptr;
 
-	if (event->type == SDL_MOUSEBUTTONDOWN)
+	ed->prev_x = event->button.x * 2;
+	ed->prev_y = event->button.y * 2;
+
+	if (event->type == SDL_MOUSEMOTION)
+	{
+		if (cursor_on_point(ed))
+		{
+			SDL_FreeSurface(ed->cursor_surface);
+			SDL_FreeCursor(ed->cursor);
+			ed->cursor_surface = SDL_LoadBMP("../textures/cursor-2.bmp");
+			ed->cursor = SDL_CreateColorCursor(ed->cursor_surface, 5, 5);
+			SDL_SetCursor(ed->cursor);
+
+		}
+		else if (cursor_on_line(ed))
+		{
+			SDL_FreeSurface(ed->cursor_surface);
+			SDL_FreeCursor(ed->cursor);
+			ed->cursor_surface = SDL_LoadBMP("../textures/cursor.bmp");
+			ed->cursor = SDL_CreateColorCursor(ed->cursor_surface, 5, 5);
+			SDL_SetCursor(ed->cursor);
+		}
+		else
+		{
+			ed->map.on_line = 0;
+			ed->map.on_point = 0;
+
+			SDL_FreeCursor(ed->cursor);
+			ed->cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+			SDL_SetCursor(ed->cursor);
+		}
+		
+		
+	}
+	else if (event->type == SDL_MOUSEBUTTONDOWN)
 	{
 		/*
 			новая точка
 		*/
-		ed->prev_x = event->button.x;
-		ed->prev_y = event->button.y;
 
 		map_new_point(&(ed->map), (float)(ed->prev_x - W_2) / 100.0,
-						(float)(H_2 - ed->prev_y) / 100.0);
+						(float)(H_2 - ed->prev_y) / 100.0, 0);
 		printf("x: %f\ty: %f\n", (float)(ed->prev_x - W_2) / 100.0,
 						(float)(H_2 - ed->prev_y) / 100.0);
 	}
 	else if (event->type == SDL_KEYDOWN)
 	{
 
-		if (event->key.keysym.sym == SDLK_e)
+		if (event->key.keysym.sym == SDLK_s)
+		{
+			puts("SAVE JSON");
+			int i = check_levels(&ed->root, i);
+			save_json(&ed->root, i - 1);
+		}
+		else if (event->key.keysym.sym == SDLK_e)
 		{
 			/*
 				завершить контур (замкнуть и выйти из режима рисования контура)
 			*/
 			map_new_point(&ed->map, ed->map.circuits[ed->map.circuits_count - 1].points[0].x,
-						  ed->map.circuits[ed->map.circuits_count - 1].points[0].y);
+						  ed->map.circuits[ed->map.circuits_count - 1].points[0].y, 1);
 			ed->map.active = 0;
 		}
 		else if (event->key.keysym.sym == SDLK_n)
@@ -614,8 +889,10 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 		else if (event->key.keysym.sym == SDLK_b)
 		{
 			/* здеся должен быть вызов bsp-компилятора */
-		//	triangulate(ed);
+			// triangulate(ed);
 			bsp_compile(ed);
+			ed->mode = RENDER_MODE_WALLS;
+
 		}
 	}
 }
@@ -639,28 +916,52 @@ void update(void *map_editor, int *pixels)
 	while (i < ed->map.circuits_count)
 	{
 		j = 0;
-		while (j < ed->map.circuits[i].points_count)
-		{
-			if (j == 0)
+		if (ed->mode == RENDER_MODE_POINTS)
+			while (j < ed->map.circuits[i].points_count)
 			{
+				if (j == 0)
+				{
+					j++;
+					continue;
+				}
+
+				p1.x = (int)(ed->map.circuits[i].points[j - 1].x * 100);
+				p1.y = (int)(ed->map.circuits[i].points[j - 1].y * 100);
+
+				p2.x = (int)(ed->map.circuits[i].points[j].x * 100);
+				p2.y = (int)(ed->map.circuits[i].points[j].y * 100);
+
+				draw_line(pixels, p1.x, p1.y, p2.x, p2.y, 0xFFFFFF);
+
+				draw_line(pixels, p1.x + (p2.x - p1.x) / 2, p1.y + (p2.y - p1.y) / 2,
+						p1.x + (p2.x - p1.x) / 2 + 30 * cos(atan2(p2.y - p1.y, p2.x - p1.x) + (float)ed->map.circuits[i].normal_dir * M_PI / 2),
+						p1.y + (p2.y - p1.y) / 2 + 30 * sin(atan2(p2.y - p1.y, p2.x - p1.x) + (float)ed->map.circuits[i].normal_dir * M_PI / 2),
+						0xff0000);
 				j++;
-				continue;
 			}
+		else
+			while (j < ed->map.circuits[i].walls_count)
+			{
+				p1.x = (int)(ed->map.circuits[i].walls[j].points[0].x * 100);
+				p1.y = (int)(ed->map.circuits[i].walls[j].points[0].y * 100);
 
-			p1.x = (int)(ed->map.circuits[i].points[j - 1].x * 100);
-			p1.y = (int)(ed->map.circuits[i].points[j - 1].y * 100);
+				p2.x = (int)(ed->map.circuits[i].walls[j].points[1].x * 100);
+				p2.y = (int)(ed->map.circuits[i].walls[j].points[1].y * 100);
 
-			p2.x = (int)(ed->map.circuits[i].points[j].x * 100);
-			p2.y = (int)(ed->map.circuits[i].points[j].y * 100);
+				t_vertex n = ed->map.circuits[i].walls[j].normal;
 
-			draw_line(pixels, p1.x, p1.y, p2.x, p2.y, 0xFFFFFF);
+				int color = (ed->map.circuits[i].walls[j].type == WALL_TYPE_WALL ? 0xFFFF00 : 0x00FF00);
 
-			draw_line(pixels, p1.x + (p2.x - p1.x) / 2, p1.y + (p2.y - p1.y) / 2,
-					  p1.x + (p2.x - p1.x) / 2 + 30 * cos(atan2(p2.y - p1.y, p2.x - p1.x) + (float)ed->map.circuits[i].normal_dir * M_PI / 2),
-					  p1.y + (p2.y - p1.y) / 2 + 30 * sin(atan2(p2.y - p1.y, p2.x - p1.x) + (float)ed->map.circuits[i].normal_dir * M_PI / 2),
-					  0xff0000);
-			j++;
-		}
+				draw_line(pixels, p1.x, p1.y, p2.x, p2.y, color);
+
+				draw_line(pixels,
+					p1.x + (p2.x - p1.x) / 2,
+					p1.y + (p2.y - p1.y) / 2,
+					p1.x + (p2.x - p1.x) / 2 + 30 * n.x,
+					p1.y + (p2.y - p1.y) / 2 + 30 * n.y,
+					0xff0000);
+				j++;
+			}
 		i++;
 	}
 }
@@ -669,12 +970,38 @@ void map_init(t_map *map)
 {
 	map->circuits_count = 0;
 	map->active = 0;
+	map->on_line = 0;
+	map->on_point = 0;
 }
+
+
 
 int main(int ac, char **av)
 {
+	// t_wall wall, cutter;
+
+	// wall.points[0] = (t_vertex){2 ,1 ,0.0};
+	// wall.points[1] = (t_vertex){0 ,1 ,0.0};
+
+	// cutter.points[0] = (t_vertex){10 ,10 ,0.0};
+	// cutter.points[1] = (t_vertex){11 ,11 ,0.0};
+	// cutter.normal = (t_vertex){-1 ,1 ,0.0};
+
+	// //cutter = get_big_wall(cutter);
+
+	// printf("%f\t%f\n%f\t%f\n\n", cutter.points[0].x, cutter.points[0].y, cutter.points[1].x, cutter.points[1].y);
+
+
+	// printf("%d\n\n", classify_wall(cutter, wall));
+
+	// t_vertex in = lines_intersect(wall.points[0], wall.points[1], cutter.points[0], cutter.points[1]);
+
+
+	
+	// printf("%f\t%f\n\n", in.x, in.y);
 	t_map_editor map_editor;
 
+	map_editor.mode = RENDER_MODE_POINTS;
 	/*
 		тут маленькая "библиотека" - MyGraphicsLib
 		чтобы избавить основной код от прямого взаимодействия с SDL

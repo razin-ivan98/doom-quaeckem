@@ -6,7 +6,7 @@ FRAMEWORKS = -F./../frameworks -rpath ./../frameworks -framework SDL2 \
 
 INCLUDES = -I./../libft/ -I./../frameworks/SDL2.framework/Headers -I./../my_graphics_lib -I./../
 
-SRCS = bsp.c ../my_graphics_lib/my_graphics_lib.c ../image_handle.c ../linear_algebra.c
+SRCS = bsp.c ../my_graphics_lib/my_graphics_lib.c ../image_handle.c ../linear_algebra.c save_json.c ftoa.c
 
 all:
 ifeq ($(UNAME_S), Darwin)
