@@ -63,7 +63,32 @@ void insert_by_index(t_vertex *points, int index, int *count, t_vertex p)
 	(*count)++;
 }
 
+void delete_wall_by_index(t_wall *walls, int index, int *count)
+{
+	int i;
 
+	i = index;
+	(*count)--;
+	while (i < *count)
+	{
+		walls[i] = walls[i + 1];
+		i++;
+	}
+}
+
+void insert_wall_by_index(t_wall *walls, int index, int *count, t_wall wall)
+{
+	int i;
+
+	i = *count;
+	while (i > index)
+	{
+		walls[i] = walls[i - 1]; ///////////////
+		i--;
+	}
+	walls[index] = wall;
+	(*count)++;
+}
 /*
 	алгоритм брейзенхема или кого там
 */
@@ -390,6 +415,37 @@ int		is_convex_polygon(t_wall *walls, int walls_count)
 	return (1);
 }
 
+int			if_can_cut(t_circuit *circuits, int circuits_count, int cir, int wall)
+{
+	int i;
+	int j;
+	t_vertex cross1;
+	t_vertex cross2;
+	t_vertex base;
+
+	base = sub(circuits[cir].walls[wall].points[1], circuits[cir].walls[wall].points[0]);
+
+	i = 0;
+	while (i < circuits_count)
+	{
+		j = 0;
+		while (j < circuits[i].walls_count)
+		{
+			cross1 = cross(base, sub(circuits[i].walls[j].points[0], circuits[cir].walls[wall].points[0]));
+			cross2 = cross(base, sub(circuits[i].walls[j].points[1], circuits[cir].walls[wall].points[0]));
+
+			if ((cross1.z > 0.0 && cross2.z < 0.0) || (cross1.z < 0.0 && cross2.z > 0.0))
+			{
+				puts("НАЙДЕН КАТТЕР");
+				return (1);
+			}
+			j++;
+		}
+		i++;
+	}
+	return (0);
+}
+
 void		get_cutter(t_circuit *circuits, int circuits_count, int *cutter_cir, int *cutter_wall)
 {
 	int i;
@@ -412,6 +468,24 @@ void		get_cutter(t_circuit *circuits, int circuits_count, int *cutter_cir, int *
 		}
 		i++;
 	}
+	i = 0;
+	while (i < circuits_count)
+	{
+		j = 0;
+		while (j < circuits[i].walls_count)
+		{
+			if (!circuits[i].walls[j].used_in_bsp && length(circuits[i].walls[j].normal) &&
+				if_can_cut(circuits, circuits_count, i, j))
+			{
+				*cutter_cir = i;
+				*cutter_wall = j;
+				return ;
+			}
+			j++;
+		}
+		i++;
+	}
+
 	*cutter_cir = -1;
 	*cutter_wall = -1;
 	////надо еще обычные каттеры
@@ -537,6 +611,12 @@ void	reconstruct_circuits(t_circuit *circuits, int circuits_count)
 	t_vertex p1;
 	t_vertex p2;
 
+	t_wall wall;
+
+	wall.type = WALL_TYPE_FICTIVE;
+	wall.used_in_bsp = 1;
+	
+
 
 	i = 0;
 	while (i < circuits_count)
@@ -547,7 +627,46 @@ void	reconstruct_circuits(t_circuit *circuits, int circuits_count)
 			p1 = circuits[i].walls[get_i_plus_1(j, circuits[i].walls_count)].points[0];
 			p2 = circuits[i].walls[j].points[1];
 			if (!(p1.x == p2.x && p1.y == p2.y))
+			{
+				wall.points[0] = p2;
+				wall.points[1] = p1;
+
+				wall.normal = (t_vertex){0.0, 0.0, 0.0};
+
 				puts("РАЗРЫВ");
+				insert_wall_by_index(circuits[i].walls, j + 1, &circuits[i].walls_count, wall);
+			}	
+			j++;
+		}
+
+		j = 0;
+		while (j < circuits[i].walls_count)
+		{
+			if (fabsf(dot(normalize(sub(circuits[i].walls[j].points[1], circuits[i].walls[j].points[0])),
+				normalize(sub(circuits[i].walls[get_i_plus_1(j, circuits[i].walls_count)].points[1],
+				circuits[i].walls[get_i_plus_1(j, circuits[i].walls_count)].points[0])))) > 0.999 && 
+				(circuits[i].walls[get_i_plus_1(j, circuits[i].walls_count)].type == WALL_TYPE_FICTIVE &&
+				circuits[i].walls[j].type == WALL_TYPE_FICTIVE ))
+			{
+				puts("КОМПЛАНАРНОЕ ГОВНО");
+
+				circuits[i].walls[j].points[1] = circuits[i].walls[get_i_plus_1(j, circuits[i].walls_count)].points[1];
+				delete_wall_by_index(circuits[i].walls, get_i_plus_1(j, circuits[i].walls_count), &circuits[i].walls_count);
+				j--;
+			}
+			j++;
+		}
+		j = 0;
+		while (j < circuits[i].walls_count)
+		{
+			if (length(sub(circuits[i].walls[j].points[1], circuits[i].walls[j].points[0])) < 0.01)
+			{
+				puts("ТОЧЕЧНАЯ СТЕНА");
+
+				//circuits[i].walls[j].points[1] = circuits[i].walls[get_i_plus_1(j, circuits[i].walls_count)].points[1];
+				delete_wall_by_index(circuits[i].walls, j, &circuits[i].walls_count);
+				j--;
+			}
 			j++;
 		}
 		i++;
@@ -695,6 +814,15 @@ void	bsp_recurse(t_bsp *bsp, t_circuit *circuits, int circuits_count)
 			else
 			{
 				puts("complanar");
+				cutter = circuits[cutter_cir].walls[cutter_wall];
+				if (circuits[i].walls[j].points[0].x == cutter.points[1].x &&
+					circuits[i].walls[j].points[1].y == cutter.points[0].y)
+				{
+					j++;
+					continue ;
+				}
+				
+					
 				circuits[i].walls[j].used_in_bsp = 1;
 				front[i].walls[front[i].walls_count] = circuits[i].walls[j];
 				front[i].walls_count++;

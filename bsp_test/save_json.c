@@ -125,16 +125,12 @@ void	bsp_save_traversal(t_bsp *node, int fd)
 		while (i < node->walls_count)
 		{
 			check_walls(node, i, fd);
-			if (i == node->walls_count - 1)
-			{
-				ft_putstr_fd("\n\t\t]\n", fd);
-				//if (!(nl == 0 && state == 2))
-					//ft_putstr_fd(",\n", fd);
-			}
-			else
+			if (i != node->walls_count - 1)
+			
 				ft_putstr_fd(",\n\t\t\t", fd);
 			i++;
 		}
+		ft_putstr_fd("\n\t\t]\n", fd);
 	}
 	ft_putstr_fd("}\n", fd);
 }

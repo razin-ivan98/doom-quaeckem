@@ -315,6 +315,8 @@ void bsp_obhod(t_bsp *node, int *pixels, t_vertex cam)
 			i++;
 		}
 		b++;
+		if (b == 3)
+			b = 0;
 	}
 	else
 	{
