@@ -182,7 +182,7 @@ void map_new_point(t_map *map, float x, float y, int flag)
 	map->circuits[map->circuits_count - 1].points_count++;
 }
 
-t_wall	get_big_wall(t_wall wall, t_bsp *bsp)
+t_wall	get_big_wall(t_wall wall, t_bsp *bsp, t_vertex *line)
 {
 	float a;
 	float b;
@@ -195,6 +195,11 @@ t_wall	get_big_wall(t_wall wall, t_bsp *bsp)
 	bsp->line.x = -(a / b);
 	bsp->line.y = -(c / b);
 	bsp->line.z = 0.0;
+
+	line->x = a;
+	line->y = b;
+	line->z = c;
+
 
 	if (fabsf(a) > fabsf(b))
 	{
@@ -412,44 +417,141 @@ void		get_cutter(t_circuit *circuits, int circuits_count, int *cutter_cir, int *
 	////надо еще обычные каттеры
 }
 
-int		classify_wall(t_wall cutter, t_wall wall)
-{
-	t_vertex base;
-	t_vertex p1;
-	t_vertex p2;
-	t_vertex cross1;
-	t_vertex cross2;
+// int		classify_wall(t_wall cutter, t_wall wall)
+// {
+// 	t_vertex base;
+// 	t_vertex p1;
+// 	t_vertex p2;
+// 	t_vertex cross1;
+// 	t_vertex cross2;
 
-	base = sub(cutter.points[1], cutter.points[0]);
-	p1 = sub(cutter.points[1], wall.points[0]);
-	p2 = sub(cutter.points[1], wall.points[1]);
-	//printf("%f\n%f\n", cross(base, add(base, multiply(wall.normal, 9999))).z);
-	if (cross(base, add(base, cutter.normal)).z > 0.0)
-	{
-		base = sub(cutter.points[0], cutter.points[1]);
-		p1 = sub(cutter.points[0], wall.points[0]);
-		p2 = sub(cutter.points[0], wall.points[1]);
-	}
+// 	base = sub(cutter.points[1], cutter.points[0]);
+// 	p1 = sub(cutter.points[1], wall.points[0]);
+// 	p2 = sub(cutter.points[1], wall.points[1]);
+// 	//printf("%f\n%f\n", cross(base, add(base, multiply(wall.normal, 9999))).z);
+// 	if (cross(base, add(base, cutter.normal)).z > 0.0)
+// 	{
+// 		base = sub(cutter.points[0], cutter.points[1]);
+// 		p1 = sub(cutter.points[0], wall.points[0]);
+// 		p2 = sub(cutter.points[0], wall.points[1]);
+// 	}
 
-	base.z = 0.0;
-	p1.z = 0.0;
-	p2.z = 0.0;
+// 	base.z = 0.0;
+// 	p1.z = 0.0;
+// 	p2.z = 0.0;
 
 		
-	cross1 = cross(base, p1);
-	cross2 = cross(base, p2);
+// 	cross1 = cross(base, p1);
+// 	cross2 = cross(base, p2);
 
-//	printf("cross1: %f\tcross2: %f\n", cross1.z, cross2.z);
+// //	printf("cross1: %f\tcross2: %f\n", cross1.z, cross2.z);
 
-	if (fabsf(cross1.z) < CUTTING_EPSILON && fabsf(cross2.z) < CUTTING_EPSILON)
+// 	if (fabsf(cross1.z) < CUTTING_EPSILON && fabsf(cross2.z) < CUTTING_EPSILON)
+// 		return (COMPLANAR);
+// 	if ((cross1.z >= -CUTTING_EPSILON && cross2.z >= -CUTTING_EPSILON))
+// 		return (FRONT);
+// 	if ((cross1.z <= CUTTING_EPSILON && cross2.z <= CUTTING_EPSILON))
+// 		return (BACK);
+// 	if ((cross1.z > -CUTTING_EPSILON && cross2.z < CUTTING_EPSILON) ||
+// 		(cross1.z < CUTTING_EPSILON && cross2.z > -CUTTING_EPSILON))
+// 		return (CUTTED);
+// }
+
+
+int		classify_wall(t_vertex line, t_vertex n, t_wall wall, t_vertex *inter)
+{
+	t_vertex p;
+	t_vertex ort_line;
+	t_vertex in;
+
+
+	p = wall.points[0];
+
+	ort_line.x = -line.y;
+	ort_line.y = line.x;
+	ort_line.z = -line.x * wall.points[0].y + line.y * wall.points[0].x;
+
+	in.x = (ort_line.y * line.z - line.y * ort_line.z) /
+			(ort_line.x * line.y - line.x * ort_line.y);
+	in.y = (-line.x * in.x - line.z) / line.y;
+	in.z = 0.0;
+
+
+	// printf("a: %f\tb: %f\n", -line.x/line.y, -line.z/line.y);
+	// printf("px: %f\tpy: %f\n", p.x, p.y);
+	// printf("inx: %f\tiny: %f\n", in.x, in.y);
+
+
+
+	t_vertex ort1 = sub(p, in);
+
+	p = wall.points[1];
+
+	ort_line.z = -line.x * wall.points[1].y + line.y * wall.points[1].x;
+
+	in.x = (ort_line.y * line.z - line.y * ort_line.z) /
+			(ort_line.x * line.y - line.x * ort_line.y);
+	in.y = (-line.x * in.x - line.z) / line.y;
+	in.z = 0.0;
+
+	t_vertex ort2 = sub(p, in);
+
+	float dot1 = dot(normalize(ort1), normalize(n));
+	float dot2 = dot(normalize(ort2), normalize(n));
+
+	// printf("%f\n", dot1);
+	// printf("%f\n\n", dot2);
+	// printf("length %f\n\n", length(ort1));
+	// printf("length %f\n\n", length(ort2));
+
+
+	if (length(ort1) < 0.01 && length(ort2) < 0.01)
 		return (COMPLANAR);
-	if ((cross1.z >= -CUTTING_EPSILON && cross2.z >= -CUTTING_EPSILON))
-		return (FRONT);
-	if ((cross1.z <= CUTTING_EPSILON && cross2.z <= CUTTING_EPSILON))
-		return (BACK);
-	if ((cross1.z > -CUTTING_EPSILON && cross2.z < CUTTING_EPSILON) ||
-		(cross1.z < CUTTING_EPSILON && cross2.z > -CUTTING_EPSILON))
+	else if (((dot1 < 0.0 && dot2 > 0.0) || (dot1 > 0.0 && dot2 < 0.0)) && 
+				length(ort1) > 0.01 && length(ort2) > 0.01)
+	{
+		ort_line.x = wall.points[0].y - wall.points[1].y;
+		ort_line.y = wall.points[1].x - wall.points[0].x;
+		ort_line.z = wall.points[0].x * wall.points[1].y - wall.points[1].x * wall.points[0].y;
+
+		inter->x = (ort_line.y * line.z - line.y * ort_line.z) /
+			(ort_line.x * line.y - line.x * ort_line.y);
+		inter->y = (-line.x * in.x - line.z) / line.y;
+		inter->z = 0.0;
+
 		return (CUTTED);
+	}
+	else if ((length(ort1) > 0.01 && dot1 > 0.0) ||
+				(length(ort2) > 0.01 && dot2 > 0.0))
+		return (FRONT);
+	else
+		return (BACK);
+}
+
+
+void	reconstruct_circuits(t_circuit *circuits, int circuits_count)
+{
+	int i;
+	int j;
+
+	t_vertex p1;
+	t_vertex p2;
+
+
+	i = 0;
+	while (i < circuits_count)
+	{
+		j = 0;
+		while (j < circuits[i].walls_count)
+		{
+			p1 = circuits[i].walls[get_i_plus_1(j, circuits[i].walls_count)].points[0];
+			p2 = circuits[i].walls[j].points[1];
+			if (!(p1.x == p2.x && p1.y == p2.y))
+				puts("РАЗРЫВ");
+			j++;
+		}
+		i++;
+	}
 }
 
 void	bsp_recurse(t_bsp *bsp, t_circuit *circuits, int circuits_count)
@@ -469,7 +571,7 @@ void	bsp_recurse(t_bsp *bsp, t_circuit *circuits, int circuits_count)
 	t_wall	new2;
 
 
-	
+	t_vertex cutter_line;
 	
 
 	// if (circuits_count == 1 && is_convex_polygon(walls, walls_count))
@@ -482,23 +584,21 @@ void	bsp_recurse(t_bsp *bsp, t_circuit *circuits, int circuits_count)
 	// 	return ;
 	// }
 
-
+	reconstruct_circuits(circuits, circuits_count);
 
 	get_cutter(circuits, circuits_count, &cutter_cir, &cutter_wall);
+	// printf("cutter_cir\t%d\n\n", cutter_cir);
+	// printf("cutter_wall\t%d\n\n", cutter_wall);
 
 	//printf("%f\t%f\t\t%f\t%f\n", circuits[cutter_cir].walls[cutter_wall].points[0].x, circuits[cutter_cir].walls[cutter_wall].points[0].y,
 	//							circuits[cutter_cir].walls[cutter_wall].points[1].x, circuits[cutter_cir].walls[cutter_wall].points[1].y);
 
-	
 	front = NULL;
 	back = NULL;
 
 	bsp->front = NULL;
 	bsp->back = NULL;
 
-
-	cutter = get_big_wall(circuits[cutter_cir].walls[cutter_wall], bsp);
-	
 	if (cutter_cir == -1)
 	{
 		bsp->walls_count = 0;
@@ -518,6 +618,8 @@ void	bsp_recurse(t_bsp *bsp, t_circuit *circuits, int circuits_count)
 		puts("ВСЕ");
 		return ;
 	}
+
+	cutter = get_big_wall(circuits[cutter_cir].walls[cutter_wall], bsp, &cutter_line);
 
 	front = malloc(sizeof(t_circuit) * circuits_count);
 	back = malloc(sizeof(t_circuit) * circuits_count);
@@ -540,7 +642,8 @@ void	bsp_recurse(t_bsp *bsp, t_circuit *circuits, int circuits_count)
 		j = 0;
 		while (j < circuits[i].walls_count)
 		{
-			result = classify_wall(cutter, circuits[i].walls[j]);
+			t_vertex inter;
+			result = classify_wall(cutter_line, bsp->normal, circuits[i].walls[j], &inter);
 
 			if (result == CUTTED)
 			{
@@ -554,7 +657,14 @@ void	bsp_recurse(t_bsp *bsp, t_circuit *circuits, int circuits_count)
 				new2.points[0] = new1.points[1];
 				new2.points[1] = circuits[i].walls[j].points[1];
 
-				result = classify_wall(cutter, new1);
+					// printf("a: %f\tb: %f\n", -line.x/line.y, -line.z/line.y);
+					// printf("p1: %f\tpy: %f\n", new1.points[0].x, new1.points[0].y);
+					// printf("p1: %f\tpy: %f\n", new2.points[1].x, new2.points[1].y);
+
+					// printf("in: %f\tiny: %f\n", inter.x, inter.y);
+
+				result = classify_wall(cutter_line, bsp->normal, new1, &inter);
+				// printf("new1 %d\n", result);
 				if (result == FRONT)
 				{
 					front[i].walls[front[i].walls_count] = new1;
@@ -594,7 +704,6 @@ void	bsp_recurse(t_bsp *bsp, t_circuit *circuits, int circuits_count)
 		}
 		i++;
 	}
-
 
 	bsp_recurse(bsp->back, back, circuits_count);
 	bsp_recurse(bsp->front, front, circuits_count);

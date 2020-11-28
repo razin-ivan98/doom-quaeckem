@@ -4,6 +4,7 @@
 # include "data.h"
 # include <math.h>
 
+float		sqr(float a);
 
 t_vertex	multiply(t_vertex vec, float k);
 float		dot(t_vertex v1, t_vertex v2);

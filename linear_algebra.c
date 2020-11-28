@@ -292,3 +292,8 @@ t_mat4x4	update_instance_transform(t_instance *instance)
 					multiply_m_m(instance->orientation, make_scaling_matrix(instance->scale)));
 	return (instance->transform);
 }
+
+float		sqr(float a)
+{
+	return (a * a);
+}
