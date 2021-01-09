@@ -1,8 +1,9 @@
-#ifndef MAP_EDITOR_H
-#define MAP_EDITOR_H
+#ifndef BSP_H
+#define BSP_H
 
 #include "my_graphics_lib.h"
 #include "duke.h"
+
 
 # define WALL_TYPE_SECTOR_BORDER 0
 # define WALL_TYPE_WALL 1
@@ -29,6 +30,11 @@ typedef struct	s_wall
 	int			used_in_bsp;
 }				t_wall;
 
+typedef struct	s_tr
+{
+	t_vertex	points[3];
+}				t_tr;
+
 
 /*
 	контур. предстваляет из себя замкнутый многоугольник.
@@ -46,6 +52,7 @@ typedef struct	s_circuit
 	int			points_count;
 	int			normal_dir;
 	int			integrated;//////
+	int			failed;
 
 	float		seil;
 	float		floor;
@@ -89,11 +96,13 @@ typedef struct s_bsp
 							// нормаль линии разреза (соответствует нормали выбранной cutter-стены)
 
 	t_wall walls[100];		// (только для листов) массив стен в листе
-
 	int walls_count;
 
-	struct s_bsp *front;	// (только для не листовых узлов)
+	t_triangle	*trs;
+	int			trs_count;
 
+
+	struct s_bsp *front;	// (только для не листовых узлов)
 	struct s_bsp *back;		// (только для не листовых узлов)
 } t_bsp;
 
@@ -125,7 +134,9 @@ typedef struct s_map_editor
 	int mode;
 } t_map_editor;
 
-void	save_json(t_bsp *root, int not_leaves);
+#include "bsp_helpers.h"
+
+void	save_json(t_bsp *root);
 char 	*ftoa(float value, int decimals, char *buf);
 char 	*itoa(int value, char *buf);
 int 	itoa_s(int value, char *buf);

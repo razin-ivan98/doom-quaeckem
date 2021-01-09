@@ -1,8 +1,10 @@
-#include "./bsp_eval.h"
+#include "./game_test.h"
 
 int b = 0;
 
-int colors[3];
+int active = -1;
+
+int colors[10];
 
 static int strlen_while_dig(char *str)
 {
@@ -244,14 +246,6 @@ void draw_line(int *pixels, int x1, int y1, int x2, int y2, int color)
 	}
 }
 
-int check_levels(t_bsp *node, int levels)
-{
-	if (node == NULL)
-		return (levels);
-	return (MAX(check_levels(node->front, levels + 1), check_levels(node->back, levels + 1)));
-}
-
-
 void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 {
 	t_map_editor *ed;
@@ -264,19 +258,60 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 		ed->prev_x = event->button.x * 2;
 		ed->prev_y = event->button.y * 2;
 
-		ed->map.player.x = (ed->prev_x - W_2) / 100.0;
-		ed->map.player.y = (-ed->prev_y + H_2) / 100.0;
+		ed->map.player.pos.x = (ed->prev_x - W_2) / 100.0;
+		ed->map.player.pos.y = (-ed->prev_y + H_2) / 100.0;
 	}
 	else if (event->type == SDL_KEYDOWN )
 	{
-		if (event->key.keysym.sym == SDLK_s)
+		if (event->key.keysym.sym == SDLK_w)
 		{
-			puts("SAVE JSON");
-			i = check_levels(&ed->map.root, i);
-			save_json(&ed->map.root, i - 1);
+			ed->w_pressed = 1;
+		}
+		else if (event->key.keysym.sym == SDLK_s)
+		{
+			ed->s_pressed = 1;
+		}
+		else if (event->key.keysym.sym == SDLK_a)
+		{
+			ed->a_pressed = 1;
+		}
+		else if (event->key.keysym.sym == SDLK_d)
+		{
+			ed->d_pressed = 1;
+		}
+		else if (event->key.keysym.sym == SDLK_e)
+		{
+			active--;
+			printf("\n%d\n\n", active);
+		}
+		else if (event->key.keysym.sym == SDLK_q)
+		{
+			active++;
+			printf("\n%d\n\n", active);
 		}
 	}
+	else if (event->type == SDL_KEYUP)
+	{
+		if (event->key.keysym.sym == SDLK_w)
+		{
+			ed->w_pressed = 0;
+		}
+		else if (event->key.keysym.sym == SDLK_s)
+		{
+			ed->s_pressed = 0;
+		}
+		else if (event->key.keysym.sym == SDLK_a)
+		{
+			ed->a_pressed = 0;
+		}
+		else if (event->key.keysym.sym == SDLK_d)
+		{
+			ed->d_pressed = 0;
+		}
+	}
+	
 }
+
 
 int classify_point(t_vertex cam, t_vertex line, t_vertex normal)
 {
@@ -299,35 +334,50 @@ void bsp_obhod(t_bsp *node, int *pixels, t_vertex cam)
 	t_vertex p2;
 	t_vertex n;
 
-	colors[0] = 0xff0000;
-	colors[1] = 0x00ff00;
-	colors[2] = 0x0000ff;
+	colors[5] = 0xff00ff;
+
+	colors[4] = 0xffffff;
+
+	colors[3] = 0xff0000;
+	colors[2] = 0x00ff00;
+	colors[1] = 0x0000ff;
+	colors[0] = 0x00ffff;
 
 	if (node->is_leaf)
 	{
 		i = 0;
 		while (i < node->walls_count)
 		{
+		//	if (b ==active)
+		//	{
+			printf("walls_count: %d\n\n\n", node->walls_count);
 			p1 = node->walls[i].points[0];
 			p2 = node->walls[i].points[1];
 			n = multiply(node->walls[i].normal, 0.3);
-
-			draw_line(pixels, p1.x * 100, p1.y * 100, p2.x * 100, p2.y * 100, colors[b]);
+			//if (node->walls[i].type == WALL_TYPE_WALL)
+				draw_line(pixels, p1.x * 100, p1.y * 100, p2.x * 100,
+							p2.y * 100, colors[b%6]);
+				// if (i == active)
+				// 	draw_line(pixels, p1.x * 100, p1.y * 100, p2.x * 100,
+				// 			p2.y * 100, 0xff00ff);
+			// else
+			// 	draw_line(pixels, p1.x * 100, p1.y * 100, p2.x * 100, p2.y * 100, 0xff0000);
+			
 			draw_line(pixels, (p1.x + (p2.x - p1.x) / 2) * 100, (p1.y + (p2.y - p1.y) / 2) * 100,
 					  (p1.x + (p2.x - p1.x) / 2 + n.x) * 100,
 					  (p1.y + (p2.y - p1.y) / 2 + n.y) * 100,
 					  0xffff00);
+		//	}
 			i++;
 		}
 		b++;
-		if (b == 3)
-			b = 0;
+		//if (b == 6)
+		//	b = 0;
 	}
 	else
 	{
 		if (classify_point(cam, node->line, node->normal) == FRONT)
 		{
-
 			bsp_obhod(node->back, pixels, cam);
 			bsp_obhod(node->front, pixels, cam);
 		}
@@ -347,17 +397,19 @@ void update(void *map_editor, int *pixels)
 	b = 0;
 	ed = (t_map_editor *)map_editor;
 
+	update_game(ed);
+
 	bzero(pixels, sizeof(int) * HxW);
 
-	bsp_obhod(&(ed->map.root), pixels, ed->map.player);
-
+	bsp_obhod(&(ed->map.root), pixels, ed->map.player.pos);
+	printf("\n\n\nnumber:  %d\n\n\n", b);
 	i = -2;
 	while (i < 3)
 	{
 		j = -2;
 		while (j < 3)
 		{
-			put_pixel(pixels, ed->map.player.x * 100 + i, ed->map.player.y * 100 + j, 0x00ff00);
+			put_pixel(pixels, ed->map.player.pos.x * 100 + i, ed->map.player.pos.y * 100 + j, 0x00ff00);
 			j++;
 		}
 		i++;
@@ -368,9 +420,22 @@ int main(int ac, char **av)
 {
 	t_map_editor map_editor;
 
+	map_editor.map.player.pos = (t_vertex){0.0,0.0,0.0};
+	map_editor.map.player.speed = 0.006;
+
+	map_editor.a_pressed = 0;
+	map_editor.w_pressed = 0;
+	map_editor.s_pressed = 0;
+	map_editor.d_pressed = 0;
+
+
+
 	t_mgl *mgl = mgl_init("Map Editor BSP", W, H);
 
 	read_bsp_tree(&map_editor.map, av[1]);
+
+	bsp_trav_zero(&map_editor.map.root);
+
 
 	mgl_run(mgl, update, event_handle, &map_editor);
 

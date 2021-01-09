@@ -15,6 +15,7 @@
 #include "my_graphics_lib/my_graphics_lib.h"
 
 #include "data.h"
+#include "helpers.h"
 #include "linear_algebra.h"
 #include <string.h>
 #include <fcntl.h>

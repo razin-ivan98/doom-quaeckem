@@ -6,21 +6,16 @@ FRAMEWORKS = -F./../frameworks -rpath ./../frameworks -framework SDL2 \
 
 INCLUDES = -I./../libft/ -I./../frameworks/SDL2.framework/Headers -I./../my_graphics_lib -I./../
 
-SRCS = bsp.c ../my_graphics_lib/my_graphics_lib.c ../image_handle.c ../linear_algebra.c \
-	save_json.c ftoa.c ../helpers.c bsp_helpers.c
+SRCS = game_test.c ../my_graphics_lib/my_graphics_lib.c ../image_handle.c ../linear_algebra.c update_game.c
 
 all:
 ifeq ($(UNAME_S), Darwin)
 	@echo MAC OS
 	make -C $(FTPATH)
-	gcc -g $(SRCS) -lm -L./../libft -lft $(FRAMEWORKS) $(INCLUDES) -o BSP
+	gcc -g $(SRCS) -lm -L./../libft -lft $(FRAMEWORKS) $(INCLUDES) -o GameTest
 else
 	@echo Linux
 	make -C $(FTPATH)
-	gcc -I -g $(INCLUDES) $(SRCS) -lSDL2 -lm -L./../libft -lft -o BSP
+	gcc -g3 -I $(INCLUDES) $(SRCS) -lSDL2 -lm -L./../libft -lft -o GameTest
 endif
 	@echo ГОТОВО ЕПТА
-
-
-	
-	

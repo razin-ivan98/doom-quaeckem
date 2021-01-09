@@ -6,6 +6,11 @@
 
 float		sqr(float a);
 
+t_vertex	get_line_by_points(t_vertex f, t_vertex s);
+t_vertex	get_ort_line_by_point(t_vertex line, t_vertex p);
+t_vertex	lines_intersect(t_vertex l1, t_vertex l2);
+t_vertex	lines_intersect_p(t_vertex a1, t_vertex a2, t_vertex b1, t_vertex b2);
+
 t_vertex	multiply(t_vertex vec, float k);
 float		dot(t_vertex v1, t_vertex v2);
 t_vertex	cross(t_vertex v1, t_vertex v2);
