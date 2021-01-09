@@ -1,5 +1,7 @@
 // # include <SDL2/SDL.h>
 
+# define SCREEN_MULTIPLICATOR 2
+
 #define W 720
 #define H 720
 #define H_2 360

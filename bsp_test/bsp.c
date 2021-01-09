@@ -818,8 +818,8 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 
 	ed = (t_map_editor *)ed_ptr;
 
-	ed->prev_x = event->button.x * 2;
-	ed->prev_y = event->button.y * 2;
+	ed->prev_x = event->button.x * SCREEN_MULTIPLICATOR;
+	ed->prev_y = event->button.y * SCREEN_MULTIPLICATOR;
 
 	if (event->type == SDL_MOUSEMOTION)
 	{

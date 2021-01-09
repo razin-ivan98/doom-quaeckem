@@ -15,6 +15,8 @@
 
 # define CUTTING_EPSILON 5.0
 
+
+
  #define MAX(a,b) ((a) > (b) ? (a) : (b))
 
 typedef struct	s_wall
