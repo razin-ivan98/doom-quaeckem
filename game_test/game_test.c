@@ -350,7 +350,7 @@ void bsp_obhod(t_bsp *node, int *pixels, t_vertex cam)
 		{
 		//	if (b ==active)
 		//	{
-			printf("walls_count: %d\n\n\n", node->walls_count);
+		//	printf("walls_count: %d\n\n\n", node->walls_count);
 			p1 = node->walls[i].points[0];
 			p2 = node->walls[i].points[1];
 			n = multiply(node->walls[i].normal, 0.3);
@@ -402,7 +402,7 @@ void update(void *map_editor, int *pixels)
 	bzero(pixels, sizeof(int) * HxW);
 
 	bsp_obhod(&(ed->map.root), pixels, ed->map.player.pos);
-	printf("\n\n\nnumber:  %d\n\n\n", b);
+//	printf("\n\n\nnumber:  %d\n\n\n", b);
 	i = -2;
 	while (i < 3)
 	{

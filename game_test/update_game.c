@@ -11,16 +11,16 @@ int		classify_point_s(t_vertex cam, t_vertex line, t_vertex normal)
 	ort = get_ort_line_by_point(line, cam);
 	new = lines_intersect(line, ort);
 
-	printf("line %f\t%f\t%f\n", line.x, line.y, line.z);
-	printf("ort %f\t%f\t%f\n", ort.x, ort.y, ort.z);
+	// printf("line %f\t%f\t%f\n", line.x, line.y, line.z);
+	// printf("ort %f\t%f\t%f\n", ort.x, ort.y, ort.z);
 
 	new.z = 0.0;
 
 	new = sub(cam, new);
 	
-	printf("%f\t%f\t%f\n", new.x, new.y, new.z);
-	printf("%f\t%f\t%f\n", normal.x, normal.y, normal.z);
-	printf("%f\n\n", dot(new, normal));
+	// printf("%f\t%f\t%f\n", new.x, new.y, new.z);
+	// printf("%f\t%f\t%f\n", normal.x, normal.y, normal.z);
+	// printf("%f\n\n", dot(new, normal));
 
 	if (dot(new, normal) < 0.0)
 		return (BACK);

@@ -417,6 +417,14 @@ void	reconstruct_circuits(t_circuit *circuits, int circuits_count)
 			circuits[i].failed = 1;
 		}
 		j = 0;
+		printf("КОНТУР %d\n", i);
+		while (j < circuits[i].walls_count)
+		{
+			printf("	Стена %d %f %f	%f %f\n", j, circuits[i].walls[j].points[0].x, circuits[i].walls[j].points[0].y,
+													circuits[i].walls[j].points[1].x, circuits[i].walls[j].points[1].y);
+			j++;
+		}
+		j = 0;
 		while (j < circuits[i].walls_count)
 		{
 			p1 = circuits[i].walls[get_i_plus_1(j, circuits[i].walls_count)].points[0];
@@ -429,6 +437,9 @@ void	reconstruct_circuits(t_circuit *circuits, int circuits_count)
 				wall.normal = (t_vertex){0.0, 0.0, 0.0};
 
 				puts("РАЗРЫВ");
+				// printf("Разрыв точка 1: %f %f \n", p1.x, p1.y);
+				// printf("Разрыв точка 2: %f %f \n", p2.x, p2.y);
+
 				insert_wall_by_index(circuits[i].walls, j + 1, &circuits[i].walls_count, wall);
 			}	
 			j++;
@@ -439,7 +450,7 @@ void	reconstruct_circuits(t_circuit *circuits, int circuits_count)
 		{
 			if (fabsf(dot(normalize(sub(circuits[i].walls[j].points[1], circuits[i].walls[j].points[0])),
 				normalize(sub(circuits[i].walls[get_i_plus_1(j, circuits[i].walls_count)].points[1],
-				circuits[i].walls[get_i_plus_1(j, circuits[i].walls_count)].points[0])))) > 0.99 && 
+				circuits[i].walls[get_i_plus_1(j, circuits[i].walls_count)].points[0])))) > 0.999 && 
 				((circuits[i].walls[get_i_plus_1(j, circuits[i].walls_count)].type == WALL_TYPE_FICTIVE &&
 				circuits[i].walls[j].type == WALL_TYPE_FICTIVE) ||
 				(circuits[i].walls[get_i_plus_1(j, circuits[i].walls_count)].type == WALL_TYPE_SECTOR_BORDER &&
@@ -643,19 +654,24 @@ void	bsp_recurse(t_bsp *bsp, t_circuit *circuits, int circuits_count)
 				//if (circuits[i].walls[j].points[0].x == cutter.points[1].x &&
 				//	circuits[i].walls[j].points[1].y == cutter.points[0].y)
 				if ((length(sub(circuits[i].walls[j].points[0], cutter.points[1])) < 0.01 &&
-					length(sub(circuits[i].walls[j].points[1], cutter.points[0])) < 0.01) ||
-					(length(sub(circuits[i].walls[j].points[0], cutter.points[0])) < 0.01 &&
-					length(sub(circuits[i].walls[j].points[1], cutter.points[1])) < 0.01))
+					length(sub(circuits[i].walls[j].points[1], cutter.points[0])) < 0.01))
 				{
-					j++;
-					continue ;
+					puts("complanar-back");
+					circuits[i].walls[j].used_in_bsp = 1;
+					back[i].walls[back[i].walls_count] = circuits[i].walls[j];
+					back[i].walls_count++;
+					//j++;
+					//continue ;
 				}
+				else
+				{
+					puts("complanar-front");
 
-				circuits[i].walls[j].used_in_bsp = 1;
-				front[i].walls[front[i].walls_count] = circuits[i].walls[j];
-				front[i].walls_count++;
+					circuits[i].walls[j].used_in_bsp = 1;
+					front[i].walls[front[i].walls_count] = circuits[i].walls[j];
+					front[i].walls_count++;
+				}
 			}
-
 			j++;
 		}
 		i++;
