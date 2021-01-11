@@ -181,7 +181,7 @@ t_triangle generate_polygon(char *line, t_model *model, t_vertex *normals)
 
 
 
-    ret.tex = model->new_tex;
+    ret.tex = model->new_tex[0];
 
     return (ret);
 }

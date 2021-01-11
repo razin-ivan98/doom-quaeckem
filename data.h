@@ -73,7 +73,7 @@ typedef struct	s_anim
 typedef struct	s_model
 {
 //	t_point		*uvs;
-	SDL_Surface	*new_tex;
+	SDL_Surface	*new_tex[10];
 
 	t_anim		*anim;
 	
@@ -232,6 +232,11 @@ typedef struct	s_circuit
 	float		ceil;
 	float		floor;
 
+	int			wall_tex;
+	int			floor_tex;
+	int			ceil_tex;
+
+
 }				t_circuit;
 
 /*
@@ -271,6 +276,7 @@ typedef struct	s_vt_tr
 	int			ids[3];
 	int			n_ids[3];
 	int			uv_ids[3];
+	int			type;
 }				t_vt_tr;
 
 
@@ -289,6 +295,10 @@ typedef struct s_bsp
 
 	t_wall		walls[100];		// (только для листов) массив стен в листе
 	int			walls_count;
+
+	int			wall_tex;
+	int			floor_tex;
+	int			ceil_tex;
 
 	t_tr		*trs;
 	t_vt_tr		*vt_trs;
@@ -333,6 +343,11 @@ typedef struct s_map_editor
 	int		edit_floor;
 
 	int		edit_ceil;
+
+	int		edit_ceil_tex;
+	int		edit_floor_tex;
+	int		edit_wall_tex;
+
 
 
 

@@ -66,7 +66,11 @@ void	check_vt_trs(t_bsp *node, int i, int fd)
 	ft_putstr_fd(", ", fd);
 	str = itoa(node->vt_trs[i].uv_ids[2], str);
 	ft_putstr_fd(str, fd);
-	ft_putstr_fd("]", fd);
+	ft_putstr_fd("],", fd);
+
+	ft_putstr_fd("\n\t\t\t\"type\": \n\t\t\t\t", fd);
+	str = itoa(node->vt_trs[i].type, str);
+	ft_putstr_fd(str, fd);
 
 
 	ft_putstr_fd("}", fd);
@@ -125,6 +129,15 @@ void	bsp_save_traversal(t_bsp *node, int fd)
 		ft_putstr_fd(str, fd);
 		ft_putstr_fd(",\t\"ceil\": ", fd);
 		str = ftoa(node->ceil, 8, str);
+		ft_putstr_fd(str, fd);
+		ft_putstr_fd(",\t\"wall_tex\": ", fd);
+		str = itoa(node->wall_tex, str);
+		ft_putstr_fd(str, fd);
+		ft_putstr_fd(",\t\"floor_tex\": ", fd);
+		str = itoa(node->floor_tex, str);
+		ft_putstr_fd(str, fd);
+		ft_putstr_fd(",\t\"ceil_tex\": ", fd);
+		str = itoa(node->ceil_tex, str);
 		ft_putstr_fd(str, fd);
 		ft_putstr_fd(",\n\t\"walls\": [\n\t\t\t", fd);
 		while (i < node->walls_count)

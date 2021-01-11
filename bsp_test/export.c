@@ -101,8 +101,269 @@ int add_uv(t_map *map, t_vertex uv)
 	return (map->uvs_count - 1);
 }
 
+t_bsp *get_node_by_wall_traversal(t_bsp *node, t_wall wall)
+{
+	int i;
 
-void to_obj_format(t_bsp *node, t_map *map)
+	if (node->is_leaf)
+	{
+		i = 0;
+		while (i < node->walls_count)
+		{
+			if (length(sub(wall.points[0], node->walls[i].points[1])) < 0.1 &&
+				length(sub(wall.points[1], node->walls[i].points[0])) < 0.1)
+			{
+				puts("НАШОЛЬ");
+				return (node);
+			}
+			i++;
+		}
+	}
+	else
+	{
+		return (get_node_by_wall_traversal(node->front, wall));
+		return (get_node_by_wall_traversal(node->back, wall));
+	}
+	return (NULL);
+}
+
+void	add_tops_bottoms(t_bsp *node, t_map *map, t_bsp *root)
+{
+	t_vt_tr new;
+	t_vertex vt;
+	t_vertex uv;
+	float top;
+	float bottom;
+	int flag;
+	int i;
+	t_bsp *link;
+	t_wall wall;
+	link = node;
+	i = 0;
+	while (i < node->walls_count)
+	{
+		link = node;
+		if (node->walls[i].type == WALL_TYPE_SECTOR_BORDER)
+			puts("BORDER");
+
+		if (node->walls[i].type == WALL_TYPE_SECTOR_BORDER && node->walls[i].circuit != -1 &&
+			map->circuits[node->circuit].floor != map->circuits[node->walls[i].circuit].floor)
+		{
+
+			puts("Промежуточек");
+			if (map->circuits[node->circuit].floor > map->circuits[node->walls[i].circuit].floor)
+			{////надо переместить эту стенку в другой узел
+				
+				
+
+				wall = node->walls[i];
+				link = get_node_by_wall_traversal(root, wall);
+				if (!link)
+					link = node;
+
+
+				top = map->circuits[node->circuit].floor;
+				bottom = map->circuits[node->walls[i].circuit].floor;
+				flag = 1;
+			}
+			else if (map->circuits[node->circuit].floor < map->circuits[node->walls[i].circuit].floor)
+			{////оставляем здесь
+				bottom = map->circuits[node->circuit].floor;
+				top = map->circuits[node->walls[i].circuit].floor;
+				flag = 0;
+			}
+
+			vt = (t_vertex){node->walls[i].points[0].x, node->walls[i].points[0].y,
+								top};//верх
+			new.ids[0] = add_vt(map, vt);
+
+			vt = (t_vertex){node->walls[i].points[0].x, node->walls[i].points[0].y,
+									bottom};//низ
+			new.ids[1] = add_vt(map, vt);
+
+			vt = (t_vertex){node->walls[i].points[1].x, node->walls[i].points[1].y,
+									bottom};//низ
+			new.ids[2] = add_vt(map, vt);
+
+			vt = triangle_normal(map->vts[new.ids[2]], map->vts[new.ids[1]], map->vts[new.ids[0]]);
+
+			if (flag)
+				vt = multiply(vt, -1);
+
+			new.n_ids[0] = add_n(map, vt);
+			new.n_ids[1] = new.n_ids[0];
+			new.n_ids[2] = new.n_ids[0];
+
+			// uv = (t_vertex){0.0, 1.0, 0.0};
+			// new.uv_ids[0] = add_uv(map, uv);
+			// uv = (t_vertex){0.0, 0.0, 0.0};
+			// new.uv_ids[1] = add_uv(map, uv);
+			// uv = (t_vertex){1.0, 0.0, 0.0};
+			// new.uv_ids[2] = add_uv(map, uv);
+
+			uv = (t_vertex){0.0, bottom * TEXTURE_SCALE, 0.0};
+			new.uv_ids[0] = add_uv(map, uv);
+			uv = (t_vertex){0.0, top * TEXTURE_SCALE, 0.0};
+			new.uv_ids[1] = add_uv(map, uv);
+			uv = (t_vertex){length(sub(node->walls[i].points[0],
+					node->walls[i].points[1])) * TEXTURE_SCALE,
+					top * TEXTURE_SCALE, 0.0};
+			new.uv_ids[2] = add_uv(map, uv);
+
+			new.type = TR_TYPE_WALL;
+
+			printf("%p\n\n", link);
+
+			link->vt_trs[link->vt_trs_count] = new;
+			(link->vt_trs_count)++;
+
+
+
+			vt = (t_vertex){node->walls[i].points[0].x, node->walls[i].points[0].y,
+									top};//верх
+			new.ids[0] = add_vt(map, vt);
+
+			vt = (t_vertex){node->walls[i].points[1].x, node->walls[i].points[1].y,
+									bottom};//низ
+			new.ids[1] = add_vt(map, vt);
+
+			vt = (t_vertex){node->walls[i].points[1].x, node->walls[i].points[1].y,
+										top};//верх
+			new.ids[2] = add_vt(map, vt);
+
+			vt = triangle_normal(map->vts[new.ids[2]], map->vts[new.ids[1]], map->vts[new.ids[0]]);
+				
+			if (flag)
+				vt = multiply(vt, -1);
+
+			new.n_ids[0] = add_n(map, vt);
+			new.n_ids[1] = new.n_ids[0];
+			new.n_ids[2] = new.n_ids[0];
+
+			uv = (t_vertex){0.0, bottom * TEXTURE_SCALE, 0.0};
+			new.uv_ids[0] = add_uv(map, uv);
+			uv = (t_vertex){length(sub(node->walls[i].points[0],
+					node->walls[i].points[1])) * TEXTURE_SCALE,
+					top * TEXTURE_SCALE, 0.0};
+			new.uv_ids[1] = add_uv(map, uv);
+			uv = (t_vertex){length(sub(node->walls[i].points[0],
+					node->walls[i].points[1])) * TEXTURE_SCALE,
+					bottom * TEXTURE_SCALE, 0.0};
+			new.uv_ids[2] = add_uv(map, uv);
+
+
+			new.type = TR_TYPE_WALL;
+
+			link->vt_trs[link->vt_trs_count] = new;
+			(link->vt_trs_count)++;
+		}
+		if (node->walls[i].type == WALL_TYPE_SECTOR_BORDER && node->walls[i].circuit != -1 &&
+			map->circuits[node->circuit].ceil != map->circuits[node->walls[i].circuit].ceil)
+		{
+			link = node;
+
+			puts("Промежуточек");
+			if (map->circuits[node->circuit].ceil > map->circuits[node->walls[i].circuit].ceil)
+			{////
+				top = map->circuits[node->circuit].ceil;
+				bottom = map->circuits[node->walls[i].circuit].ceil;
+				flag = 0;
+			}
+			else if (map->circuits[node->circuit].ceil < map->circuits[node->walls[i].circuit].ceil)
+			{///////
+				wall = node->walls[i];
+				link = get_node_by_wall_traversal(root, wall);
+				printf("%p\n\n", link);
+				if (!link)
+					link = node;
+
+				bottom = map->circuits[node->circuit].ceil;
+				top = map->circuits[node->walls[i].circuit].ceil;
+				flag = 1;
+			}
+
+			vt = (t_vertex){node->walls[i].points[0].x, node->walls[i].points[0].y,
+								top};//верх
+			new.ids[0] = add_vt(map, vt);
+
+			vt = (t_vertex){node->walls[i].points[0].x, node->walls[i].points[0].y,
+									bottom};//низ
+			new.ids[1] = add_vt(map, vt);
+
+			vt = (t_vertex){node->walls[i].points[1].x, node->walls[i].points[1].y,
+									bottom};//низ
+			new.ids[2] = add_vt(map, vt);
+
+			vt = triangle_normal(map->vts[new.ids[2]], map->vts[new.ids[1]], map->vts[new.ids[0]]);
+
+			if (flag)
+			vt = multiply(vt, -1);
+
+			new.n_ids[0] = add_n(map, vt);
+			new.n_ids[1] = new.n_ids[0];
+			new.n_ids[2] = new.n_ids[0];
+
+			uv = (t_vertex){0.0, bottom * TEXTURE_SCALE, 0.0};
+			new.uv_ids[0] = add_uv(map, uv);
+			uv = (t_vertex){0.0, top * TEXTURE_SCALE, 0.0};
+			new.uv_ids[1] = add_uv(map, uv);
+			uv = (t_vertex){length(sub(node->walls[i].points[0],
+					node->walls[i].points[1])) * TEXTURE_SCALE,
+					top * TEXTURE_SCALE, 0.0};
+			new.uv_ids[2] = add_uv(map, uv);
+
+			new.type = TR_TYPE_WALL;
+
+
+			link->vt_trs[link->vt_trs_count] = new;
+			(link->vt_trs_count)++;
+
+
+
+			vt = (t_vertex){node->walls[i].points[0].x, node->walls[i].points[0].y,
+						top};//верх
+			new.ids[0] = add_vt(map, vt);
+
+			vt = (t_vertex){node->walls[i].points[1].x, node->walls[i].points[1].y,
+									bottom};//низ
+			new.ids[1] = add_vt(map, vt);
+
+			vt = (t_vertex){node->walls[i].points[1].x, node->walls[i].points[1].y,
+									top};//верх
+			new.ids[2] = add_vt(map, vt);
+
+			vt = triangle_normal(map->vts[new.ids[2]], map->vts[new.ids[1]], map->vts[new.ids[0]]);
+				
+			if (flag)
+				vt = multiply(vt, -1);
+
+			new.n_ids[0] = add_n(map, vt);
+			new.n_ids[1] = new.n_ids[0];
+			new.n_ids[2] = new.n_ids[0];
+
+			uv = (t_vertex){0.0, bottom * TEXTURE_SCALE, 0.0};
+			new.uv_ids[0] = add_uv(map, uv);
+			uv = (t_vertex){length(sub(node->walls[i].points[0],
+					node->walls[i].points[1])) * TEXTURE_SCALE,
+					top * TEXTURE_SCALE, 0.0};
+			new.uv_ids[1] = add_uv(map, uv);
+			uv = (t_vertex){length(sub(node->walls[i].points[0],
+					node->walls[i].points[1])) * TEXTURE_SCALE,
+					bottom * TEXTURE_SCALE, 0.0};
+			new.uv_ids[2] = add_uv(map, uv);
+
+			new.type = TR_TYPE_WALL;
+
+
+			link->vt_trs[link->vt_trs_count] = new;
+			(link->vt_trs_count)++;
+		}
+		i++;
+	}
+	
+}
+
+void to_obj_format(t_bsp *node, t_map *map, t_bsp *root)
 {
 	int i;
 	int j;
@@ -138,12 +399,14 @@ void to_obj_format(t_bsp *node, t_map *map)
 		new.n_ids[1] = new.n_ids[0];
 		new.n_ids[2] = new.n_ids[0];
 
-		uv = (t_vertex){0.0, 1.0, 0.0};
+		uv = (t_vertex){node->trs[i].points[0].x * TEXTURE_SCALE, node->trs[i].points[0].y * TEXTURE_SCALE, 0.0};
 		new.uv_ids[0] = add_uv(map, uv);
-		uv = (t_vertex){0.0, 0.0, 0.0};
+		uv = (t_vertex){node->trs[i].points[1].x * TEXTURE_SCALE, node->trs[i].points[1].y * TEXTURE_SCALE, 0.0};
 		new.uv_ids[1] = add_uv(map, uv);
-		uv = (t_vertex){1.0, 0.0, 0.0};
+		uv = (t_vertex){node->trs[i].points[2].x * TEXTURE_SCALE, node->trs[i].points[2].y * TEXTURE_SCALE, 0.0};
 		new.uv_ids[2] = add_uv(map, uv);
+
+		new.type = TR_TYPE_FLOOR;
 
 		printf("node_trs_count %d\n", node->vt_trs_count);
 		node->vt_trs[node->vt_trs_count] = new;
@@ -170,12 +433,14 @@ void to_obj_format(t_bsp *node, t_map *map)
 		new.n_ids[1] = new.n_ids[0];
 		new.n_ids[2] = new.n_ids[0];
 
-		uv = (t_vertex){0.0, 1.0, 0.0};
+		uv = (t_vertex){node->trs[i].points[0].x * TEXTURE_SCALE, node->trs[i].points[0].y * TEXTURE_SCALE, 0.0};
 		new.uv_ids[0] = add_uv(map, uv);
-		uv = (t_vertex){0.0, 0.0, 0.0};
+		uv = (t_vertex){node->trs[i].points[1].x * TEXTURE_SCALE, node->trs[i].points[1].y * TEXTURE_SCALE, 0.0};
 		new.uv_ids[1] = add_uv(map, uv);
-		uv = (t_vertex){1.0, 0.0, 0.0};
+		uv = (t_vertex){node->trs[i].points[2].x * TEXTURE_SCALE, node->trs[i].points[2].y * TEXTURE_SCALE, 0.0};
 		new.uv_ids[2] = add_uv(map, uv);
+
+		new.type = TR_TYPE_CEIL;
 
 
 		printf("node_trs_count %d\n", node->vt_trs_count);
@@ -188,177 +453,7 @@ void to_obj_format(t_bsp *node, t_map *map)
 	i = 0;
 	while ( i < node->walls_count)
 	{
-		float top;
-		float bottom;
-		int flag;
 
-		if (node->walls[i].type == WALL_TYPE_SECTOR_BORDER)
-			puts("BORDER");
-
-		if (node->walls[i].type == WALL_TYPE_SECTOR_BORDER && node->walls[i].circuit != -1 &&
-			map->circuits[node->circuit].floor != map->circuits[node->walls[i].circuit].floor)
-		{
-
-			puts("Промежуточек");
-			if (map->circuits[node->circuit].floor > map->circuits[node->walls[i].circuit].floor)
-			{
-				top = map->circuits[node->circuit].floor;
-				bottom = map->circuits[node->walls[i].circuit].floor;
-				flag = 1;
-			}
-			else if (map->circuits[node->circuit].floor < map->circuits[node->walls[i].circuit].floor)
-			{
-				bottom = map->circuits[node->circuit].floor;
-				top = map->circuits[node->walls[i].circuit].floor;
-				flag = 0;
-			}
-
-			vt = (t_vertex){node->walls[i].points[0].x, node->walls[i].points[0].y,
-								top};//верх
-			new.ids[0] = add_vt(map, vt);
-
-			vt = (t_vertex){node->walls[i].points[0].x, node->walls[i].points[0].y,
-									bottom};//низ
-			new.ids[1] = add_vt(map, vt);
-
-			vt = (t_vertex){node->walls[i].points[1].x, node->walls[i].points[1].y,
-									bottom};//низ
-			new.ids[2] = add_vt(map, vt);
-
-			vt = triangle_normal(map->vts[new.ids[2]], map->vts[new.ids[1]], map->vts[new.ids[0]]);
-
-			if (flag)
-				vt = multiply(vt, -1);
-
-			new.n_ids[0] = add_n(map, vt);
-			new.n_ids[1] = new.n_ids[0];
-			new.n_ids[2] = new.n_ids[0];
-
-			uv = (t_vertex){0.0, 1.0, 0.0};
-			new.uv_ids[0] = add_uv(map, uv);
-			uv = (t_vertex){0.0, 0.0, 0.0};
-			new.uv_ids[1] = add_uv(map, uv);
-			uv = (t_vertex){1.0, 0.0, 0.0};
-			new.uv_ids[2] = add_uv(map, uv);
-
-			node->vt_trs[node->vt_trs_count] = new;
-			(node->vt_trs_count)++;
-
-
-
-			vt = (t_vertex){node->walls[i].points[0].x, node->walls[i].points[0].y,
-									top};//верх
-			new.ids[0] = add_vt(map, vt);
-
-			vt = (t_vertex){node->walls[i].points[1].x, node->walls[i].points[1].y,
-									bottom};//низ
-			new.ids[1] = add_vt(map, vt);
-
-			vt = (t_vertex){node->walls[i].points[1].x, node->walls[i].points[1].y,
-									top};//верх
-			new.ids[2] = add_vt(map, vt);
-
-			vt = triangle_normal(map->vts[new.ids[2]], map->vts[new.ids[1]], map->vts[new.ids[0]]);
-			
-			if (flag)
-				vt = multiply(vt, -1);
-
-			new.n_ids[0] = add_n(map, vt);
-			new.n_ids[1] = new.n_ids[0];
-			new.n_ids[2] = new.n_ids[0];
-
-			uv = (t_vertex){0.0, 1.0, 0.0};
-			new.uv_ids[0] = add_uv(map, uv);
-			uv = (t_vertex){1.0, 0.0, 0.0};
-			new.uv_ids[1] = add_uv(map, uv);
-			uv = (t_vertex){1.0, 1.0, 0.0};
-			new.uv_ids[2] = add_uv(map, uv);
-
-			node->vt_trs[node->vt_trs_count] = new;
-			(node->vt_trs_count)++;
-		}
-		if (node->walls[i].type == WALL_TYPE_SECTOR_BORDER && node->walls[i].circuit != -1 &&
-			map->circuits[node->circuit].ceil != map->circuits[node->walls[i].circuit].ceil)
-		{
-
-			puts("Промежуточек");
-			if (map->circuits[node->circuit].ceil > map->circuits[node->walls[i].circuit].ceil)
-			{
-				top = map->circuits[node->circuit].ceil;
-				bottom = map->circuits[node->walls[i].circuit].ceil;
-				flag = 0;
-			}
-			else if (map->circuits[node->circuit].ceil < map->circuits[node->walls[i].circuit].ceil)
-			{
-				bottom = map->circuits[node->circuit].ceil;
-				top = map->circuits[node->walls[i].circuit].ceil;
-				flag = 1;
-			}
-
-			vt = (t_vertex){node->walls[i].points[0].x, node->walls[i].points[0].y,
-								top};//верх
-			new.ids[0] = add_vt(map, vt);
-
-			vt = (t_vertex){node->walls[i].points[0].x, node->walls[i].points[0].y,
-									bottom};//низ
-			new.ids[1] = add_vt(map, vt);
-
-			vt = (t_vertex){node->walls[i].points[1].x, node->walls[i].points[1].y,
-									bottom};//низ
-			new.ids[2] = add_vt(map, vt);
-
-			vt = triangle_normal(map->vts[new.ids[2]], map->vts[new.ids[1]], map->vts[new.ids[0]]);
-
-			if (flag)
-				vt = multiply(vt, -1);
-
-			new.n_ids[0] = add_n(map, vt);
-			new.n_ids[1] = new.n_ids[0];
-			new.n_ids[2] = new.n_ids[0];
-
-			uv = (t_vertex){0.0, 1.0, 0.0};
-			new.uv_ids[0] = add_uv(map, uv);
-			uv = (t_vertex){0.0, 0.0, 0.0};
-			new.uv_ids[1] = add_uv(map, uv);
-			uv = (t_vertex){1.0, 0.0, 0.0};
-			new.uv_ids[2] = add_uv(map, uv);
-
-			node->vt_trs[node->vt_trs_count] = new;
-			(node->vt_trs_count)++;
-
-
-
-			vt = (t_vertex){node->walls[i].points[0].x, node->walls[i].points[0].y,
-									top};//верх
-			new.ids[0] = add_vt(map, vt);
-
-			vt = (t_vertex){node->walls[i].points[1].x, node->walls[i].points[1].y,
-									bottom};//низ
-			new.ids[1] = add_vt(map, vt);
-
-			vt = (t_vertex){node->walls[i].points[1].x, node->walls[i].points[1].y,
-									top};//верх
-			new.ids[2] = add_vt(map, vt);
-
-			vt = triangle_normal(map->vts[new.ids[2]], map->vts[new.ids[1]], map->vts[new.ids[0]]);
-			
-			if (flag)
-				vt = multiply(vt, -1);
-
-			new.n_ids[0] = add_n(map, vt);
-			new.n_ids[1] = new.n_ids[0];
-			new.n_ids[2] = new.n_ids[0];
-
-			uv = (t_vertex){0.0, 1.0, 0.0};
-			new.uv_ids[0] = add_uv(map, uv);
-			uv = (t_vertex){1.0, 0.0, 0.0};
-			new.uv_ids[1] = add_uv(map, uv);
-			uv = (t_vertex){1.0, 1.0, 0.0};
-			new.uv_ids[2] = add_uv(map, uv);
-
-			node->vt_trs[node->vt_trs_count] = new;
-			(node->vt_trs_count)++;
-		}
 
 		if (node->walls[i].type != WALL_TYPE_WALL)
 		{
@@ -385,12 +480,17 @@ void to_obj_format(t_bsp *node, t_map *map)
 		new.n_ids[1] = new.n_ids[0];
 		new.n_ids[2] = new.n_ids[0];
 
-		uv = (t_vertex){0.0, 1.0, 0.0};
+		uv = (t_vertex){0.0, map->circuits[node->circuit].floor * TEXTURE_SCALE, 0.0};
 		new.uv_ids[0] = add_uv(map, uv);
-		uv = (t_vertex){0.0, 0.0, 0.0};
+		uv = (t_vertex){0.0, map->circuits[node->circuit].ceil * TEXTURE_SCALE, 0.0};
 		new.uv_ids[1] = add_uv(map, uv);
-		uv = (t_vertex){1.0, 0.0, 0.0};
+		uv = (t_vertex){length(sub(node->walls[i].points[0],
+				node->walls[i].points[1])) * TEXTURE_SCALE,
+				map->circuits[node->circuit].ceil * TEXTURE_SCALE, 0.0};
 		new.uv_ids[2] = add_uv(map, uv);
+
+		new.type = TR_TYPE_WALL;
+
 
 		node->vt_trs[node->vt_trs_count] = new;
 		(node->vt_trs_count)++;
@@ -414,12 +514,19 @@ void to_obj_format(t_bsp *node, t_map *map)
 		new.n_ids[1] = new.n_ids[0];
 		new.n_ids[2] = new.n_ids[0];
 
-		uv = (t_vertex){0.0, 1.0, 0.0};
+		uv = (t_vertex){0.0, map->circuits[node->circuit].floor * TEXTURE_SCALE, 0.0};
 		new.uv_ids[0] = add_uv(map, uv);
-		uv = (t_vertex){1.0, 0.0, 0.0};
+		uv = (t_vertex){length(sub(node->walls[i].points[0],
+				node->walls[i].points[1])) * TEXTURE_SCALE,
+				map->circuits[node->circuit].ceil * TEXTURE_SCALE, 0.0};
 		new.uv_ids[1] = add_uv(map, uv);
-		uv = (t_vertex){1.0, 1.0, 0.0};
+		uv = (t_vertex){length(sub(node->walls[i].points[0],
+				node->walls[i].points[1])) * TEXTURE_SCALE,
+				map->circuits[node->circuit].floor * TEXTURE_SCALE, 0.0};
 		new.uv_ids[2] = add_uv(map, uv);
+
+		new.type = TR_TYPE_WALL;
+
 
 		node->vt_trs[node->vt_trs_count] = new;
 		(node->vt_trs_count)++;
@@ -521,54 +628,6 @@ void	write_vt_trs_to_file(t_bsp *node, t_map *map, int fd)
 
 }
 
-// void zeros(int f, char *ret)
-// {
-// 	int i;
-// 	int j;
-
-// 	i = 0;
-// 	while (f > 0)
-// 	{
-// 		f /= 10;
-// 		i++;
-// 	}
-// 	j = 0;
-// 	while (j < 5 - i)
-// 	{
-// 		ft_strcat(ret, "0");
-// 		j++;
-// 	}
-// }
-
-// char *ft_ftoa(float n)
-// {
-// 	char *tmp;
-// 	char *ret;
-// 	int i;
-// 	int f;
-
-// 	ret = (char *)malloc(64); //////////////////////////
-// 	i = (int)n;
-// 	f = (int)((n - (double)((int)n)) * 100000.0) * (n < 0.0 ? -1.0 : 1.0);
-
-// 	tmp = ft_itoa(i);
-// 	if (!ft_strchr(tmp, '-') && n < 0.0)
-// 		ft_strcpy(tmp, "-0");
-// 	ft_strcpy(ret, tmp);
-
-// 	free(tmp);
-
-// 	tmp = ft_itoa(f);
-// 	ft_strcat(ret, ".");
-
-// 	zeros(f, ret);
-
-// 	ft_strcat(ret, tmp);
-// 	free(tmp);
-
-// 	return (ret);
-// }
-
 void	write_to_file(t_map *map, int fd)
 {
 	int i;
@@ -646,7 +705,7 @@ void	write_to_file(t_map *map, int fd)
 	free(ptr);
 }
 
-void	bsp_export_traversal(t_bsp *node, t_map *map, int fd)
+void	bsp_export_traversal(t_bsp *node, t_map *map, t_bsp *root)
 {
 	t_vertex	pts[100];
 	int			pts_count;
@@ -655,19 +714,47 @@ void	bsp_export_traversal(t_bsp *node, t_map *map, int fd)
 	{
 		node->floor = map->circuits[node->circuit].floor;
 		node->ceil = map->circuits[node->circuit].ceil;
+		node->ceil_tex = map->circuits[node->circuit].ceil_tex;
+		node->floor_tex = map->circuits[node->circuit].floor_tex;
+		node->wall_tex = map->circuits[node->circuit].wall_tex;
+
 		back_transform(node, pts, &pts_count);
 		triangulate(node, pts, &pts_count);
-		to_obj_format(node, map);
+		to_obj_format(node, map, root);
+		return ;
+	}
+	else
+	{
+		bsp_export_traversal(node->front, map, root);
+		bsp_export_traversal(node->back, map, root);
+	}
+}
+void	bsp_top_bottom_traversal(t_bsp *node, t_map *map, t_bsp *root)
+{
+	if (node->is_leaf)
+	{
+		add_tops_bottoms(node, map, root);
+		return ;
+	}
+	else
+	{
+		bsp_top_bottom_traversal(node->front, map, root);
+		bsp_top_bottom_traversal(node->back, map, root);
+	}
+}
+void	bsp_write_traversal(t_bsp *node, t_map *map, t_bsp *root, int fd)
+{
+	if (node->is_leaf)
+	{
 		write_vt_trs_to_file(node, map, fd);
 		return ;
 	}
 	else
 	{
-		bsp_export_traversal(node->front, map, fd);
-		bsp_export_traversal(node->back, map, fd);
+		bsp_write_traversal(node->front, map, root, fd);
+		bsp_write_traversal(node->back, map, root, fd);
 	}
 }
-
 
 
 
@@ -687,8 +774,9 @@ void	export_map(t_map_editor *ed)
 	ed->map.vts = malloc(sizeof(t_vertex) * 3000);/////
 	ed->map.nrmls = malloc(sizeof(t_vertex) * 3000);////
 
-
-	bsp_export_traversal(&ed->root, &ed->map, fd);
+	bsp_export_traversal(&ed->root, &ed->map, &ed->root);
+	bsp_top_bottom_traversal(&ed->root, &ed->map, &ed->root);
+	bsp_write_traversal(&ed->root, &ed->map, &ed->root, fd);
 	close(fd);
 
 	fd = open("levl.obj", O_RDWR);

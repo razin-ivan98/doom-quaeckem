@@ -142,7 +142,6 @@ void	update_scene(t_doom *doom, float gamma)
 	update_sprites(doom, gamma);
 
 	update_objects(doom);
-
 }
 
 void	animation_update(t_scene *scene, float curr_time, float gamma)
@@ -163,7 +162,7 @@ void	animation_update(t_scene *scene, float curr_time, float gamma)
 				% scene->sprites[i].instance.model.anim->length;
 		if (frame < 0)
 			frame = 0;
-		scene->sprites[i].instance.model.new_tex =
+		scene->sprites[i].instance.model.new_tex[0] =
 				scene->sprites[i].instance.model.anim->frames[frame];
 		scene->sprites[i].instance.orientation = make_oy_rot_matrix(gamma);
 		i++;
@@ -181,7 +180,7 @@ void	animation_update(t_scene *scene, float curr_time, float gamma)
 				% scene->objects[i].instance.model.anim->length;
 		if (frame < 0)
 			frame = 0;
-		scene->objects[i].instance.model.new_tex =
+		scene->objects[i].instance.model.new_tex[0] =
 				scene->objects[i].instance.model.anim->frames[frame];
 		i++;
 	}
@@ -453,7 +452,7 @@ t_enemy	create_enemy(t_vertex pos, float beta)
 	enemy.walking_anims[7] = load_anim("textures/animm/front-right/", 4.0);
 
 	enemy.sprite.instance.model.anim = &enemy.walking_anims[0];
-	enemy.sprite.instance.model.new_tex = enemy.sprite.instance.model.anim->frames[0];
+	enemy.sprite.instance.model.new_tex[0] = enemy.sprite.instance.model.anim->frames[0];
 
 	return (enemy);
 }
@@ -531,7 +530,12 @@ int		main()
 
 
 	doom.scene.level.instance.model.anim = NULL;
-	doom.scene.level.instance.model.new_tex = create_texture("textures/lol.bmp");
+	doom.scene.level.instance.model.new_tex[0] = create_texture("textures/1.bmp");
+	doom.scene.level.instance.model.new_tex[1] = create_texture("textures/2.bmp");
+	doom.scene.level.instance.model.new_tex[2] = create_texture("textures/3.bmp");
+	doom.scene.level.instance.model.new_tex[3] = create_texture("textures/4.bmp");
+	doom.scene.level.instance.model.new_tex[4] = create_texture("textures/5.bmp");
+	doom.scene.level.instance.model.new_tex[5] = create_texture("textures/6.bmp");
 
 
 	doom.scene.sprites = malloc(sizeof(t_sprite) * 3);

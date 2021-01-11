@@ -85,7 +85,7 @@ void	clip_triangles( t_model *model, t_instance *instance, t_scene *scene, int l
 		ters_count = 1;
 		centre = multiply(sub(instance->model.vertexes[curr.indexes[0]],
 			scene->camera.position), -1.0);
-		curr.tex = instance->model.new_tex;
+		curr.tex = instance->model.new_tex[0];
 
 		if (dot(centre, curr.normal) >= 0.0 || lol)
 		{
@@ -131,12 +131,16 @@ void	bsp_render_traversal(t_bsp *node, t_scene *scene, t_instance *instance, t_m
 			curr.uvs[1] = instance->model.uvs[node->vt_trs[i].uv_ids[1]];
 			curr.uvs[2] = instance->model.uvs[node->vt_trs[i].uv_ids[2]];
 
-			
 
 			ters_count = 1;
 			centre = multiply(sub(instance->model.vertexes[curr.indexes[0]],
 				scene->camera.position), -1.0);
-			curr.tex = instance->model.new_tex;
+			if (node->vt_trs[i].type == TR_TYPE_WALL)
+				curr.tex = instance->model.new_tex[node->wall_tex];
+			else if (node->vt_trs[i].type == TR_TYPE_FLOOR)
+				curr.tex = instance->model.new_tex[node->floor_tex];
+			else
+				curr.tex = instance->model.new_tex[node->ceil_tex];
 
 			if (dot(centre, curr.normal) >= 0.0)
 			{
@@ -144,7 +148,6 @@ void	bsp_render_traversal(t_bsp *node, t_scene *scene, t_instance *instance, t_m
 			}
 			i++;
 		}
-		
 	}
 	else
 	{

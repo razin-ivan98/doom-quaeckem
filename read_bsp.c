@@ -150,6 +150,12 @@ char *add_vt_tr(t_bsp *node, char *str)
 				node->vt_trs[node->vt_trs_count].uv_ids[2] = ft_atoi(ptr);
 				ptr = ft_strchr(ptr, ']') + 1;
 			}
+			else if (!ft_strcmp(key, "type"))
+			{
+				node->vt_trs[node->vt_trs_count].type = ft_atoi(ptr);
+				while (*ptr == ' ' || *ptr == '\t' || *ptr == '\n' || *ptr == ',' || ft_isdigit(*ptr))
+					ptr++;
+			}
 		}
 		else if (*ptr == '}')
 			break;
@@ -226,6 +232,27 @@ char *read_property(t_bsp *node, char *str)
 	else if (!ft_strcmp(key, "ceil"))
 	{
 		node->ceil = ft_atof(ptr);
+		while (*ptr == ' ' || *ptr == '\n' || *ptr == '\t')
+			ptr++;
+		return (ft_strchr(ptr, ','));
+	}
+	else if (!ft_strcmp(key, "wall_tex"))
+	{
+		node->wall_tex = ft_atoi(ptr);
+		while (*ptr == ' ' || *ptr == '\n' || *ptr == '\t')
+			ptr++;
+		return (ft_strchr(ptr, ','));
+	}
+	else if (!ft_strcmp(key, "ceil_tex"))
+	{
+		node->ceil_tex = ft_atoi(ptr);
+		while (*ptr == ' ' || *ptr == '\n' || *ptr == '\t')
+			ptr++;
+		return (ft_strchr(ptr, ','));
+	}
+	else if (!ft_strcmp(key, "floor_tex"))
+	{
+		node->floor_tex = ft_atoi(ptr);
 		while (*ptr == ' ' || *ptr == '\n' || *ptr == '\t')
 			ptr++;
 		return (ft_strchr(ptr, ','));

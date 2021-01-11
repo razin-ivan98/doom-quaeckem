@@ -6,6 +6,13 @@
 
 # define MAP_EDITOR_SCALE 10
 
+# define TEXTURE_SCALE 0.3
+
+# define TR_TYPE_WALL 0
+# define TR_TYPE_CEIL 1
+# define TR_TYPE_FLOOR 2
+
+
 #define W 720
 #define H 720
 #define H_2 360

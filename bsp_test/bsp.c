@@ -70,6 +70,10 @@ void map_new_circuit(t_map *map)
 	map->circuits[map->circuits_count].walls_count = 0;
 	map->circuits[map->circuits_count].ceil = DEFAULT_CEIL;
 	map->circuits[map->circuits_count].floor = DEFAULT_FLOOR;
+	map->circuits[map->circuits_count].wall_tex = 0;
+	map->circuits[map->circuits_count].floor_tex = 0;
+	map->circuits[map->circuits_count].ceil_tex = 0;
+
 
 	/*
 		направление нормали
@@ -936,6 +940,9 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 	{
 		ed->edit_floor = 0;
 		ed->edit_ceil = 0;
+		ed->edit_ceil_tex = 0;
+		ed->edit_wall_tex = 0;
+		ed->edit_floor_tex = 0;
 		if (ed->mode == RENDER_MODE_WALLS)
 		{
 			ed->map.selected_circuit = bsp_select_circuit_traversal(&ed->root, 
@@ -974,6 +981,21 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 				ed->map.circuits[ed->map.selected_circuit].floor += 0.1;
 				printf("floor: %f\n", ed->map.circuits[ed->map.selected_circuit].floor);
 			}
+			if (ed->edit_floor_tex)
+			{
+				ed->map.circuits[ed->map.selected_circuit].floor_tex += 1;
+				printf("floor_tex: %d\n", ed->map.circuits[ed->map.selected_circuit].floor_tex);
+			}
+			if (ed->edit_ceil_tex)
+			{
+				ed->map.circuits[ed->map.selected_circuit].ceil_tex += 1;
+				printf("ceil_tex: %d\n", ed->map.circuits[ed->map.selected_circuit].ceil_tex);
+			}
+			if (ed->edit_wall_tex)
+			{
+				ed->map.circuits[ed->map.selected_circuit].wall_tex += 1;
+				printf("wall_tex: %d\n", ed->map.circuits[ed->map.selected_circuit].wall_tex);
+			}
 		}
 		else if (event->key.keysym.sym == SDLK_MINUS)
 		{
@@ -986,6 +1008,22 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 			{
 				ed->map.circuits[ed->map.selected_circuit].floor -= 0.1;
 				printf("floor: %f\n", ed->map.circuits[ed->map.selected_circuit].floor);
+			}
+			if (ed->edit_floor_tex)
+			{
+				ed->map.circuits[ed->map.selected_circuit].floor_tex -= 1;
+				printf("floor_tex: %d\n", ed->map.circuits[ed->map.selected_circuit].floor_tex);
+
+			}
+			if (ed->edit_ceil_tex)
+			{
+				ed->map.circuits[ed->map.selected_circuit].ceil_tex -= 1;
+				printf("ceil_tex: %d\n", ed->map.circuits[ed->map.selected_circuit].ceil_tex);
+			}
+			if (ed->edit_wall_tex)
+			{
+				ed->map.circuits[ed->map.selected_circuit].wall_tex -= 1;
+				printf("wall_tex: %d\n", ed->map.circuits[ed->map.selected_circuit].wall_tex);
 			}
 		}
 		else if (event->key.keysym.sym == SDLK_s)
@@ -1002,7 +1040,12 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 			{
 				ed->edit_floor = 1;
 				ed->edit_ceil = 0;
+				ed->edit_ceil_tex = 0;
+				ed->edit_wall_tex = 0;
+				ed->edit_floor_tex = 0;
 				puts("Режим редактирования пола");
+				printf("ceil: %f\n", ed->map.circuits[ed->map.selected_circuit].floor);
+
 			}
 			
 		}
@@ -1011,8 +1054,54 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 			if (ed->mode == RENDER_MODE_WALLS)
 			{
 				ed->edit_floor = 0;
+				ed->edit_ceil_tex = 0;
+				ed->edit_wall_tex = 0;
+				ed->edit_floor_tex = 0;
 				ed->edit_ceil = 1;
 				puts("Режим редактирования потолка");
+				printf("ceil: %f\n", ed->map.circuits[ed->map.selected_circuit].ceil);
+
+			}
+		}
+		else if (event->key.keysym.sym == SDLK_1)//текстура стен
+		{
+			if (ed->mode == RENDER_MODE_WALLS)
+			{
+				ed->edit_floor = 0;
+				ed->edit_ceil_tex = 0;
+				ed->edit_wall_tex = 1;
+				ed->edit_floor_tex = 0;
+				ed->edit_ceil = 0;
+				puts("Выбор текстуры стен");
+				printf("wall_tex: %d\n", ed->map.circuits[ed->map.selected_circuit].wall_tex);
+
+			}
+		}
+		else if (event->key.keysym.sym == SDLK_2)//текстура пола
+		{
+			if (ed->mode == RENDER_MODE_WALLS)
+			{
+				ed->edit_floor = 0;
+				ed->edit_ceil_tex = 0;
+				ed->edit_wall_tex = 0;
+				ed->edit_floor_tex = 1;
+				ed->edit_ceil = 0;
+				puts("Выбор текстуры пола");
+				printf("floor_tex: %d\n", ed->map.circuits[ed->map.selected_circuit].floor_tex);
+
+			}
+		}
+		else if (event->key.keysym.sym == SDLK_3)//текстура потолка
+		{
+			if (ed->mode == RENDER_MODE_WALLS)
+			{
+				ed->edit_floor = 0;
+				ed->edit_ceil_tex = 1;
+				ed->edit_wall_tex = 0;
+				ed->edit_floor_tex = 0;
+				ed->edit_ceil = 0;
+				puts("Выбор текстуры потолка");
+				printf("ceil_tex: %d\n", ed->map.circuits[ed->map.selected_circuit].ceil_tex);
 
 			}
 		}
@@ -1179,6 +1268,11 @@ int main(int ac, char **av)
 	map_editor.mode = RENDER_MODE_POINTS;
 	map_editor.edit_ceil = 0;
 	map_editor.edit_floor = 0;
+	map_editor.edit_wall_tex = 0;
+	map_editor.edit_ceil_tex = 0;
+	map_editor.edit_floor_tex = 0;
+
+
 	/*
 		тут маленькая "библиотека" - MyGraphicsLib
 		чтобы избавить основной код от прямого взаимодействия с SDL
