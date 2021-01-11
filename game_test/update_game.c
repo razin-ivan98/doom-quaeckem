@@ -36,7 +36,7 @@ int		check_leaf(t_bsp *node, t_vertex pos)
 	while (i < node->walls_count)
 	{
 		node->walls[i].failed = 0;
-		if (node->walls[i].type == WALL_TYPE_WALL)
+		if (node->walls[i].type == wall_TYPE_wall)
 		{
 			node->walls[i].failed = 1;
 			line = get_line_by_points(node->walls[i].points[0],
@@ -96,36 +96,36 @@ int		if_possible_to_move(t_vertex pos, t_bsp *node)
 	return (bsp_solid_traversal(node, pos));
 }
 
-void	update_game(t_map_editor *ed)
+void	update_game(t_map_game_editor *ed)
 {
 	t_vertex new_pos;
 
 	if (ed->a_pressed)
 	{
-		new_pos = ed->map.player.pos;
-		new_pos.x -= ed->map.player.speed;
-		if (if_possible_to_move(new_pos, &ed->map.root))
-			ed->map.player.pos = new_pos;
+		new_pos = ed->map_game.player.pos;
+		new_pos.x -= ed->map_game.player.speed;
+		if (if_possible_to_move(new_pos, &ed->map_game.root))
+			ed->map_game.player.pos = new_pos;
 	}	
 	if (ed->w_pressed)
 	{
-		new_pos = ed->map.player.pos;
-		new_pos.y += ed->map.player.speed;
-		if (if_possible_to_move(new_pos, &ed->map.root))
-			ed->map.player.pos = new_pos;
+		new_pos = ed->map_game.player.pos;
+		new_pos.y += ed->map_game.player.speed;
+		if (if_possible_to_move(new_pos, &ed->map_game.root))
+			ed->map_game.player.pos = new_pos;
 	}
 	if (ed->d_pressed)
 	{
-		new_pos = ed->map.player.pos;
-		new_pos.x += ed->map.player.speed;
-		if (if_possible_to_move(new_pos, &ed->map.root))
-			ed->map.player.pos = new_pos;
+		new_pos = ed->map_game.player.pos;
+		new_pos.x += ed->map_game.player.speed;
+		if (if_possible_to_move(new_pos, &ed->map_game.root))
+			ed->map_game.player.pos = new_pos;
 	}
 	if (ed->s_pressed)
 	{
-		new_pos = ed->map.player.pos;
-		new_pos.y -= ed->map.player.speed;
-		if (if_possible_to_move(new_pos, &ed->map.root))
-			ed->map.player.pos = new_pos;
+		new_pos = ed->map_game.player.pos;
+		new_pos.y -= ed->map_game.player.speed;
+		if (if_possible_to_move(new_pos, &ed->map_game.root))
+			ed->map_game.player.pos = new_pos;
 	}
 }

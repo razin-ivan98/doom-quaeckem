@@ -95,7 +95,75 @@ void	clip_triangles( t_model *model, t_instance *instance, t_scene *scene, int l
 	}
 }
 
-t_model	*transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *scene, int lol)
+int classify_point(t_vertex cam, t_vertex line, t_vertex normal)
+{
+	t_vertex new;
+
+	cam.z = 0.0;
+	normal.z = 0.0;
+
+	new = (t_vertex){cam.x, line.x * cam.x + line.y, 0.0};
+
+	if (dot(sub(new, cam), normal) < 0.0)
+		return (BACK);
+	return (FRONT);
+}
+
+
+void	bsp_render_traversal(t_bsp *node, t_scene *scene, t_instance *instance, t_model *model)
+{
+	int i;
+	t_triangle	curr;
+	int			ters_count;
+	t_vertex	centre;
+
+	if (node->is_leaf)
+	{
+		i = 0;
+		while (i < node->vt_trs_count)
+		{
+			curr.normal = instance->model.normals[node->vt_trs[i].n_ids[0]];
+			curr.indexes[0] = node->vt_trs[i].ids[0];
+			curr.indexes[1] = node->vt_trs[i].ids[1];
+			curr.indexes[2] = node->vt_trs[i].ids[2];
+
+			curr.uvs[0] = instance->model.uvs[node->vt_trs[i].uv_ids[0]];
+			curr.uvs[1] = instance->model.uvs[node->vt_trs[i].uv_ids[1]];
+			curr.uvs[2] = instance->model.uvs[node->vt_trs[i].uv_ids[2]];
+
+			
+
+			ters_count = 1;
+			centre = multiply(sub(instance->model.vertexes[curr.indexes[0]],
+				scene->camera.position), -1.0);
+			curr.tex = instance->model.new_tex;
+
+			if (dot(centre, curr.normal) >= 0.0)
+			{
+				clip_triangle(&curr, &ters_count, scene->clipping_planes, model);
+			}
+			i++;
+		}
+		
+	}
+	else
+	{
+		if (classify_point((t_vertex){scene->camera.position.x,
+			scene->camera.position.z, 0.0}, node->line, node->normal) == FRONT)
+		{
+			bsp_render_traversal(node->back, scene, instance, model);
+			bsp_render_traversal(node->front, scene, instance, model);
+		}
+		else
+		{
+			bsp_render_traversal(node->front, scene, instance, model);
+			bsp_render_traversal(node->back, scene, instance, model);
+		}
+	}
+}
+
+
+t_model	*transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *scene, int mode)
 {
 	t_model		*model;
 	t_vertex4	tmp;
@@ -114,7 +182,10 @@ t_model	*transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *sc
 
 	transform_vertexes(model, instance, &transform);
 	
-	clip_triangles(model, instance, scene, lol);
+	if (mode == 1)//////bsp
+		bsp_render_traversal(&scene->level.root, scene, instance, model);
+	else
+		clip_triangles(model, instance, scene, 1);
 
 	return (model);
 }
@@ -129,11 +200,11 @@ void	render_level(int *image_data, t_scene *scene, t_mat4x4 camera_mat)
 	transform = multiply_m_m(camera_mat, 
 							scene->level.instance.transform);
 
-	if (!(model = transform_and_clip(&scene->level.instance, transform, scene, 0)))
+	if (!(model = transform_and_clip(&scene->level.instance, transform, scene, 1)))
 	{
 		return ;
 	}
-
+	// render_by_bsp(image_data, m)
 	render_model(image_data, model, scene);
 }
 void	render_sprites(int *image_data, t_scene *scene, t_mat4x4 camera_mat)
@@ -149,7 +220,7 @@ void	render_sprites(int *image_data, t_scene *scene, t_mat4x4 camera_mat)
 		update_instance_transform(&scene->sprites[i].instance);
 
 		transform = multiply_m_m(camera_mat, scene->sprites[i].instance.transform);
-		if (!(model = transform_and_clip(&scene->sprites[i].instance, transform, scene, 1)))
+		if (!(model = transform_and_clip(&scene->sprites[i].instance, transform, scene, 0)))
 		{
 			i++;
 			continue ;
@@ -171,7 +242,7 @@ void	render_objects(int *image_data, t_scene *scene, t_mat4x4 camera_mat)
 		update_instance_transform(&scene->objects[i].instance);
 
 		transform = multiply_m_m(camera_mat, scene->objects[i].instance.transform);
-		if (!(model = transform_and_clip(&scene->objects[i].instance, transform, scene, 1)))
+		if (!(model = transform_and_clip(&scene->objects[i].instance, transform, scene, 0)))
 		{
 			i++;
 			continue ;

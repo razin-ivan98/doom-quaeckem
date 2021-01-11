@@ -65,7 +65,7 @@ void mgl_run(t_mgl *mgl, void (*run_callback)(void *, int *), void (*event_callb
 
 		mgl->fps = 1.0 / (mgl->curr_time - mgl->lst_time);
 		
-		if (frame == 60)
+		if (frame == 60 && mgl->show_fps)
 		{
 			
 			printf("fps: %f\n", mgl->fps);

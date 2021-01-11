@@ -66,7 +66,7 @@ int		clip_tr(t_clip_triangle *cl, t_model *model, int k, int i)
 	return (1);
 }
 
-int		clip_triangle(t_triangle *trs, int *count, t_plane *planes, t_model *model)
+int		clip_triangle(t_triangle *trs, int *count, t_plane *planes, t_model *model)///count unused
 {
 	int				k;
 	int				i;

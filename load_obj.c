@@ -211,12 +211,12 @@ void get_polygons(t_model *model, char *file_name, t_vertex *normals)
 
 void read_obj(t_model *model, char *file_name)
 {
-    t_vertex *normals;
+   // t_vertex *normals;
     int normals_count;
 
-    normals_count = 0;
+    model->normals_count = 0;
 
-    normals = malloc(sizeof(t_vertex) * 3000);////////////////////
+    model->normals = malloc(sizeof(t_vertex) * 3000);////////////////////
 
     model->vertexes_count = 0;
     get_points(model, file_name);
@@ -225,12 +225,12 @@ void read_obj(t_model *model, char *file_name)
     get_uvss(model, file_name);
 
 
-    get_normals(normals, &normals_count, file_name);
+    get_normals(model->normals, &model->normals_count, file_name);
 
     model->triangles_count = 0;
-    get_polygons(model, file_name, normals);
+    get_polygons(model, file_name, model->normals);
 
-    free(normals);
+    //free(normals);
 }
 
 

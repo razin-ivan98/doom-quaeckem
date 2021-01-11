@@ -119,11 +119,13 @@ void	draw_pixel(t_scene *scene, int *image_data, t_triangle *tr, int y_it)
 				continue ;///////optimize
 			}
 		}
-		if (set_z_buffer(scene->z_buffer, x_it, y_it, inv_z))
+		if (set_z_buffer_bsp(scene->z_buffer, x_it, y_it, inv_z))
 		{
 			color = get_texel(tr->tex, u / inv_z, v / inv_z);
 			put_pixel(image_data, x_it, y_it, color);
 		}
+			
+		//}
 		x_it++;
 		inv_z += scene->render_tr.d_z;
 		u += scene->render_tr.d_u;

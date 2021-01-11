@@ -1,6 +1,10 @@
 // # include <SDL2/SDL.h>
+#ifndef DUKE_H
+# define DUKE_H
 
 # define SCREEN_MULTIPLICATOR 2
+
+# define MAP_EDITOR_SCALE 10
 
 #define W 720
 #define H 720
@@ -19,10 +23,12 @@
 #include "data.h"
 #include "helpers.h"
 #include "linear_algebra.h"
+#include "bsp_test/bsp.h"
 #include <string.h>
 #include <fcntl.h>
 #include "libft/libft.h"
 #include "get_next_line/get_next_line.h"
+
 
 void	render_init(t_scene *scene);
 void	clipping_planes_init(t_scene *scene);
@@ -54,6 +60,7 @@ void concat(t_float_array *first, t_float_array *second);
 float *create_z_buffer();
 float *clear_z_buffer(float *z_buffer);
 int set_z_buffer(float *z_buffer, int x, int y, float value);
+int set_z_buffer_bsp(float *z_buffer, int x, int y, float value);
 t_mat4x4 update_instance_transform(t_instance *instance);
 
 // int		get_texel(int *image_data, float u, float v, int pitch);
@@ -66,9 +73,15 @@ void render_scene(int *image_data, t_scene *scene);
 float get_inter_d(float i0, float d0, float i1, float d1);
 
 void read_obj(t_model *model, char *file_name);
+void read_bsp(t_bsp *root, char *filename);
+
+int classify_point(t_vertex cam, t_vertex line, t_vertex normal);
 
 //void read_map(char *name, t_model *model, int **tex, int *texture);
 
 ////void create_box(t_model *model, int **new_tex, int *tex);
 
 //t_bsp_node *create_bsp(t_model *model);
+
+
+#endif

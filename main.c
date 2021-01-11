@@ -31,7 +31,16 @@ void	event_handle(SDL_Event *event, void *doom_ptr, int *quit)
 	}
 	else if (event->type == SDL_KEYDOWN )
 	{
-		if (event->key.keysym.sym == SDLK_w)
+		if (event->key.keysym.sym == SDLK_SPACE)
+		{
+			if (doom->on_ground)
+				doom->g_speed -= 0.1;
+		}
+		else if (event->key.keysym.sym == SDLK_h)
+		{
+			doom->solid = (doom->solid ? 0 : 1);
+		}
+		else if (event->key.keysym.sym == SDLK_w)
 		{
 			doom->w_pressed = 1;
 		}
@@ -134,8 +143,6 @@ void	update_scene(t_doom *doom, float gamma)
 
 	update_objects(doom);
 
-
-
 }
 
 void	animation_update(t_scene *scene, float curr_time, float gamma)
@@ -180,6 +187,106 @@ void	animation_update(t_scene *scene, float curr_time, float gamma)
 	}
 }
 
+int		classify_point_s(t_vertex cam, t_vertex line, t_vertex normal)
+{
+	t_vertex new;
+	t_vertex ort;
+
+	cam.z = 0.0;
+	normal.z = 0.0;
+
+	ort = get_ort_line_by_point(line, cam);
+	new = lines_intersect(line, ort);
+
+	// printf("line %f\t%f\t%f\n", line.x, line.y, line.z);
+	// printf("ort %f\t%f\t%f\n", ort.x, ort.y, ort.z);
+
+	new.z = 0.0;
+
+	new = sub(cam, new);
+	
+	// printf("%f\t%f\t%f\n", new.x, new.y, new.z);
+	// printf("%f\t%f\t%f\n", normal.x, normal.y, normal.z);
+	// printf("%f\n\n", dot(new, normal));
+
+	if (dot(new, normal) < 0.0)
+		return (BACK);
+	return (FRONT);
+}
+
+int		check_leaf(t_bsp *node, t_vertex pos)
+{
+	int			i;
+	t_vertex	line;
+
+	i = 0;
+	while (i < node->walls_count)
+	{
+		node->walls[i].failed = 0;
+		if (node->walls[i].type == WALL_TYPE_WALL)
+		{
+			node->walls[i].failed = 1;
+			line = get_line_by_points(node->walls[i].points[0],
+							node->walls[i].points[1]);
+			if (classify_point_s(pos, line, node->walls[i].normal) == BACK)
+			{
+				node->walls[i].failed = 2;
+				return (0);
+			}
+		}
+		i++;
+	}
+	return (1);
+}
+
+int		bsp_solid_traversal(t_bsp *node, t_vertex pos)
+{
+	if (node->is_leaf)
+	{
+		if (pos.z - 0.7 < node->floor)
+			return (0);
+
+		return (check_leaf(node, pos));
+	}
+	else
+	{
+		if (classify_point(pos, node->line, node->normal) == BACK)
+		{
+			return (bsp_solid_traversal(node->front, pos));
+		}
+		else
+		{
+			return (bsp_solid_traversal(node->back, pos));
+		}
+	}
+}
+
+
+int		if_possible_to_move(t_vertex pos, t_bsp *node)
+{
+	return (bsp_solid_traversal(node, pos));
+}
+
+void		get_floor_seil_traversal(t_bsp *node, t_vertex pos, float *floor, float *ceil)
+{
+	if (node->is_leaf)
+	{
+		*floor = node->floor;
+		*ceil = node->ceil;
+	}
+	else
+	{
+		if (classify_point(pos, node->line, node->normal) == BACK)
+		{
+			get_floor_seil_traversal(node->front, pos, floor, ceil);
+		}
+		else
+		{
+			get_floor_seil_traversal(node->back, pos, floor, ceil);
+		}
+	}
+}
+
 void	update(void *doom_ptr, int *pixels)
 {
 	t_doom *doom;
@@ -203,25 +310,96 @@ void	update(void *doom_ptr, int *pixels)
 
 	float path = (doom->mgl->curr_time - doom->mgl->lst_time) * speed;
 
+	t_vertex new_pos;
+
+
+	float floor;
+	float ceil;
+	get_floor_seil_traversal(&doom->scene.level.root,
+			(t_vertex){doom->scene.camera.position.x,
+			doom->scene.camera.position.z, 0.0}, &floor, &ceil);
+	printf("floor %f\n", floor);
+
+	doom->scene.camera.position.y -= doom->g_speed;
+
+	if (doom->scene.camera.position.y - 1.0 < floor)
+	{
+		doom->on_ground = 1;
+		doom->scene.camera.position.y = 1.0 + floor;
+		doom->g_speed = 0;
+	}
+	if (doom->scene.camera.position.y - 1.0 > floor)
+	{
+		doom->on_ground = 0;
+		doom->g_speed += 0.4 * (doom->mgl->curr_time - doom->mgl->lst_time);
+		
+		if (doom->scene.camera.position.y - 1.0 < floor)
+		{
+			doom->on_ground = 1;
+			doom->scene.camera.position.y = 1.0 + floor;
+			doom->g_speed = 0;
+		}
+	}
+
+
+	///doom->scene.camera.position.y = floor + 1.0;
+
+
 	if (doom->w_pressed)
 	{
-		doom->scene.camera.position.z += path * cos(doom->gamma / 180 * 3.1415);
-		doom->scene.camera.position.x -= path * sin(doom->gamma / 180 * 3.1415);
+		new_pos = (t_vertex)
+		{
+			doom->scene.camera.position.x - path * sin(doom->gamma / 180 * 3.1415),
+			doom->scene.camera.position.z + path * cos(doom->gamma / 180 * 3.1415),
+			doom->scene.camera.position.y
+		};
+		if (if_possible_to_move(new_pos, &doom->scene.level.root) || doom->solid)
+		{
+			doom->scene.camera.position.z = new_pos.y;
+			doom->scene.camera.position.x = new_pos.x;
+		}
 	}
 	if (doom->s_pressed)
 	{
-		doom->scene.camera.position.z -= path * cos(doom->gamma / 180 * 3.1415);
-		doom->scene.camera.position.x += path * sin(doom->gamma / 180 * 3.1415);
+		new_pos = (t_vertex)
+		{
+			doom->scene.camera.position.x + path * sin(doom->gamma / 180 * 3.1415),
+			doom->scene.camera.position.z - path * cos(doom->gamma / 180 * 3.1415),
+			doom->scene.camera.position.y
+		};
+		if (if_possible_to_move(new_pos, &doom->scene.level.root) || doom->solid)
+		{
+			doom->scene.camera.position.z = new_pos.y;
+			doom->scene.camera.position.x = new_pos.x;
+		}
 	}
 	if (doom->a_pressed)
 	{
-		doom->scene.camera.position.z -= path * sin(doom->gamma / 180 * 3.1415);
-		doom->scene.camera.position.x -= path * cos(doom->gamma / 180 * 3.1415);
+		new_pos = (t_vertex)
+		{
+			doom->scene.camera.position.x - path * cos(doom->gamma / 180 * 3.1415),
+			doom->scene.camera.position.z - path * sin(doom->gamma / 180 * 3.1415),
+			doom->scene.camera.position.y
+		};
+		if (if_possible_to_move(new_pos, &doom->scene.level.root) || doom->solid)
+		{
+			doom->scene.camera.position.z = new_pos.y;
+			doom->scene.camera.position.x = new_pos.x;
+		}
 	}
 	if (doom->d_pressed)
 	{
-		doom->scene.camera.position.z += path * sin(doom->gamma / 180 * 3.1415);
-		doom->scene.camera.position.x += path * cos(doom->gamma / 180 * 3.1415);
+		new_pos = (t_vertex)
+		{
+			doom->scene.camera.position.x + path * cos(doom->gamma / 180 * 3.1415),
+			doom->scene.camera.position.z + path * sin(doom->gamma / 180 * 3.1415),
+			doom->scene.camera.position.y
+		};
+		if (if_possible_to_move(new_pos, &doom->scene.level.root) || doom->solid)
+		{
+			doom->scene.camera.position.z = new_pos.y;
+			doom->scene.camera.position.x = new_pos.x;
+		}
 	}
 	
 }
@@ -353,6 +531,9 @@ int		main()
 
 
 	doom.mgl = mgl;
+
+	doom.solid = 0;
+	doom.g_speed = 0;
 
 
 	doom.scene.level.instance.model.anim = NULL;

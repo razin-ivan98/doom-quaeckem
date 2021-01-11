@@ -1,6 +1,6 @@
-#include "bsp.h"
+#include "bsp_helpers.h"
 
-void delete_by_index(t_point *points, int index, int *count)
+void delete_by_index(t_vertex *points, int index, int *count)
 {
 	int i;
 

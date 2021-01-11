@@ -18,6 +18,9 @@ void	controls_init(t_doom *doom)
 
 void	level_init(t_scene *scene)
 {
+
+	read_bsp(&scene->level.root, "bsp_test/new_saved_bsp.json");
+
 	scene->level.instance.model.vertexes = malloc(sizeof(t_vertex) * 30000);
 	scene->level.instance.model.vertexes_count = 0;
 	scene->level.instance.model.triangles = malloc(sizeof(t_triangle) * 30000);
@@ -27,7 +30,7 @@ void	level_init(t_scene *scene)
 	scene->level.instance.model.bounds_center = (t_vertex){0,0,0};
 	scene->level.instance.model.bounds_radius = 100;
 
-	read_obj(&scene->level.instance.model, "map_editor/map_ed.obj");
+	read_obj(&scene->level.instance.model, "bsp_test/levl.obj");
 
 
 	scene->level.instance.position = (t_vertex){ 0, 0, 10};

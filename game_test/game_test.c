@@ -47,6 +47,67 @@ float ft_atof(char *str)
 
 char *read_node(t_bsp *node, char *str);
 
+
+
+char *add_vt_tr(t_bsp *node, char *str)
+{
+	char key[32];
+	char *ptr;
+
+	ptr = str;
+
+	while (*ptr)
+	{
+		puts("GOVONO2");
+
+		while (*ptr == ' ' || *ptr == '\t' || *ptr == '\n' || *ptr == '{' || *ptr == ',')
+			ptr++;
+
+		if (*ptr == '"')
+		{
+			ptr++;
+			ft_strncpy(key, ptr, ft_strchr(ptr, '"') - ptr);
+			key[ft_strchr(ptr, '"') - ptr] = 0;
+			ptr = ft_strchr(ptr, ':') + 1;
+
+			if (!ft_strcmp(key, "ids"))
+			{
+				ptr = ft_strchr(ptr, '[') + 1;
+			//	node->vt_trs[node->vt_trs_count].ids[0] = ft_atoi(ptr);
+				ptr = ft_strchr(ptr, ',') + 1;
+			//	node->vt_trs[node->vt_trs_count].ids[1] = ft_atoi(ptr);
+				ptr = ft_strchr(ptr, ',') + 1;
+			//	node->vt_trs[node->vt_trs_count].ids[2] = ft_atoi(ptr);
+				ptr = ft_strchr(ptr, ']') + 1;
+			}
+			else if (!ft_strcmp(key, "n_ids"))
+			{
+				ptr = ft_strchr(ptr, '[') + 1;
+			//	node->vt_trs[node->vt_trs_count].n_ids[0] = ft_atoi(ptr);
+				ptr = ft_strchr(ptr, ',') + 1;
+			//	node->vt_trs[node->vt_trs_count].n_ids[1] = ft_atoi(ptr);
+				ptr = ft_strchr(ptr, ',') + 1;
+			//	node->vt_trs[node->vt_trs_count].n_ids[2] = ft_atoi(ptr);
+				ptr = ft_strchr(ptr, ']') + 1;
+			}
+			else if (!ft_strcmp(key, "uv_ids"))
+			{
+				ptr = ft_strchr(ptr, '[') + 1;
+			//	node->vt_trs[node->vt_trs_count].uv_ids[0] = ft_atoi(ptr);
+				ptr = ft_strchr(ptr, ',') + 1;
+			//	node->vt_trs[node->vt_trs_count].uv_ids[1] = ft_atoi(ptr);
+				ptr = ft_strchr(ptr, ',') + 1;
+			//	node->vt_trs[node->vt_trs_count].uv_ids[2] = ft_atoi(ptr);
+				ptr = ft_strchr(ptr, ']') + 1;
+			}
+		}
+		else if (*ptr == '}')
+			break;
+	}
+//	(node->vt_trs_count)++;
+	return (ft_strchr(ptr, '}') + 1);
+}
+
 char *add_wall(t_bsp *node, char *str)
 {
 	char key[32];
@@ -100,6 +161,28 @@ char *add_wall(t_bsp *node, char *str)
 	}
 	(node->walls_count)++;
 	return (ft_strchr(ptr, '}') + 1);
+}
+
+
+char *read_vt_trs(t_bsp *node, char *str)
+{
+	char *ptr;
+
+	ptr = str;
+	while (*ptr) //////////
+	{
+		puts("GOVONO");
+		while (*ptr == ' ' || *ptr == '\t' || *ptr == '\n' || *ptr == ',')
+			ptr++;
+
+		if (*ptr == '{')
+		{
+			ptr = add_vt_tr(node, ptr + 1);
+		}
+		else if (*ptr == ']')
+			break;
+	}
+	return (ft_strchr(ptr, ']') + 1);
 }
 
 char *read_walls(t_bsp *node, char *str)
@@ -161,6 +244,12 @@ char *read_property(t_bsp *node, char *str)
 		ptr = read_walls(node, ptr);
 		return (ptr);
 	}
+	else if (!ft_strcmp(key, "vt_trs"))
+	{
+		ptr = ft_strchr(ptr, '[') + 1;
+		ptr = read_vt_trs(node, ptr);
+		return (ptr);
+	}
 	else if (!ft_strcmp(key, "front"))
 	{
 		ptr = ft_strchr(ptr, '{') + 1;
@@ -201,7 +290,7 @@ char *read_node(t_bsp *node, char *str)
 	return (ft_strchr(ptr, '}') + 1);
 }
 
-void read_bsp_tree(t_map *map, char *filename)
+void read_bsp_tree(t_map_game *map_game, char *filename)
 {
 	int fd;
 	char *read_str;
@@ -214,7 +303,7 @@ void read_bsp_tree(t_map *map, char *filename)
 	read_str[read(fd, read_str, 262143)] = 0;
 	close(fd);
 
-	read_node(&map->root, ft_strchr(read_str, '{') + 1);
+	read_node(&map_game->root, ft_strchr(read_str, '{') + 1);
 }
 
 void draw_line(int *pixels, int x1, int y1, int x2, int y2, int color)
@@ -246,11 +335,12 @@ void draw_line(int *pixels, int x1, int y1, int x2, int y2, int color)
 	}
 }
 
+
 void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 {
-	t_map_editor *ed;
+	t_map_game_editor *ed;
 
-	ed = (t_map_editor *)ed_ptr;
+	ed = (t_map_game_editor *)ed_ptr;
 	int i = 0;
 
 	if (event->type == SDL_MOUSEBUTTONDOWN)
@@ -258,8 +348,8 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 		ed->prev_x = event->button.x * SCREEN_MULTIPLICATOR;
 		ed->prev_y = event->button.y * SCREEN_MULTIPLICATOR;
 
-		ed->map.player.pos.x = (ed->prev_x - W_2) / 100.0;
-		ed->map.player.pos.y = (-ed->prev_y + H_2) / 100.0;
+		ed->map_game.player.pos.x = (ed->prev_x - W_2) / MAP_EDITOR_SCALE;
+		ed->map_game.player.pos.y = (-ed->prev_y + H_2) / MAP_EDITOR_SCALE;
 	}
 	else if (event->type == SDL_KEYDOWN )
 	{
@@ -354,18 +444,18 @@ void bsp_obhod(t_bsp *node, int *pixels, t_vertex cam)
 			p1 = node->walls[i].points[0];
 			p2 = node->walls[i].points[1];
 			n = multiply(node->walls[i].normal, 0.3);
-			//if (node->walls[i].type == WALL_TYPE_WALL)
-				draw_line(pixels, p1.x * 100, p1.y * 100, p2.x * 100,
-							p2.y * 100, colors[b%6]);
+			//if (node->walls[i].type == wall_TYPE_wall)
+				draw_line(pixels, p1.x * MAP_EDITOR_SCALE, p1.y * MAP_EDITOR_SCALE, p2.x * MAP_EDITOR_SCALE,
+							p2.y * MAP_EDITOR_SCALE, colors[b%6]);
 				// if (i == active)
 				// 	draw_line(pixels, p1.x * 100, p1.y * 100, p2.x * 100,
 				// 			p2.y * 100, 0xff00ff);
 			// else
 			// 	draw_line(pixels, p1.x * 100, p1.y * 100, p2.x * 100, p2.y * 100, 0xff0000);
 			
-			draw_line(pixels, (p1.x + (p2.x - p1.x) / 2) * 100, (p1.y + (p2.y - p1.y) / 2) * 100,
-					  (p1.x + (p2.x - p1.x) / 2 + n.x) * 100,
-					  (p1.y + (p2.y - p1.y) / 2 + n.y) * 100,
+			draw_line(pixels, (p1.x + (p2.x - p1.x) / 2) * MAP_EDITOR_SCALE, (p1.y + (p2.y - p1.y) / 2) * MAP_EDITOR_SCALE,
+					  (p1.x + (p2.x - p1.x) / 2 + n.x) * MAP_EDITOR_SCALE,
+					  (p1.y + (p2.y - p1.y) / 2 + n.y) * MAP_EDITOR_SCALE,
 					  0xffff00);
 		//	}
 			i++;
@@ -389,19 +479,19 @@ void bsp_obhod(t_bsp *node, int *pixels, t_vertex cam)
 	}
 }
 
-void update(void *map_editor, int *pixels)
+void update(void *map_game_editor, int *pixels)
 {
-	t_map_editor *ed;
+	t_map_game_editor *ed;
 	int i;
 	int j;
 	b = 0;
-	ed = (t_map_editor *)map_editor;
+	ed = (t_map_game_editor *)map_game_editor;
 
 	update_game(ed);
 
 	bzero(pixels, sizeof(int) * HxW);
 
-	bsp_obhod(&(ed->map.root), pixels, ed->map.player.pos);
+	bsp_obhod(&(ed->map_game.root), pixels, ed->map_game.player.pos);
 //	printf("\n\n\nnumber:  %d\n\n\n", b);
 	i = -2;
 	while (i < 3)
@@ -409,7 +499,8 @@ void update(void *map_editor, int *pixels)
 		j = -2;
 		while (j < 3)
 		{
-			put_pixel(pixels, ed->map.player.pos.x * 100 + i, ed->map.player.pos.y * 100 + j, 0x00ff00);
+			put_pixel(pixels, ed->map_game.player.pos.x * MAP_EDITOR_SCALE + i,
+					ed->map_game.player.pos.y * MAP_EDITOR_SCALE + j, 0x00ff00);
 			j++;
 		}
 		i++;
@@ -418,26 +509,28 @@ void update(void *map_editor, int *pixels)
 
 int main(int ac, char **av)
 {
-	t_map_editor map_editor;
+	t_map_game_editor map_game_editor;
 
-	map_editor.map.player.pos = (t_vertex){0.0,0.0,0.0};
-	map_editor.map.player.speed = 0.006;
+	map_game_editor.map_game.player.pos = (t_vertex){0.0,0.0,0.0};
+	map_game_editor.map_game.player.speed = 0.06;
 
-	map_editor.a_pressed = 0;
-	map_editor.w_pressed = 0;
-	map_editor.s_pressed = 0;
-	map_editor.d_pressed = 0;
-
-
-
-	t_mgl *mgl = mgl_init("Map Editor BSP", W, H);
-
-	read_bsp_tree(&map_editor.map, av[1]);
-
-	bsp_trav_zero(&map_editor.map.root);
+	map_game_editor.a_pressed = 0;
+	map_game_editor.w_pressed = 0;
+	map_game_editor.s_pressed = 0;
+	map_game_editor.d_pressed = 0;
 
 
-	mgl_run(mgl, update, event_handle, &map_editor);
+
+	t_mgl *mgl = mgl_init("map_game Editor BSP", W, H);
+
+	mgl->show_fps = 0;
+
+	read_bsp_tree(&map_game_editor.map_game, av[1]);
+
+	bsp_trav_zero(&map_game_editor.map_game.root);
+
+
+	mgl_run(mgl, update, event_handle, &map_game_editor);
 
 	mgl_quit(mgl);
 	return (0);

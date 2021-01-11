@@ -2,7 +2,7 @@
 
 float *clear_z_buffer(float *z_buffer)
 {
-	bzero((void *)z_buffer, sizeof(float) * HxW);////////////////
+	ft_bzero((void *)z_buffer, sizeof(float) * HxW);////////////////
 	return (z_buffer);
 }
 
@@ -27,5 +27,20 @@ int set_z_buffer(float *z_buffer, int x, int y, float value)
 		return (1);
 	}
 		
+	return (0);
+}
+
+int set_z_buffer_bsp(float *z_buffer, int x, int y, float value)
+{
+	int index;
+	
+	index = (H_2 - y - 1) * W + W_2 + x;
+	if (index < 0 || index > HxW)
+		return (0);
+	if (!z_buffer[index]){
+		z_buffer[index] = value;
+		return (1);
+	}
+
 	return (0);
 }

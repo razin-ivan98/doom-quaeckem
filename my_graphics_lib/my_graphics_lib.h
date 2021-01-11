@@ -15,6 +15,8 @@ typedef struct      s_mgl
 
 	int				quit;
 
+	int				show_fps;
+
 	float			lst_time;
 	float			curr_time;
 	float			fps;
