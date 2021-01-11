@@ -13,7 +13,7 @@ all:
 ifeq ($(UNAME_S), Darwin)
 	@echo MAC OS
 	make -C $(FTPATH)
-	gcc -g3 $(SRCS) -lm -L./../libft -lft $(FRAMEWORKS) $(INCLUDES) -o BSP
+	gcc -g -fsanitize=address $(SRCS) -lm -L./../libft -lft $(FRAMEWORKS) $(INCLUDES) -o BSP
 else
 	@echo Linux
 	make -C $(FTPATH)

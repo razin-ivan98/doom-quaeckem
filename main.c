@@ -318,8 +318,14 @@ void	update(void *doom_ptr, int *pixels)
 	get_floor_seil_traversal(&doom->scene.level.root,
 			(t_vertex){doom->scene.camera.position.x,
 			doom->scene.camera.position.z, 0.0}, &floor, &ceil);
-	printf("floor %f\n", floor);
+	//printf("on_ground %d\n", doom->on_ground);
 
+	doom->on_ground = 0;
+
+	if (!doom->on_ground)
+	{
+		doom->g_speed += 0.4 * (doom->mgl->curr_time - doom->mgl->lst_time);
+	}
 	doom->scene.camera.position.y -= doom->g_speed;
 
 	if (doom->scene.camera.position.y - 1.0 < floor)
@@ -327,18 +333,6 @@ void	update(void *doom_ptr, int *pixels)
 		doom->on_ground = 1;
 		doom->scene.camera.position.y = 1.0 + floor;
 		doom->g_speed = 0;
-	}
-	if (doom->scene.camera.position.y - 1.0 > floor)
-	{
-		doom->on_ground = 0;
-		doom->g_speed += 0.4 * (doom->mgl->curr_time - doom->mgl->lst_time);
-		
-		if (doom->scene.camera.position.y - 1.0 < floor)
-		{
-			doom->on_ground = 1;
-			doom->scene.camera.position.y = 1.0 + floor;
-			doom->g_speed = 0;
-		}
 	}
 
 

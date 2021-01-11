@@ -114,7 +114,7 @@ void to_obj_format(t_bsp *node, t_map *map)
 
 	i = 0;
 	printf("MALLOC  %d\n", node->trs_count);
-	node->vt_trs = malloc(sizeof(t_vt_tr) * node->trs_count);/////////
+	node->vt_trs = malloc(sizeof(t_vt_tr) * 30000);/////////
 	if (node->vt_trs == NULL)
 		puts("ПОЙМАЛ ГОвна");
 	puts(" НЕ ПОЙЙМАЛ гоВНА");
@@ -145,6 +145,7 @@ void to_obj_format(t_bsp *node, t_map *map)
 		uv = (t_vertex){1.0, 0.0, 0.0};
 		new.uv_ids[2] = add_uv(map, uv);
 
+		printf("node_trs_count %d\n", node->vt_trs_count);
 		node->vt_trs[node->vt_trs_count] = new;
 		(node->vt_trs_count)++;
 
@@ -675,23 +676,23 @@ void	export_map(t_map_editor *ed)
 	int fd;
 	char *str;
 
-	str = malloc(1000000);//////
+	str = malloc(100000);//////
 
 	fd = open("levl.obj", O_RDWR | O_TRUNC | O_CREAT);
 	ed->map.uvs_count = 0;
 	ed->map.vts_count = 0;
 	ed->map.nrmls_count = 0;
 
-	ed->map.uvs = malloc(sizeof(t_vertex) * 30000);/////
-	ed->map.vts = malloc(sizeof(t_vertex) * 30000);/////
-	ed->map.nrmls = malloc(sizeof(t_vertex) * 30000);////
+	ed->map.uvs = malloc(sizeof(t_vertex) * 3000);/////
+	ed->map.vts = malloc(sizeof(t_vertex) * 3000);/////
+	ed->map.nrmls = malloc(sizeof(t_vertex) * 3000);////
 
 
 	bsp_export_traversal(&ed->root, &ed->map, fd);
 	close(fd);
 
 	fd = open("levl.obj", O_RDWR);
-	str[read(fd, str, 1000000)] = 0;
+	str[read(fd, str, 100000)] = 0;
 	close(fd);
 
 	ft_putendl(str);
