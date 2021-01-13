@@ -207,7 +207,6 @@ void	render_level(int *image_data, t_scene *scene, t_mat4x4 camera_mat)
 	{
 		return ;
 	}
-	// render_by_bsp(image_data, m)
 	scene->depth_mode = 1;
 	render_model(image_data, model, scene);
 }
@@ -235,31 +234,31 @@ void	render_sprites(int *image_data, t_scene *scene, t_mat4x4 camera_mat)
 		i++;
 	}
 }
-void	render_objects(int *image_data, t_scene *scene, t_mat4x4 camera_mat)
-{
-	t_mat4x4	transform;
-	t_model		*model;
-	int			i;
+// void	render_objects(int *image_data, t_scene *scene, t_mat4x4 camera_mat)
+// {
+// 	t_mat4x4	transform;
+// 	t_model		*model;
+// 	int			i;
 
-	i = 0;
+// 	i = 0;
 
-	while (i < scene->objects_count)
-	{
-		update_instance_transform(&scene->objects[i].instance);
+// 	while (i < scene->objects_count)
+// 	{
+// 		update_instance_transform(&scene->objects[i].instance);
 
-		transform = multiply_m_m(camera_mat, scene->objects[i].instance.transform);
-		if (!(model = transform_and_clip(&scene->objects[i].instance, transform, scene, 0)))
-		{
-			i++;
-			continue ;
-		}
-		scene->depth_mode = 0;
+// 		transform = multiply_m_m(camera_mat, scene->objects[i].instance.transform);
+// 		if (!(model = transform_and_clip(&scene->objects[i].instance, transform, scene, 0)))
+// 		{
+// 			i++;
+// 			continue ;
+// 		}
+// 		scene->depth_mode = 0;
 
-		render_model(image_data, model, scene);
-		i++;
-	}
+// 		render_model(image_data, model, scene);
+// 		i++;
+// 	}
 
-}
+// }
 void	render_scene(int *image_data, t_scene *scene)
 {
 	t_mat4x4	camera_mat;
@@ -271,7 +270,7 @@ void	render_scene(int *image_data, t_scene *scene)
 
 	render_level(image_data, scene, camera_mat);
 	render_sprites(image_data, scene, camera_mat);
-	render_objects(image_data, scene, camera_mat);
+//	render_objects(image_data, scene, camera_mat);
 
 }
 

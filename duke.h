@@ -57,6 +57,7 @@ int		clip_triangle(t_triangle *trs, int *count, t_plane *planes, t_model *model)
 
 void	render_triangle(int *image_data, t_model *model, t_triangle *tr, t_scene *scene);
 
+t_object	create_object(t_vertex pos, int index);
 
 
 void put_pixel(int *image_data, int x, int y, int color);
@@ -101,7 +102,7 @@ t_enemy	create_enemy(t_vertex pos, float beta);
 
 int		if_possible_to_move(t_vertex pos, t_bsp *node, int mode, float height);
 
-
+void		get_floor_seil_traversal(t_bsp *node, t_vertex pos, float *floor, float *ceil);
 
 char *itoa(int value, char *buf);
 

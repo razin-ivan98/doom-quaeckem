@@ -16,6 +16,43 @@ void	controls_init(t_doom *doom)
 	doom->mouse_right_pressed = 0;
 }
 
+void	correct_objects_height(t_doom *doom)
+{
+	int i;
+	float floor;
+	float ceil;
+
+	i = 0;
+	while (i < 40)
+	{
+		if (doom->aid[i].enable)
+		{
+			get_floor_seil_traversal(&doom->scene.level.root,
+				(t_vertex){doom->aid[i].sprite.instance.position.x,
+				doom->aid[i].sprite.instance.position.z, 0.0}, &floor, &ceil);
+			doom->aid[i].sprite.instance.position.y = floor + 0.3;
+		}
+		if (doom->ammo[i].enable)
+		{
+			get_floor_seil_traversal(&doom->scene.level.root,
+				(t_vertex){doom->ammo[i].sprite.instance.position.x,
+				doom->ammo[i].sprite.instance.position.z, 0.0}, &floor, &ceil);
+			doom->ammo[i].sprite.instance.position.y = floor + 0.3;
+		}
+		i++;
+	}
+	i = 0;
+	while (i < doom->objects_count)
+	{
+		get_floor_seil_traversal(&doom->scene.level.root,
+				(t_vertex){doom->objects[i].sprite.instance.position.x,
+				doom->objects[i].sprite.instance.position.z, 0.0}, &floor, &ceil);
+			doom->objects[i].sprite.instance.position.y = floor + 0.8;
+		
+		i++;
+	}
+}
+
 void	level_init(t_doom *doom)
 {
 	t_scene *scene;
@@ -28,6 +65,8 @@ void	level_init(t_doom *doom)
 
 	read_bsp(doom, "bsp_test/new_saved_bsp.json");
 
+	correct_objects_height(doom);
+
 	scene->level.instance.model.vertexes = malloc(sizeof(t_vertex) * 30000);
 	scene->level.instance.model.vertexes_count = 0;
 	scene->level.instance.model.triangles = malloc(sizeof(t_triangle) * 30000);
@@ -39,13 +78,14 @@ void	level_init(t_doom *doom)
 
 	read_obj(&scene->level.instance.model, "bsp_test/levl.obj");
 
-
 	scene->level.instance.position = (t_vertex){ 0, 0, 10};
 	scene->level.instance.clipped = malloc(sizeof(t_vertex) * 10);
 	scene->level.instance.scale = 1.0;
 	scene->level.instance.orientation = make_oy_rot_matrix(0.0);
 	scene->level.instance.scale = 1.0;
 	scene->level.instance.position = (t_vertex){0, 0, 0};
+
+
 }
 
 void	clipping_planes_init(t_scene *scene)

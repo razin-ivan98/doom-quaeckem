@@ -402,20 +402,29 @@ void	update_sprites(t_doom *doom, float gamma)
 		
 		i++;
 	}
+	i = 0;
+	while (i < doom->objects_count)
+	{
+		doom->scene.sprites[doom->scene.sprites_count] = doom->objects[i].sprite;
+		doom->scene.sprites[doom->scene.sprites_count].instance.orientation =
+					doom->for_sprites;
+		doom->scene.sprites_count++;
+		i++;
+	}
 }
 
 void	update_objects(t_doom *doom)
 {
 	int i;
 
-	i = 0;
-	doom->scene.objects_count = 0;
-	while (i < doom->objects_count)
-	{
-		doom->scene.objects[i] = doom->objects[i];
-		doom->scene.objects_count++;
-		i++;
-	}
+	// i = 0;
+	// doom->scene.objects_count = 0;
+	// while (i < doom->objects_count)
+	// {
+	// 	doom->scene.objects[i] = doom->objects[i];
+	// 	doom->scene.objects_count++;
+	// 	i++;
+	// }
 }
 
 void	update_scene(t_doom *doom, float gamma)
@@ -452,26 +461,26 @@ void	animation_update(t_scene *scene, float curr_time, float gamma)
 				scene->sprites[i].instance.model.anim->frames[frame];
 		i++;
 	}
-	i = 0;
-	while (i < scene->objects_count)
-	{
-		if (!scene->objects[i].instance.model.anim || !scene->objects[i].instance.model.anim)
-		{
-			i++;
-			continue ;
-		}
+	// i = 0;
+	// while (i < scene->objects_count)
+	// {
+	// 	if (!scene->objects[i].instance.model.anim || !scene->objects[i].instance.model.anim)
+	// 	{
+	// 		i++;
+	// 		continue ;
+	// 	}
 		
-		scene->objects[i].instance.model.anim->curr_f += scene->objects[i].instance.model.anim->speed * curr_time;
+	// 	scene->objects[i].instance.model.anim->curr_f += scene->objects[i].instance.model.anim->speed * curr_time;
 
 
-		frame = (int)(scene->objects[i].instance.model.anim->curr_f)
-				% scene->objects[i].instance.model.anim->length;
-		// if (frame < 0)
-		// 	frame = 0;
-		scene->objects[i].instance.model.new_tex[0] =
-				scene->objects[i].instance.model.anim->frames[frame];
-		i++;
-	}
+	// 	frame = (int)(scene->objects[i].instance.model.anim->curr_f)
+	// 			% scene->objects[i].instance.model.anim->length;
+	// 	// if (frame < 0)
+	// 	// 	frame = 0;
+	// 	scene->objects[i].instance.model.new_tex[0] =
+	// 			scene->objects[i].instance.model.anim->frames[frame];
+	// 	i++;
+	// }
 }
 
 int		classify_point_s(t_vertex cam, t_vertex line, t_vertex normal)
@@ -1045,7 +1054,7 @@ void	update(void *doom_ptr, int *pixels)
 	}
 	new_pos = (t_vertex)
 		{
-			doom->scene.camera.position.x - path * sin(doom->gamma / 180 * 3.1415),
+			doom->scene.camera.position.x,
 			doom->scene.camera.position.z,
 			doom->scene.camera.position.y - doom->g_speed
 		};
@@ -1250,7 +1259,7 @@ t_enemy	create_enemy(t_vertex pos, float beta)
 	return (enemy);
 }
 
-t_object	create_object(t_vertex pos)
+t_object	create_object(t_vertex pos, int index)
 {
 	t_object object;
 	t_model object_model;
@@ -1287,16 +1296,23 @@ t_object	create_object(t_vertex pos)
 	object_model.triangles[1].uvs[1] = (t_point) {1.0, 0.0,0.0};
 	object_model.triangles[1].uvs[2] = (t_point) {1.0, 1.0,0.0};
 
-	t_anim anima = load_anim("textures/anim1/", 15.0, 0);
+	char str[64];
+	char str2[64];
 
+	ft_strcpy(str, "textures/sprites/");
+	itoa(index, str2);
+	ft_strcat(str, str2);
+	ft_strcat(str, ".bmp");
 
-	object.instance.model = object_model;
-	object.instance.scale = 1.0;
-	object.instance.position = pos;
-	object.instance.orientation = make_oy_rot_matrix(0.0);
+	object_model.new_tex[0] = create_texture(str, 0xffff00ff);///////////////
 
-	object.anim = anima;
-	object.instance.model.anim = &object.anim;
+	printf("TEX %p\n\n", object_model.new_tex[0]);
+	puts(str);
+
+	object.sprite.instance.model = object_model;
+	object.sprite.instance.scale = 1.0;
+	object.sprite.instance.position = pos;
+	object.sprite.instance.orientation = make_oy_rot_matrix(0.0);
 
 	return (object);
 }
@@ -1396,7 +1412,7 @@ void	ammo_init(t_doom *doom)
 	ammo_model.triangles[1].uvs[1] = (t_point) {1.0, 0.0,0.0};
 	ammo_model.triangles[1].uvs[2] = (t_point) {1.0, 1.0,0.0};
 
-	ammo_model.new_tex[0] = create_texture("textures/ammo.bmp", 0xff00feff);
+	ammo_model.new_tex[0] = create_texture("textures/ammo.bmp", 0xff00feff);/////
 	ammo_model.new_tex[0]->flags = 0xff00feff;
 
 	ammo_model.anim = NULL;
@@ -1481,7 +1497,7 @@ void	drb_init(t_doom *doom)
 
 int		main()
 {
-	t_mgl			*mgl;
+	t_mgl			mgl;
 
 	t_doom			doom;
 
@@ -1494,7 +1510,7 @@ int		main()
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 
 
-	doom.mgl = mgl;
+	doom.mgl = &mgl;
 
 	doom.solid = 0;
 	doom.g_speed = 0;
@@ -1513,12 +1529,12 @@ int		main()
 	doom.scene.sprites = malloc(sizeof(t_sprite) * 200);
 	doom.scene.sprites_count = 0;
 
-	doom.scene.objects = malloc(sizeof(t_object) * 3);
+	doom.scene.objects = malloc(sizeof(t_object) * 200);
 	doom.scene.objects_count = 0;
 
-	doom.objects = malloc(sizeof(t_object) * 3);
-	doom.objects[0] = create_object((t_vertex){0.0,0.0,3.2});
-	doom.objects_count = 0;
+	// doom.objects = malloc(sizeof(t_object) * 3);
+	// doom.objects[0] = create_object((t_vertex){0.0,0.0,3.2});
+	// doom.objects_count = 0;
 
 	doom.health = 100;
 	doom.player_ammo = 10;
@@ -1597,6 +1613,7 @@ int		main()
 	color.r = 94;
 	color.g = 6;
 	color.b = 6;
+
 	SDL_FreeSurface(temp);
 	temp = renderText("LOSE", "fonts/DoomsDay.ttf", color, 300);
 	SDL_BlitScaled(temp, &rect, doom.lose_surface, NULL);
@@ -1605,9 +1622,9 @@ int		main()
 
 
 
-	mgl_run(mgl, update, event_handle, &doom);
+	mgl_run(&mgl, update, event_handle, &doom);
 
-	mgl_quit(mgl);
+	mgl_quit(&mgl);
 
 	return (0);
 }

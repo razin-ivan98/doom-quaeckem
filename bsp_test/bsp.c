@@ -112,6 +112,11 @@ void map_new_point(t_map *map, float x, float y, int flag)
 		{
 			return ;
 		}
+		if (map->circuits_count > 18)
+		{
+			ft_putendl("Больше нельзя");
+			return ;
+		}
 		map_new_circuit(map);
 		map->active = 1;
 	}
@@ -491,30 +496,6 @@ void	reconstruct_circuits(t_circuit *circuits, int circuits_count)
 	}
 }
 
-// int		get_failed_circuit(t_circuit *circuits, int circuits_count)
-// {
-// 	int i;
-
-// 	i = 0;
-// 	while (i < circuits_count)
-// 	{
-// 		if (circuits[i].failed)
-// 			return (i);
-// 		i++;
-// 	}
-// 	return (-1);
-// }
-
-// void	delete_failed_circuits(t_circuit *circuits, int *circuits_count)
-// {
-// 	while (get_failed_circuit(circuits, *circuits_count) != -1)
-// 	{
-// 		delete_circuit_by_index(circuits,
-// 					get_failed_circuit(circuits, *circuits_count),
-// 					circuits_count);
-// 	}
-	
-// }
 
 void	bsp_recurse(t_bsp *bsp, t_circuit *circuits, int circuits_count, t_map *map)
 {
@@ -729,15 +710,91 @@ void	bsp_recurse(t_bsp *bsp, t_circuit *circuits, int circuits_count, t_map *map
 	bsp_recurse(bsp->front, front, circuits_count, map);
 }
 
+int			if_intersect(t_vertex v11, t_vertex v12, t_vertex v21, t_vertex v22)
+{
+	t_vertex cut1;
+	t_vertex cut2;
+
+	t_vertex prod1;
+	t_vertex prod2;
+
+	cut1 = sub(v12, v11);
+	cut2 = sub(v22, v21);
+
+	
+
+	prod1 = cross(cut1, sub(v21, v11));
+	prod2 = cross(cut1, sub(v22, v11));
+
+	if(sign(prod1.z) == sign(prod2.z) || sign(prod1.z) == 0 || sign(prod2.z) == 0) // Отсекаем также и пограничные случаи
+		return 0;
+	
+
+	prod1 = cross(cut2, sub(v11, v21));
+	prod2 = cross(cut2, sub(v12, v21));
+
+	if(sign(prod1.z) == sign(prod2.z) || sign(prod1.z) == 0 || sign(prod2.z) == 0) // Отсекаем также и пограничные случаи
+		return 0;
+
+	// if (crossing) { // Проверяем, надо ли определять место пересечения
+	// 	(*crossing)[X] = v11[X] + cut1[X]*fabs(prod1[Z])/fabs(prod2[Z]-prod1[Z]);
+	// 	(*crossing)[Y] = v11[Y] + cut1[Y]*fabs(prod1[Z])/fabs(prod2[Z]-prod1[Z]);
+	// }
+	return 1;
+}
+
+int		check_wall(t_map_editor *ed, int i, int j)
+{
+	int k;
+	int p;
+
+	k = 0;
+	while (k < ed->map.circuits_count)
+	{
+		p = 0;
+		while (p < ed->map.circuits[k].walls_count)
+		{
+			if (if_intersect(ed->map.circuits[k].walls[p].points[0],
+							ed->map.circuits[k].walls[p].points[1],	
+							ed->map.circuits[i].walls[j].points[0],
+							ed->map.circuits[i].walls[j].points[1]))
+				return (1);
+			p++;
+		}
+		k++;
+	}
+	return (0);
+}
+
+int		check_data(t_map_editor *ed)
+{
+	int i;
+	int j;
+
+	i = 0;
+	while (i < ed->map.circuits_count)
+	{
+		j = 0;
+		while (j < ed->map.circuits[i].walls_count)
+		{
+			if (!check_wall(ed, i, j))
+				return (1);
+			j++;
+		}
+		i++;
+	}
+	return (0);
+}
+
 void	bsp_compile(t_map_editor *ed)
 {
 	t_circuit *circuits;
 
 	circuits = malloc(sizeof(t_circuit) * ed->map.circuits_count);///////
 
-	
-
 	transform_data(ed);
+	if (check_data(ed))
+		puts("KEK");
 	ft_memcpy(circuits, ed->map.circuits, sizeof(t_circuit) * ed->map.circuits_count);
 	bsp_recurse(&ed->root, circuits, ed->map.circuits_count, &ed->map);
 }
@@ -924,6 +981,14 @@ void	write_instructions(t_map_editor *ed)
 	else if (ed->step == STEP_12_SAVE)
 		ft_putendl("Сохранение...");
 }
+void	write_obect_num(t_map_editor *ed)
+{
+	char str[64];
+
+	ft_putstr("Тип объекта: ");
+	itoa(ed->curr_object, str);
+	ft_putendl(str);
+}
 
 void	write_floor_height(t_map_editor *ed)
 {
@@ -967,7 +1032,6 @@ void	write_wall_tex(t_map_editor *ed)
 }
 void	add_aid(t_vertex pos, t_map_editor *ed)
 {
-	/////////определение высоты
 	if (ed->aid_count == 39)
 	{
 		ft_putendl("Больше нельзя");
@@ -979,7 +1043,6 @@ void	add_aid(t_vertex pos, t_map_editor *ed)
 }
 void	add_ammo(t_vertex pos, t_map_editor *ed)
 {
-	/////////определение высоты
 	if (ed->ammo_count == 39)
 	{
 		ft_putendl("Больше нельзя");
@@ -991,7 +1054,6 @@ void	add_ammo(t_vertex pos, t_map_editor *ed)
 }
 void	add_enemy(t_vertex pos, t_map_editor *ed)
 {
-	/////////определение высоты
 	if (ed->enemies_count == 39)
 	{
 		ft_putendl("Больше нельзя");
@@ -1000,6 +1062,18 @@ void	add_enemy(t_vertex pos, t_map_editor *ed)
 
 	ed->enemies[ed->enemies_count] = pos;
 	ed->enemies_count++;
+}
+
+void	add_object(t_vertex pos, int number, t_map_editor *ed)
+{
+	if (ed->objects_count == 39)
+	{
+		ft_putendl("Больше нельзя");
+		return ;
+	}
+
+	ed->objects[ed->objects_count] = (t_m_e_object){pos, number};
+	ed->objects_count++;
 }
 
 void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
@@ -1047,6 +1121,10 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 	{
 		if (ed->step == STEP_1_DRAW)
 		{
+			if (ed->map.circuits[ed->map.active].points_count > 90)
+			{
+				ft_putendl("Больше нельзя");
+			}
 			/*
 				новая точка
 			*/
@@ -1094,6 +1172,11 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 		{
 			add_aid((t_vertex){(float)(ed->prev_x - W_2) / MAP_EDITOR_SCALE,
 						(float)(H_2 - ed->prev_y) / MAP_EDITOR_SCALE, 0.0}, ed);
+		}
+		else if (ed->step == STEP_10_OBJECTS)
+		{
+			add_object((t_vertex){(float)(ed->prev_x - W_2) / MAP_EDITOR_SCALE,
+						(float)(H_2 - ed->prev_y) / MAP_EDITOR_SCALE, 0.0}, ed->curr_object,ed);
 		}
 		else if (ed->step == STEP_11_ENEMIES)
 		{
@@ -1157,20 +1240,34 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 				ed->map.circuits[ed->map.selected_circuit].floor += 0.1;
 				write_floor_height(ed);
 			}
-			if (ed->edit_floor_tex)
+			if (ed->edit_floor_tex && ed->step == STEP_4_TEXTURES)
 			{
 				ed->map.circuits[ed->map.selected_circuit].floor_tex += 1;
+				if (ed->map.circuits[ed->map.selected_circuit].floor_tex > 5)
+					ed->map.circuits[ed->map.selected_circuit].floor_tex = 0;
 				write_floor_tex(ed);
 			}
-			if (ed->edit_ceil_tex)
+			if (ed->edit_ceil_tex && ed->step == STEP_4_TEXTURES)
 			{
 				ed->map.circuits[ed->map.selected_circuit].ceil_tex += 1;
+				if (ed->map.circuits[ed->map.selected_circuit].ceil_tex > 5)
+					ed->map.circuits[ed->map.selected_circuit].ceil_tex = 0;
 				write_ceil_tex(ed);
 			}
-			if (ed->edit_wall_tex)
+			if (ed->edit_wall_tex && ed->step == STEP_4_TEXTURES)
 			{
 				ed->map.circuits[ed->map.selected_circuit].wall_tex += 1;
+				
+				if (ed->map.circuits[ed->map.selected_circuit].wall_tex > 5)
+					ed->map.circuits[ed->map.selected_circuit].wall_tex = 0;
 				write_wall_tex(ed);
+			}
+			if (ed->step == STEP_10_OBJECTS)
+			{
+				ed->curr_object += 1;
+				if (ed->curr_object > 3)
+					ed->curr_object = 0;
+				write_obect_num(ed);
 			}
 		}
 		else if (event->key.keysym.sym == SDLK_MINUS)
@@ -1185,20 +1282,33 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 				ed->map.circuits[ed->map.selected_circuit].floor -= 0.1;
 				write_floor_height(ed);
 			}
-			if (ed->edit_floor_tex)
+			if (ed->edit_floor_tex && ed->step == STEP_4_TEXTURES)
 			{
 				ed->map.circuits[ed->map.selected_circuit].floor_tex -= 1;
+				if (ed->map.circuits[ed->map.selected_circuit].floor_tex < 0)
+					ed->map.circuits[ed->map.selected_circuit].floor_tex = 5;
 				write_floor_tex(ed);
 			}
-			if (ed->edit_ceil_tex)
+			if (ed->edit_ceil_tex && ed->step == STEP_4_TEXTURES)
 			{
 				ed->map.circuits[ed->map.selected_circuit].ceil_tex -= 1;
+				if (ed->map.circuits[ed->map.selected_circuit].ceil_tex < 0)
+					ed->map.circuits[ed->map.selected_circuit].ceil_tex = 5;
 				write_ceil_tex(ed);
 			}
-			if (ed->edit_wall_tex)
+			if (ed->edit_wall_tex && ed->step == STEP_4_TEXTURES)
 			{
 				ed->map.circuits[ed->map.selected_circuit].wall_tex -= 1;
+				if (ed->map.circuits[ed->map.selected_circuit].wall_tex < 0)
+					ed->map.circuits[ed->map.selected_circuit].wall_tex = 5;
 				write_wall_tex(ed);
+			}
+			if (ed->step == STEP_10_OBJECTS)
+			{
+				ed->curr_object -= 1;
+				if (ed->curr_object < 0)
+					ed->curr_object = 3;
+				write_obect_num(ed);
 			}
 		}
 	
@@ -1345,6 +1455,18 @@ void	draw_enemies(t_map_editor *ed, int *pixels)
 		i++;
 	}
 }
+void	draw_objects(t_map_editor *ed, int *pixels)
+{
+	int i;
+	
+	i = 0;
+	while (i < ed->objects_count)
+	{
+		draw_point(multiply(ed->objects[i].pos, MAP_EDITOR_SCALE),
+			0xff00ff, pixels);
+		i++;
+	}
+}
 
 
 void update(void *map_editor, int *pixels)
@@ -1430,6 +1552,10 @@ void update(void *map_editor, int *pixels)
 		{
 			draw_point(multiply(ed->aim, MAP_EDITOR_SCALE), 0x0000ff, pixels);
 		}
+		if (ed->step >= STEP_10_OBJECTS)
+		{
+			draw_objects(ed, pixels);
+		}
 		if (ed->step >= STEP_11_ENEMIES)
 		{
 			draw_enemies(ed, pixels);
@@ -1464,6 +1590,8 @@ int main(int ac, char **av)
 	map_editor.objects_count = 0;
 	map_editor.doors_count = 0;
 	map_editor.aid_count = 0;
+	map_editor.curr_object = 0;
+
 
 
 	map_editor.player = (t_vertex){0.0, 0.0, 0.0};
@@ -1478,9 +1606,9 @@ int main(int ac, char **av)
 		чтобы избавить основной код от прямого взаимодействия с SDL
 	*/
 
-	t_mgl *mgl = mgl_init("Map Editor BSP", W, H);
+	t_mgl mgl = mgl_init("Map Editor BSP", W, H);
 
-	mgl->show_fps = 0;
+	mgl.show_fps = 0;
 
 
 	map_editor.cursor_surface = SDL_LoadBMP("../textures/cursor.bmp");
@@ -1504,8 +1632,8 @@ int main(int ac, char **av)
 	write_instructions(&map_editor);
 
 
-	mgl_run(mgl, update, event_handle, &map_editor);
+	mgl_run(&mgl, update, event_handle, &map_editor);
 
-	mgl_quit(mgl);
+	mgl_quit(&mgl);
 	return (0);
 }

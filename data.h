@@ -251,7 +251,7 @@ typedef struct	s_circuit
 
 typedef struct s_map
 {
-	t_circuit circuits[10];
+	t_circuit circuits[20];
 
 	t_vertex *vts;
 	int	vts_count;
@@ -334,7 +334,8 @@ typedef struct	s_m_e_door
 }				t_m_e_door;
 typedef struct	s_m_e_object
 {
-	/* data */
+	t_vertex	pos;
+	int			index;
 }				t_m_e_object;
 typedef struct	s_m_e_decor
 {
@@ -380,6 +381,8 @@ typedef struct s_map_editor
 	t_m_e_decor decor[40];
 	int decor_count;
 
+	int	curr_object;
+
 	int step;
 
 	int mode;
@@ -407,9 +410,9 @@ typedef struct	s_sprite
 
 typedef struct	s_object
 {
-	t_instance	instance;
+	t_sprite	sprite;
 
-
+	int			index;
 	t_anim		anim;
 
 }				t_object;
@@ -567,7 +570,7 @@ typedef struct	s_doom
 	t_ammo		ammo[40];
 	t_aid		aid[40];
 
-	t_object	*objects;
+	t_object	objects[40];
 	int			objects_count;
 
 	t_mgl		*mgl;

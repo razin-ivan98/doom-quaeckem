@@ -31,7 +31,7 @@ typedef struct      s_mgl
 	int				vs_count;
 }                   t_mgl;
 
-t_mgl	*mgl_init(char *win_name, int w, int h);
+t_mgl	mgl_init(char *win_name, int w, int h);
 void	mgl_quit(t_mgl *mgl);
 void	mgl_run(t_mgl *mgl,
 				void (*run_callback)(void *, int *),

@@ -340,6 +340,26 @@ char	*add_enemy(t_doom *doom, char *ptr)
 	return (ft_strchr(ptr, ']') + 1);
 }
 
+char	*add_object(t_doom *doom, char *ptr)
+{
+	t_vertex	pos;
+	int			index;
+
+	ptr = ft_strchr(ptr, ':') + 1;
+
+	index = ft_atoi(ptr);
+	ptr = ft_strchr(ptr, '[') + 1;
+	pos.x = ft_atof(ptr);
+	ptr = ft_strchr(ptr, ',') + 1;
+	pos.z = ft_atof(ptr);
+
+
+	doom->objects[doom->objects_count] = create_object(pos, index);
+	doom->objects_count++;
+	
+	return (ft_strchr(ptr, '}') + 1);
+}
+
 char	*read_enemies(t_doom *doom, char *ptr)
 {
 	doom->enemies_count = 0;
@@ -353,6 +373,27 @@ char	*read_enemies(t_doom *doom, char *ptr)
 		if (*ptr == '[')
 		{
 			ptr = add_enemy(doom, ptr + 1);
+		}
+		else if (*ptr == ']')
+			break;
+	}
+	return (ft_strchr(ptr, ']') + 1);
+}
+char	*read_objects(t_doom *doom, char *ptr)
+{
+	doom->objects_count = 0;
+	ptr = ft_strchr(ptr, '[') + 1;
+
+	while (*ptr) //////////
+	{
+		// puts("lol");//
+		// puts(ptr);//
+		while (*ptr == ' ' || *ptr == '\t' || *ptr == '\n' || *ptr == ',')
+			ptr++;
+
+		if (*ptr == '{')
+		{
+			ptr = add_object(doom, ptr + 1);
 		}
 		else if (*ptr == ']')
 			break;
@@ -476,6 +517,10 @@ char *read_data_property(t_doom *doom, char *str)
 	else if (!ft_strcmp(key, "aid"))
 	{
 		return (read_aid(doom, ptr));
+	}
+	else if (!ft_strcmp(key, "objects"))
+	{
+		return (read_objects(doom, ptr));
 	}
 	else if (!ft_strcmp(key, "bsp"))
 		read_node(&doom->scene.level.root, ft_strchr(ptr, '{') + 1);

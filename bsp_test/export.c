@@ -557,6 +557,7 @@ void triangulate(t_bsp *node, t_vertex *pts, int *pts_count)
 	int i;
 
 	int p;
+	int counter;
 
 	t_vertex new1;
 	t_vertex new2;
@@ -564,6 +565,8 @@ void triangulate(t_bsp *node, t_vertex *pts, int *pts_count)
 
 	i = 0;
 	p = 0;
+
+	counter = 0;
 
 	node->trs = malloc(sizeof(t_tr) * 2000);/////////////////
 	node->trs_count = 0;
@@ -587,6 +590,13 @@ void triangulate(t_bsp *node, t_vertex *pts, int *pts_count)
 		{
 			i = get_i_plus_1(i, *pts_count);
 		}
+		counter++;
+		if (counter > 1000000)
+		{
+			ft_putendl("Ошибка триангуляции");
+			exit(-2);
+		}
+			
 	}
 	node->trs[node->trs_count] = create_tr(pts, pts_count, 0);
 	(node->trs_count)++;

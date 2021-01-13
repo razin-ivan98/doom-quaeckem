@@ -66,10 +66,11 @@ SDL_Surface	*create_texture(char *filename, int alpha)
 
 	tex = SDL_ConvertSurface(texture, format, 0);
 
+	
 	puts("mall");
 	SDL_SetColorKey(tex, SDL_TRUE, alpha);
 	SDL_FreeFormat(format);
 	SDL_FreeSurface(texture);
-
+	tex->flags = alpha;
 	return tex;
 }

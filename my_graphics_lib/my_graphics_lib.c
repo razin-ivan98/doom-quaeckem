@@ -1,27 +1,27 @@
 #include "my_graphics_lib.h"
 
-t_mgl *mgl_init(char *win_name, int w, int h)
+t_mgl mgl_init(char *win_name, int w, int h)
 {
-	t_mgl *mgl;
+	t_mgl mgl;
 
-	mgl = (t_mgl *)malloc(sizeof(t_mgl)); ///////////////////////////////////////////
+	//mgl = (t_mgl *)malloc(sizeof(t_mgl)); ///////////////////////////////////////////
 
-	if (!mgl)
-		return (NULL);
+	//if (!mgl)
+	//	return (NULL);
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 
-	mgl->window = SDL_CreateWindow(win_name, 50, 50, w , h, SDL_WINDOW_SHOWN);
-	mgl->windows_count = 1;
-	mgl->renderer = SDL_CreateRenderer(mgl->window, -1, 0);
-	mgl->screen_surface = SDL_CreateRGBSurface(0, w , h, 32, 0, 0, 0, 0);
+	mgl.window = SDL_CreateWindow(win_name, 50, 50, w , h, SDL_WINDOW_SHOWN);
+	mgl.windows_count = 1;
+	mgl.renderer = SDL_CreateRenderer(mgl.window, -1, 0);
+	mgl.screen_surface = SDL_CreateRGBSurface(0, w , h, 32, 0, 0, 0, 0);
 
-	mgl->quit = 0;
+	mgl.quit = 0;
 
-	mgl->curr_time = SDL_GetTicks() / 1000.0;;
+	mgl.curr_time = SDL_GetTicks() / 1000.0;;
 
-	mgl->trs_count = 0;
-	mgl->vs_count = 0;
+	// mgl.trs_count = 0;
+	// mgl.vs_count = 0;
 
 	return (mgl);
 }
