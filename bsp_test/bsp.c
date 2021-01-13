@@ -897,15 +897,122 @@ int		bsp_select_circuit_traversal(t_bsp *node, t_vertex pos)
 	}
 }
 
+void	write_instructions(t_map_editor *ed)
+{
+	if (ed->step == STEP_1_DRAW)
+		ft_putendl("Посекторно нарисуйте карту");
+	else if (ed->step == STEP_2_FLOOR)
+		ft_putendl("Отредактируйте высоту пола секторов");
+	else if (ed->step == STEP_3_CEIL)
+		ft_putendl("Отредактируйте высоту потолка секторов");
+	else if (ed->step == STEP_4_TEXTURES)
+		ft_putendl("Отредактируйте текстуры секторов");
+	else if (ed->step == STEP_5_PLAYER)
+		ft_putendl("Рсположите игрока на карте");
+	else if (ed->step == STEP_6_AMMO)
+		ft_putendl("Расположите патроны на карте");
+	else if (ed->step == STEP_7_AID)
+		ft_putendl("Расположите атечки на карте");
+	else if (ed->step == STEP_8_AIM)
+		ft_putendl("Расположите цель на карте");
+	else if (ed->step == STEP_9_DECOR)
+		ft_putendl("Расположите элементы декора на карте");
+	else if (ed->step == STEP_10_OBJECTS)
+		ft_putendl("Расположите объекты на карте");
+	else if (ed->step == STEP_11_ENEMIES)
+		ft_putendl("Расположите врагов на карте");
+	else if (ed->step == STEP_12_SAVE)
+		ft_putendl("Сохранение...");
+}
+
+void	write_floor_height(t_map_editor *ed)
+{
+	char str[64];
+
+	ft_putstr("Высота пола: ");
+	ftoa(ed->map.circuits[ed->map.selected_circuit].floor, 8, str);
+	ft_putendl(str);
+}
+void	write_ceil_height(t_map_editor *ed)
+{
+	char str[64];
+
+	ft_putstr("Высота потолка: ");
+	ftoa(ed->map.circuits[ed->map.selected_circuit].ceil, 8, str);
+	ft_putendl(str);
+}
+void	write_floor_tex(t_map_editor *ed)
+{
+	char str[64];
+
+	ft_putstr("Текстура пола: ");
+	itoa(ed->map.circuits[ed->map.selected_circuit].floor_tex, str);
+	ft_putendl(str);
+}
+void	write_ceil_tex(t_map_editor *ed)
+{
+	char str[64];
+
+	ft_putstr("Текстура потолка: ");
+	itoa(ed->map.circuits[ed->map.selected_circuit].ceil_tex, str);
+	ft_putendl(str);
+}
+void	write_wall_tex(t_map_editor *ed)
+{
+	char str[64];
+
+	ft_putstr("Текстура стен: ");
+	itoa(ed->map.circuits[ed->map.selected_circuit].wall_tex, str);
+	ft_putendl(str);
+}
+void	add_aid(t_vertex pos, t_map_editor *ed)
+{
+	/////////определение высоты
+	if (ed->aid_count == 39)
+	{
+		ft_putendl("Больше нельзя");
+		return ;
+	}
+
+	ed->aid[ed->aid_count] = pos;
+	ed->aid_count++;
+}
+void	add_ammo(t_vertex pos, t_map_editor *ed)
+{
+	/////////определение высоты
+	if (ed->ammo_count == 39)
+	{
+		ft_putendl("Больше нельзя");
+		return ;
+	}
+
+	ed->ammo[ed->ammo_count] = pos;
+	ed->ammo_count++;
+}
+void	add_enemy(t_vertex pos, t_map_editor *ed)
+{
+	/////////определение высоты
+	if (ed->enemies_count == 39)
+	{
+		ft_putendl("Больше нельзя");
+		return ;
+	}
+
+	ed->enemies[ed->enemies_count] = pos;
+	ed->enemies_count++;
+}
 
 void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 {
 	t_map_editor *ed;
+	char *str;
 
 	ed = (t_map_editor *)ed_ptr;
 
 	ed->prev_x = event->button.x * SCREEN_MULTIPLICATOR;
 	ed->prev_y = event->button.y * SCREEN_MULTIPLICATOR;
+
+	str = malloc(256);//////
 
 	if (event->type == SDL_MOUSEMOTION)
 	{
@@ -938,171 +1045,197 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 	}
 	else if (event->type == SDL_MOUSEBUTTONDOWN)
 	{
-		ed->edit_floor = 0;
-		ed->edit_ceil = 0;
-		ed->edit_ceil_tex = 0;
-		ed->edit_wall_tex = 0;
-		ed->edit_floor_tex = 0;
-		if (ed->mode == RENDER_MODE_WALLS)
+		if (ed->step == STEP_1_DRAW)
+		{
+			/*
+				новая точка
+			*/
+			map_new_point(&ed->map, (float)(ed->prev_x - W_2) / MAP_EDITOR_SCALE,
+						(float)(H_2 - ed->prev_y) / MAP_EDITOR_SCALE, 0);
+			printf("x: %f\ty: %f\n", (float)(ed->prev_x - W_2) / MAP_EDITOR_SCALE,
+						(float)(H_2 - ed->prev_y) / MAP_EDITOR_SCALE);
+		}
+		else if (ed->step >= STEP_2_FLOOR && ed->step <= STEP_4_TEXTURES)
 		{
 			ed->map.selected_circuit = bsp_select_circuit_traversal(&ed->root, 
 				(t_vertex){(float)(ed->prev_x - W_2) / MAP_EDITOR_SCALE,
 						(float)(H_2 - ed->prev_y) / MAP_EDITOR_SCALE, 0.0});
-			printf("Выбран контур %d\n", ed->map.selected_circuit);
-			printf("Содержит %d стен\n", ed->map.circuits[ed->map.selected_circuit].walls_count);
-			printf("Пол %f \n", ed->map.circuits[ed->map.selected_circuit].floor);
-			printf("Потолокл %f \n\n", ed->map.circuits[ed->map.selected_circuit].ceil);
 
-
-
-			return ;
+			if (ed->step == STEP_2_FLOOR)
+				write_floor_height(ed);
+			else if (ed->step == STEP_3_CEIL)
+				write_ceil_height(ed);
+			else if (ed->step == STEP_4_TEXTURES)
+			{
+				if (ed->edit_wall_tex)
+					write_wall_tex(ed);
+				else if (ed->edit_floor_tex)
+					write_floor_tex(ed);
+				else if (ed->edit_ceil_tex)
+					write_ceil_tex(ed);
+			}
 		}
-
-		/*
-			новая точка
-		*/
-
-		map_new_point(&(ed->map), (float)(ed->prev_x - W_2) / MAP_EDITOR_SCALE,
-						(float)(H_2 - ed->prev_y) / MAP_EDITOR_SCALE, 0);
-		printf("x: %f\ty: %f\n", (float)(ed->prev_x - W_2) / MAP_EDITOR_SCALE,
-						(float)(H_2 - ed->prev_y) / MAP_EDITOR_SCALE);
+		else if (ed->step == STEP_5_PLAYER)
+		{
+			ed->player = (t_vertex){(float)(ed->prev_x - W_2) / MAP_EDITOR_SCALE,
+						(float)(H_2 - ed->prev_y) / MAP_EDITOR_SCALE, 0.0};
+		}
+		else if (ed->step == STEP_8_AIM)
+		{
+			ed->aim = (t_vertex){(float)(ed->prev_x - W_2) / MAP_EDITOR_SCALE,
+						(float)(H_2 - ed->prev_y) / MAP_EDITOR_SCALE, 0.0};
+		}
+		else if (ed->step == STEP_6_AMMO)
+		{
+			add_ammo((t_vertex){(float)(ed->prev_x - W_2) / MAP_EDITOR_SCALE,
+						(float)(H_2 - ed->prev_y) / MAP_EDITOR_SCALE, 0.0}, ed);
+		}
+		else if (ed->step == STEP_7_AID)
+		{
+			add_aid((t_vertex){(float)(ed->prev_x - W_2) / MAP_EDITOR_SCALE,
+						(float)(H_2 - ed->prev_y) / MAP_EDITOR_SCALE, 0.0}, ed);
+		}
+		else if (ed->step == STEP_11_ENEMIES)
+		{
+			add_enemy((t_vertex){(float)(ed->prev_x - W_2) / MAP_EDITOR_SCALE,
+						(float)(H_2 - ed->prev_y) / MAP_EDITOR_SCALE, 0.0}, ed);
+		}
+		
 	}
 	else if (event->type == SDL_KEYDOWN)
 	{
-		if (event->key.keysym.sym == SDLK_EQUALS)
+		if (event->key.keysym.sym == SDLK_RETURN)
 		{
-			if (ed->edit_ceil)
+			ed->step++;
+
+			if (ed->step == STEP_2_FLOOR)
+			{
+				bsp_compile(ed);
+				ed->mode = RENDER_MODE_WALLS;
+			}
+			else if (ed->step == STEP_3_CEIL)
+				{}
+			else if (ed->step == STEP_4_TEXTURES)
+			{
+				ed->edit_wall_tex = 1;
+				ed->edit_floor_tex = 0;
+				ed->edit_ceil_tex = 0;
+
+			}
+			else if (ed->step == STEP_5_PLAYER)
+				{}
+			else if (ed->step == STEP_6_AMMO)
+				{}
+			else if (ed->step == STEP_7_AID)
+				{}
+			else if (ed->step == STEP_8_AIM)
+				{}
+			else if (ed->step == STEP_9_DECOR)
+			{}
+			else if (ed->step == STEP_10_OBJECTS)
+			{}
+			else if (ed->step == STEP_11_ENEMIES)
+			{}
+			else if (ed->step == STEP_12_SAVE)
+			{
+				export_map(ed);
+				save_json(&ed->root, ed);
+				ed->mode = RENDER_MODE_TRS;
+			}
+			write_instructions(ed);
+		}
+
+		else if (event->key.keysym.sym == SDLK_EQUALS)
+		{
+			if (ed->step == STEP_3_CEIL)
 			{
 				ed->map.circuits[ed->map.selected_circuit].ceil += 0.1;
-				printf("ceil: %f\n", ed->map.circuits[ed->map.selected_circuit].ceil);
+				write_ceil_height(ed);
 			}
-			if (ed->edit_floor)
+			if (ed->step == STEP_2_FLOOR)
 			{
 				ed->map.circuits[ed->map.selected_circuit].floor += 0.1;
-				printf("floor: %f\n", ed->map.circuits[ed->map.selected_circuit].floor);
+				write_floor_height(ed);
 			}
 			if (ed->edit_floor_tex)
 			{
 				ed->map.circuits[ed->map.selected_circuit].floor_tex += 1;
-				printf("floor_tex: %d\n", ed->map.circuits[ed->map.selected_circuit].floor_tex);
+				write_floor_tex(ed);
 			}
 			if (ed->edit_ceil_tex)
 			{
 				ed->map.circuits[ed->map.selected_circuit].ceil_tex += 1;
-				printf("ceil_tex: %d\n", ed->map.circuits[ed->map.selected_circuit].ceil_tex);
+				write_ceil_tex(ed);
 			}
 			if (ed->edit_wall_tex)
 			{
 				ed->map.circuits[ed->map.selected_circuit].wall_tex += 1;
-				printf("wall_tex: %d\n", ed->map.circuits[ed->map.selected_circuit].wall_tex);
+				write_wall_tex(ed);
 			}
 		}
 		else if (event->key.keysym.sym == SDLK_MINUS)
 		{
-			if (ed->edit_ceil)
+			if (ed->step == STEP_3_CEIL)
 			{
 				ed->map.circuits[ed->map.selected_circuit].ceil -= 0.1;
-				printf("ceil: %f\n", ed->map.circuits[ed->map.selected_circuit].ceil);
+				write_ceil_height(ed);
 			}
-			if (ed->edit_floor)
+			if (ed->step == STEP_2_FLOOR)
 			{
 				ed->map.circuits[ed->map.selected_circuit].floor -= 0.1;
-				printf("floor: %f\n", ed->map.circuits[ed->map.selected_circuit].floor);
+				write_floor_height(ed);
 			}
 			if (ed->edit_floor_tex)
 			{
 				ed->map.circuits[ed->map.selected_circuit].floor_tex -= 1;
-				printf("floor_tex: %d\n", ed->map.circuits[ed->map.selected_circuit].floor_tex);
-
+				write_floor_tex(ed);
 			}
 			if (ed->edit_ceil_tex)
 			{
 				ed->map.circuits[ed->map.selected_circuit].ceil_tex -= 1;
-				printf("ceil_tex: %d\n", ed->map.circuits[ed->map.selected_circuit].ceil_tex);
+				write_ceil_tex(ed);
 			}
 			if (ed->edit_wall_tex)
 			{
 				ed->map.circuits[ed->map.selected_circuit].wall_tex -= 1;
-				printf("wall_tex: %d\n", ed->map.circuits[ed->map.selected_circuit].wall_tex);
+				write_wall_tex(ed);
 			}
 		}
-		else if (event->key.keysym.sym == SDLK_s)
-		{
-			puts("SAVE JSON");
-			
-			export_map(ed);
-			save_json(&ed->root);
-			ed->mode = RENDER_MODE_TRS;
-		}
-		else if (event->key.keysym.sym == SDLK_f)//пол
-		{
-			if (ed->mode == RENDER_MODE_WALLS)
-			{
-				ed->edit_floor = 1;
-				ed->edit_ceil = 0;
-				ed->edit_ceil_tex = 0;
-				ed->edit_wall_tex = 0;
-				ed->edit_floor_tex = 0;
-				puts("Режим редактирования пола");
-				printf("ceil: %f\n", ed->map.circuits[ed->map.selected_circuit].floor);
-
-			}
-			
-		}
-		else if (event->key.keysym.sym == SDLK_p)//потолок
-		{
-			if (ed->mode == RENDER_MODE_WALLS)
-			{
-				ed->edit_floor = 0;
-				ed->edit_ceil_tex = 0;
-				ed->edit_wall_tex = 0;
-				ed->edit_floor_tex = 0;
-				ed->edit_ceil = 1;
-				puts("Режим редактирования потолка");
-				printf("ceil: %f\n", ed->map.circuits[ed->map.selected_circuit].ceil);
-
-			}
-		}
+	
 		else if (event->key.keysym.sym == SDLK_1)//текстура стен
 		{
-			if (ed->mode == RENDER_MODE_WALLS)
+			if (ed->step == STEP_4_TEXTURES)
 			{
-				ed->edit_floor = 0;
+				//ed->edit_floor = 0;
 				ed->edit_ceil_tex = 0;
 				ed->edit_wall_tex = 1;
 				ed->edit_floor_tex = 0;
-				ed->edit_ceil = 0;
-				puts("Выбор текстуры стен");
-				printf("wall_tex: %d\n", ed->map.circuits[ed->map.selected_circuit].wall_tex);
-
+				//ed->edit_ceil = 0;
+				write_wall_tex(ed);
 			}
 		}
 		else if (event->key.keysym.sym == SDLK_2)//текстура пола
 		{
-			if (ed->mode == RENDER_MODE_WALLS)
+			if (ed->step == STEP_4_TEXTURES)
 			{
-				ed->edit_floor = 0;
+				//ed->edit_floor = 0;
 				ed->edit_ceil_tex = 0;
 				ed->edit_wall_tex = 0;
 				ed->edit_floor_tex = 1;
-				ed->edit_ceil = 0;
-				puts("Выбор текстуры пола");
-				printf("floor_tex: %d\n", ed->map.circuits[ed->map.selected_circuit].floor_tex);
-
+				//ed->edit_ceil = 0;
+				write_floor_tex(ed);
 			}
 		}
 		else if (event->key.keysym.sym == SDLK_3)//текстура потолка
 		{
-			if (ed->mode == RENDER_MODE_WALLS)
+			if (ed->step == STEP_4_TEXTURES)
 			{
-				ed->edit_floor = 0;
+				//ed->edit_floor = 0;
 				ed->edit_ceil_tex = 1;
 				ed->edit_wall_tex = 0;
 				ed->edit_floor_tex = 0;
-				ed->edit_ceil = 0;
-				puts("Выбор текстуры потолка");
-				printf("ceil_tex: %d\n", ed->map.circuits[ed->map.selected_circuit].ceil_tex);
-
+				//ed->edit_ceil = 0;
+				write_ceil_tex(ed);
 			}
 		}
 		else if (event->key.keysym.sym == SDLK_e)
@@ -1110,37 +1243,15 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 			/*
 				завершить контур (замкнуть и выйти из режима рисования контура)
 			*/
-			map_new_point(&ed->map, ed->map.circuits[ed->map.circuits_count - 1].points[0].x,
-						  ed->map.circuits[ed->map.circuits_count - 1].points[0].y, 1);
-			ed->map.active = 0;
-		}
-		else if (event->key.keysym.sym == SDLK_n)
-		{
-			/*
-				инвертировать нормаль рисуемого сейчас контура
-			*/
-			if (ed->map.active)
+			if (ed->step == STEP_1_DRAW)
 			{
-				ed->map.circuits[ed->map.circuits_count - 1].normal_dir *= -1;
+				map_new_point(&ed->map, ed->map.circuits[ed->map.circuits_count - 1].points[0].x,
+							ed->map.circuits[ed->map.circuits_count - 1].points[0].y, 1);
+				ed->map.active = 0;
 			}
 		}
-		else if (event->key.keysym.sym == SDLK_c)
-		{
-			/*
-				все сбросить
-			*/
-			ed->map.active = 0;
-			ed->map.circuits_count = 0;
-		}
-		else if (event->key.keysym.sym == SDLK_b)
-		{
-			/* здеся должен быть вызов bsp-компилятора */
-			// triangulate(ed);
-			bsp_compile(ed);
-			ed->mode = RENDER_MODE_WALLS;
-
-		}
 	}
+	free(str);
 }
 
 void bsp_trs_draw_traversal(t_bsp *node, int *pixels)
@@ -1180,6 +1291,62 @@ void bsp_trs_draw_traversal(t_bsp *node, int *pixels)
 /*
 	коллбэк обновления экрана
 */
+void	draw_point(t_vertex pos, int color, int *pixels)
+{
+	int i;
+	int j;
+
+	i = pos.x - 3;
+	while (i < pos.x + 4)
+	{
+		j = pos.y - 3;
+		while (j < pos.y + 4)
+		{
+			put_pixel(pixels, i, j, color);
+			j++;
+		}
+		i++;
+	}
+}
+
+void	draw_ammo(t_map_editor *ed, int *pixels)
+{
+	int i;
+	
+	i = 0;
+	while (i < ed->ammo_count)
+	{
+		draw_point(multiply(ed->ammo[i], MAP_EDITOR_SCALE),
+			0xffff00, pixels);
+		i++;
+	}
+}
+void	draw_aid(t_map_editor *ed, int *pixels)
+{
+	int i;
+	
+	i = 0;
+	while (i < ed->aid_count)
+	{
+		draw_point(multiply(ed->aid[i], MAP_EDITOR_SCALE),
+			0xffffff, pixels);
+		i++;
+	}
+}
+void	draw_enemies(t_map_editor *ed, int *pixels)
+{
+	int i;
+	
+	i = 0;
+	while (i < ed->enemies_count)
+	{
+		draw_point(multiply(ed->enemies[i], MAP_EDITOR_SCALE),
+			0xff0000, pixels);
+		i++;
+	}
+}
+
+
 void update(void *map_editor, int *pixels)
 {
 	t_map_editor *ed;
@@ -1215,8 +1382,10 @@ void update(void *map_editor, int *pixels)
 				draw_line(pixels, p1.x, p1.y, p2.x, p2.y, 0xFFFFFF);
 
 				draw_line(pixels, p1.x + (p2.x - p1.x) / 2, p1.y + (p2.y - p1.y) / 2,
-						p1.x + (p2.x - p1.x) / 2 + 30 * cos(atan2(p2.y - p1.y, p2.x - p1.x) + (float)ed->map.circuits[i].normal_dir * M_PI / 2),
-						p1.y + (p2.y - p1.y) / 2 + 30 * sin(atan2(p2.y - p1.y, p2.x - p1.x) + (float)ed->map.circuits[i].normal_dir * M_PI / 2),
+						p1.x + (p2.x - p1.x) / 2 + 30 * cos(atan2(p2.y - p1.y, p2.x - p1.x) +
+						(float)ed->map.circuits[i].normal_dir * M_PI / 2),
+						p1.y + (p2.y - p1.y) / 2 + 30 * sin(atan2(p2.y - p1.y, p2.x - p1.x) +
+						(float)ed->map.circuits[i].normal_dir * M_PI / 2),
 						0xff0000);
 				j++;
 			}
@@ -1245,7 +1414,26 @@ void update(void *map_editor, int *pixels)
 			}
 		else
 			bsp_trs_draw_traversal(&ed->root, pixels);
-		
+		if (ed->step >= STEP_5_PLAYER)
+		{
+			draw_point(multiply(ed->player, MAP_EDITOR_SCALE), 0x00ff00, pixels);
+		}
+		if (ed->step >= STEP_6_AMMO)
+		{
+			draw_ammo(ed, pixels);
+		}
+		if (ed->step >= STEP_7_AID)
+		{
+			draw_aid(ed, pixels);
+		}
+		if (ed->step >= STEP_8_AIM)
+		{
+			draw_point(multiply(ed->aim, MAP_EDITOR_SCALE), 0x0000ff, pixels);
+		}
+		if (ed->step >= STEP_11_ENEMIES)
+		{
+			draw_enemies(ed, pixels);
+		}
 		i++;
 	}
 }
@@ -1259,8 +1447,6 @@ void map_init(t_map *map)
 	map->border_id = 0;
 }
 
-
-
 int main(int ac, char **av)
 {
 	t_map_editor map_editor;
@@ -1272,6 +1458,20 @@ int main(int ac, char **av)
 	map_editor.edit_ceil_tex = 0;
 	map_editor.edit_floor_tex = 0;
 
+	map_editor.ammo_count = 0;
+	map_editor.enemies_count = 0;
+	map_editor.decor_count = 0;
+	map_editor.objects_count = 0;
+	map_editor.doors_count = 0;
+	map_editor.aid_count = 0;
+
+
+	map_editor.player = (t_vertex){0.0, 0.0, 0.0};
+
+	map_editor.aim = (t_vertex){0.0, 2.0, 0.0};
+
+	map_editor.step = STEP_1_DRAW;
+	
 
 	/*
 		тут маленькая "библиотека" - MyGraphicsLib
@@ -1301,6 +1501,8 @@ int main(int ac, char **av)
 
 		и туда же отправляем структуру, в которой всё))))))
 	*/
+	write_instructions(&map_editor);
+
 
 	mgl_run(mgl, update, event_handle, &map_editor);
 

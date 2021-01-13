@@ -5,7 +5,7 @@
 // #include "stdlib.h"
 // #include <string.h>
 
-#include "./bsp.h"
+#include "./duke.h"
 
 int itoa_s(int value, char *buf)
 {

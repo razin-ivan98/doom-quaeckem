@@ -12,6 +12,10 @@
 # define TR_TYPE_CEIL 1
 # define TR_TYPE_FLOOR 2
 
+# define PHISICS_MODE_PLAYER 1
+# define PHISICS_MODE_BULLET 2
+
+
 
 #define W 720
 #define H 720
@@ -32,6 +36,7 @@
 #include "linear_algebra.h"
 #include "bsp_test/bsp.h"
 #include <string.h>
+#include <pthread.h>
 #include <fcntl.h>
 #include "libft/libft.h"
 #include "get_next_line/get_next_line.h"
@@ -39,10 +44,10 @@
 
 void	render_init(t_scene *scene);
 void	clipping_planes_init(t_scene *scene);
-void	level_init(t_scene *scene);
+void	level_init(t_doom *doom);
 void	controls_init(t_doom *doom);
-SDL_Surface	*create_texture(char *filename);
-t_anim		load_anim(char *foldername, float speed);
+SDL_Surface	*create_texture(char *filename, int alpha);
+t_anim		load_anim(char *foldername, float speed, int mode);
 
 void	clip_1_outside(t_clip_triangle *cl, t_model *model, int k, int i);
 void	clip_2_outsides(t_clip_triangle *cl, t_model *model, int k, int i);
@@ -76,13 +81,17 @@ int get_texel(SDL_Surface *image_data, float u, float v);
 int get_texel_n(int **image_data, float u, float v, int pitch);
 
 void render_scene(int *image_data, t_scene *scene);
+void	pthread_render(int *image_data, t_doom *doom);
 
 float get_inter_d(float i0, float d0, float i1, float d1);
 
 void read_obj(t_model *model, char *file_name);
-void read_bsp(t_bsp *root, char *filename);
+void read_bsp(t_doom *doom, char *filename);
 
 int classify_point(t_vertex cam, t_vertex line, t_vertex normal);
+
+t_enemy	create_enemy(t_vertex pos, float beta);
+
 
 //void read_map(char *name, t_model *model, int **tex, int *texture);
 
@@ -90,5 +99,11 @@ int classify_point(t_vertex cam, t_vertex line, t_vertex normal);
 
 //t_bsp_node *create_bsp(t_model *model);
 
+int		if_possible_to_move(t_vertex pos, t_bsp *node, int mode, float height);
 
+
+
+char *itoa(int value, char *buf);
+
+void clear_bsp(t_bsp *node);
 #endif

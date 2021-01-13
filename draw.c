@@ -172,7 +172,7 @@ t_model	*transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *sc
 	t_vertex4	tmp;
 	t_vertex	center;
 
-	model = &scene->render_tr.rendered;
+	model = &scene->render_tr->rendered;
 
 	model->vertexes_count = 0;
 	model->triangles_count = 0;
@@ -208,6 +208,7 @@ void	render_level(int *image_data, t_scene *scene, t_mat4x4 camera_mat)
 		return ;
 	}
 	// render_by_bsp(image_data, m)
+	scene->depth_mode = 1;
 	render_model(image_data, model, scene);
 }
 void	render_sprites(int *image_data, t_scene *scene, t_mat4x4 camera_mat)
@@ -228,6 +229,8 @@ void	render_sprites(int *image_data, t_scene *scene, t_mat4x4 camera_mat)
 			i++;
 			continue ;
 		}
+		scene->depth_mode = 0;
+
 		render_model(image_data, model, scene);
 		i++;
 	}
@@ -250,6 +253,8 @@ void	render_objects(int *image_data, t_scene *scene, t_mat4x4 camera_mat)
 			i++;
 			continue ;
 		}
+		scene->depth_mode = 0;
+
 		render_model(image_data, model, scene);
 		i++;
 	}
@@ -268,5 +273,49 @@ void	render_scene(int *image_data, t_scene *scene)
 	render_sprites(image_data, scene, camera_mat);
 	render_objects(image_data, scene, camera_mat);
 
+}
+
+
+
+void	*pthread_fun(void *ptr)
+{
+	t_pthread_data *data;
+
+	data = (t_pthread_data *)ptr;
+
+	render_scene(data->image_data, &data->scene);
+	return (NULL);
+}
+
+void	pthread_render(int *image_data, t_doom *doom)
+{
+	t_pthread_data f;
+	t_pthread_data s;
+	pthread_t thread1;
+	pthread_t thread2;
+
+	f.scene = doom->scene;
+	s.scene = doom->scene;
+
+	f.image_data = image_data;
+	s.image_data = image_data;
+
+
+	f.scene.clipping_planes[4] = (t_plane){(t_vertex){0.0,1.0,0.0}, 0.0};//bottom
+	s.scene.clipping_planes[3] = (t_plane){(t_vertex){0.0,-1.0,0.0}, 0.0};//top
+
+	f.scene.render_tr = &s.scene.f_render_tr;
+	s.scene.render_tr = &s.scene.s_render_tr;
+
+
+
+
+
+
+	pthread_create(&(thread1), NULL, pthread_fun, &f);
+	pthread_create(&(thread2), NULL, pthread_fun, &s);
+
+	pthread_join(thread1, NULL);
+	pthread_join(thread2, NULL);
 }
 

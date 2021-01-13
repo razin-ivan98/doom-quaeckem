@@ -2,6 +2,9 @@
 # define MY_GRAPHICS_LIB_H
 
 #include <SDL2/SDL.h>
+
+#include "../frameworks/SDL2_ttf.framework/Headers/SDL_ttf.h"
+
 // #include "data.h"
 
 typedef struct      s_mgl

@@ -108,7 +108,6 @@ char *add_vt_tr(t_bsp *node, char *str)
 
 	while (*ptr)
 	{
-		puts("GOVONO2");
 
 		while (*ptr == ' ' || *ptr == '\t' || *ptr == '\n' || *ptr == '{' || *ptr == ',')
 			ptr++;
@@ -191,7 +190,6 @@ char *read_vt_trs(t_bsp *node, char *str)
 	ptr = str;
 	while (*ptr) //////////
 	{
-		puts("GOVONO");
 		while (*ptr == ' ' || *ptr == '\t' || *ptr == '\n' || *ptr == ',')
 			ptr++;
 
@@ -328,18 +326,215 @@ char *read_node(t_bsp *node, char *str)
 	return (ft_strchr(ptr, '}') + 1);
 }
 
-void read_bsp(t_bsp *root, char *filename)
+char	*add_enemy(t_doom *doom, char *ptr)
+{
+	t_vertex pos;
+
+	pos.x = ft_atof(ptr);
+	ptr = ft_strchr(ptr, ',') + 1;
+	pos.z = ft_atof(ptr);
+
+	doom->enemies[doom->enemies_count] = create_enemy(pos, 0.0);
+	doom->enemies_count++;
+	
+	return (ft_strchr(ptr, ']') + 1);
+}
+
+char	*read_enemies(t_doom *doom, char *ptr)
+{
+	doom->enemies_count = 0;
+	ptr = ft_strchr(ptr, '[') + 1;
+
+	while (*ptr) //////////
+	{
+		while (*ptr == ' ' || *ptr == '\t' || *ptr == '\n' || *ptr == ',')
+			ptr++;
+
+		if (*ptr == '[')
+		{
+			ptr = add_enemy(doom, ptr + 1);
+		}
+		else if (*ptr == ']')
+			break;
+	}
+	return (ft_strchr(ptr, ']') + 1);
+}
+
+char	*add_ammo(t_doom *doom, char *ptr, int *ammo_count)
+{
+	t_vertex pos;
+
+	pos.x = ft_atof(ptr);
+	ptr = ft_strchr(ptr, ',') + 1;
+	pos.z = ft_atof(ptr);
+
+	doom->ammo[*ammo_count].enable = 1;
+	doom->ammo[*ammo_count].sprite.instance.position = pos;
+
+	(*ammo_count)++;
+	
+	return (ft_strchr(ptr, ']') + 1);
+}
+
+char	*read_ammo(t_doom *doom, char *ptr)
+{
+	int ammo_count;
+
+	ammo_count = 0;
+	ptr = ft_strchr(ptr, '[') + 1;
+
+	while (*ptr) //////////
+	{
+		while (*ptr == ' ' || *ptr == '\t' || *ptr == '\n' || *ptr == ',')
+			ptr++;
+
+		if (*ptr == '[')
+		{
+			ptr = add_ammo(doom, ptr + 1, &ammo_count);
+		}
+		else if (*ptr == ']')
+			break;
+	}
+	return (ft_strchr(ptr, ']') + 1);
+}
+
+
+char	*add_aid(t_doom *doom, char *ptr, int *aid_count)
+{
+	t_vertex pos;
+
+	pos.x = ft_atof(ptr);
+	ptr = ft_strchr(ptr, ',') + 1;
+	pos.z = ft_atof(ptr);
+
+	doom->aid[*aid_count].enable = 1;
+	doom->aid[*aid_count].sprite.instance.position = pos;
+
+	(*aid_count)++;
+	
+	return (ft_strchr(ptr, ']') + 1);
+}
+
+char	*read_aid(t_doom *doom, char *ptr)
+{
+	int aid_count;
+
+	aid_count = 0;
+	ptr = ft_strchr(ptr, '[') + 1;
+
+	while (*ptr) //////////
+	{
+		while (*ptr == ' ' || *ptr == '\t' || *ptr == '\n' || *ptr == ',')
+			ptr++;
+
+		if (*ptr == '[')
+		{
+			ptr = add_aid(doom, ptr + 1, &aid_count);
+		}
+		else if (*ptr == ']')
+			break;
+	}
+	return (ft_strchr(ptr, ']') + 1);
+}
+
+
+char *read_data_property(t_doom *doom, char *str)
+{
+	char key[32];
+	char *ptr;
+
+	ft_strncpy(key, str, ft_strchr(str, '"') - str);
+	key[ft_strchr(str, '"') - str] = 0;
+
+	puts(key);
+	ptr = ft_strchr(str, ':') + 1;
+	if (!ft_strcmp(key, "player"))
+	{
+		ptr = ft_strchr(ptr, '[') + 1;
+		doom->scene.camera.position.x = ft_atof(ptr);
+		ptr = ft_strchr(ptr, ',') + 1;
+		doom->scene.camera.position.z = ft_atof(ptr);
+		return (ft_strchr(ptr, ']') + 1);
+	}
+	else if (!ft_strcmp(key, "aim"))
+	{
+		ptr = ft_strchr(ptr, '[') + 1;
+		doom->aim.x = ft_atof(ptr);
+		ptr = ft_strchr(ptr, ',') + 1;
+		doom->aim.z = ft_atof(ptr);
+		doom->aim.y = 0.0;
+		return (ft_strchr(ptr, ']') + 1);
+	}
+	else if (!ft_strcmp(key, "enemies"))
+	{
+		return (read_enemies(doom, ptr));
+	}
+	else if (!ft_strcmp(key, "ammo"))
+	{
+		return (read_ammo(doom, ptr));
+	}
+	else if (!ft_strcmp(key, "aid"))
+	{
+		return (read_aid(doom, ptr));
+	}
+	else if (!ft_strcmp(key, "bsp"))
+		read_node(&doom->scene.level.root, ft_strchr(ptr, '{') + 1);
+	return (NULL);
+}
+void	read_data(t_doom *doom, char *str)
+{
+	char *ptr;
+
+	ptr = str;
+	ptr = ft_strchr(str, '{') + 1;
+	while (*ptr) //////////
+	{
+		while (*ptr == ' ' || *ptr == '\t' || *ptr == '\n' || *ptr == '{' || *ptr == ',')
+			ptr++;
+
+		if (*ptr == '"')
+		{
+			ptr = read_data_property(doom, ptr + 1);
+			if (!ptr)
+				return;
+		}
+		else if (*ptr == '}')
+			break;
+	}
+}
+
+
+void read_bsp(t_doom *doom, char *filename)
 {
 	int fd;
 	char *read_str;
 	int i;
 
-	read_str = malloc(262144); /////////////
+	read_str = malloc(262144); /////////////наверное надо больше
 
 	fd = open(filename, O_RDWR);
 
 	read_str[read(fd, read_str, 262143)] = 0;
 	close(fd);
 
-	read_node(root, ft_strchr(read_str, '{') + 1);
+	
+
+	read_data(doom, read_str);
+
+	// read_node(&scene->root, ft_strchr(ptr, '{') + 1);
+	free(read_str);
+}
+
+void clear_bsp(t_bsp *node)
+{
+	if (node->is_leaf)
+	{
+		//free(node->trs);
+		free(node->vt_trs);
+		return ;
+	}
+	clear_bsp(node->front);
+	clear_bsp(node->back);
+	free(node->front);
+	free(node->back);
 }

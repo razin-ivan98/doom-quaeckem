@@ -41,10 +41,10 @@ int    insert_zeros(int ival, int decimals, char *buf)
                 // printf("res\t%d\n\n", res);
 
         i = 0;
-        ft_strcpy(buf, "");
+        strcpy(buf, "");
         while (i < res)
         {
-                ft_strcat(buf, "0");
+                strcat(buf, "0");
                 i++;
         }
         return (res);

@@ -167,15 +167,162 @@ void	bsp_save_traversal(t_bsp *node, int fd)
 	free(str);
 }
 
-void	save_json(t_bsp *root)
+void	check_enemies(t_map_editor *ed, int fd)
+{
+	char *str;
+	int i;
+
+	str = malloc(1000);///////
+
+	ft_putstr_fd("\"enemies\": [", fd);
+	i = 0;
+	while (i < ed->enemies_count)
+	{
+		ft_putstr_fd("[", fd);
+		str = ftoa(ed->enemies[i].x, 8, str);
+		ft_putstr_fd(str, fd);
+		ft_putstr_fd(", ", fd);
+		str = ftoa(ed->enemies[i].y, 8, str);
+		ft_putstr_fd(str, fd);
+		ft_putstr_fd("]", fd);
+		if (i < ed->enemies_count - 1)
+		{
+			ft_putstr_fd(",\n", fd);
+		}
+		i++;
+	}
+	
+	ft_putstr_fd("],", fd);
+
+	free(str);
+}
+
+
+void	check_ammo(t_map_editor *ed, int fd)
+{
+	char *str;
+	int i;
+
+	str = malloc(1000);///////
+
+	ft_putstr_fd("\"ammo\": [", fd);
+	i = 0;
+	while (i < ed->ammo_count)
+	{
+		ft_putstr_fd("[", fd);
+		str = ftoa(ed->ammo[i].x, 8, str);
+		ft_putstr_fd(str, fd);
+		ft_putstr_fd(", ", fd);
+		str = ftoa(ed->ammo[i].y, 8, str);
+		ft_putstr_fd(str, fd);
+		ft_putstr_fd("]", fd);
+		if (i < ed->ammo_count - 1)
+		{
+			ft_putstr_fd(",\n", fd);
+		}
+		i++;
+	}
+	
+	ft_putstr_fd("],", fd);
+
+	free(str);
+}
+
+void	check_aid(t_map_editor *ed, int fd)
+{
+	char *str;
+	int i;
+
+	str = malloc(1000);///////
+
+	ft_putstr_fd("\"aid\": [", fd);
+	i = 0;
+	while (i < ed->aid_count)
+	{
+		ft_putstr_fd("[", fd);
+		str = ftoa(ed->aid[i].x, 8, str);
+		ft_putstr_fd(str, fd);
+		ft_putstr_fd(", ", fd);
+		str = ftoa(ed->aid[i].y, 8, str);
+		ft_putstr_fd(str, fd);
+		ft_putstr_fd("]", fd);
+		if (i < ed->aid_count - 1)
+		{
+			ft_putstr_fd(",\n", fd);
+		}
+		i++;
+	}
+	
+	ft_putstr_fd("],", fd);
+
+	free(str);
+}
+
+void	check_player(t_map_editor *ed, int fd)
+{
+	char *str;
+
+	str = malloc(1000);///////
+
+	ft_putstr_fd("\"player\": [", fd);
+	str = ftoa(ed->player.x, 8, str);
+	ft_putstr_fd(str, fd);
+	ft_putstr_fd(", ", fd);
+	str = ftoa(ed->player.y, 8, str);
+	ft_putstr_fd(str, fd);
+	ft_putstr_fd("],", fd);
+
+	free(str);
+}
+void	check_aim(t_map_editor *ed, int fd)
+{
+	char *str;
+
+	str = malloc(1000);///////
+
+	ft_putstr_fd("\"aim\": [", fd);
+	str = ftoa(ed->aim.x, 8, str);
+	ft_putstr_fd(str, fd);
+	ft_putstr_fd(", ", fd);
+	str = ftoa(ed->aim.y, 8, str);
+	ft_putstr_fd(str, fd);
+	ft_putstr_fd("],", fd);
+
+	free(str);
+}
+
+void	save_json(t_bsp *root, t_map_editor *ed)
 {
 	int fd;
 	char *str;
 	int i;
 
 	i = 0;
+	str = malloc(1000);///////
 	fd = open("new_saved_bsp.json", O_CREAT|O_RDWR|O_TRUNC, 0644);
+	ft_putstr_fd("{\n", fd);
+
+	check_player(ed, fd);
+
+	check_aim(ed, fd);
+
+	check_enemies(ed, fd);
+
+	check_ammo(ed, fd);
+
+	check_aid(ed, fd);
+
+
+
+
+	free(str);
+
+	ft_putstr_fd("\"bsp\" : ", fd);
+
 	bsp_save_traversal(root, fd);
+
+
+	ft_putstr_fd("}\n", fd);
 
 	close(fd);
 }

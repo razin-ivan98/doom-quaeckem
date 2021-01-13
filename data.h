@@ -67,6 +67,8 @@ typedef struct	s_anim
 	int			length;
 	float		speed;
 	int			curr;
+	float		curr_f;
+	int			played;
 }				t_anim;
 
 
@@ -231,6 +233,7 @@ typedef struct	s_circuit
 
 	float		ceil;
 	float		floor;
+	int			sky;
 
 	int			wall_tex;
 	int			floor_tex;
@@ -300,6 +303,13 @@ typedef struct s_bsp
 	int			floor_tex;
 	int			ceil_tex;
 
+	int			lose;
+	int			win;
+
+	SDL_Surface	*win_surface;
+	SDL_Surface	*lose_surface;
+
+
 	t_tr		*trs;
 	t_vt_tr		*vt_trs;
 	int			trs_count;
@@ -325,6 +335,19 @@ typedef struct s_bsp
 	
 // }				t_bsp_comp;
 
+typedef struct	s_m_e_door
+{
+	/* data */
+}				t_m_e_door;
+typedef struct	s_m_e_object
+{
+	/* data */
+}				t_m_e_object;
+typedef struct	s_m_e_decor
+{
+	/* data */
+}				t_m_e_decor;
+
 
 typedef struct s_map_editor
 {
@@ -349,8 +372,22 @@ typedef struct s_map_editor
 	int		edit_wall_tex;
 
 
+	t_vertex ammo[40];
+	int ammo_count;
+	t_vertex aid[40];
+	int aid_count;
+	t_vertex enemies[40];
+	int enemies_count;
+	t_vertex player;
+	t_vertex aim;
+	t_m_e_door doors[40];/////
+	int doors_count;
+	t_m_e_object objects[40];
+	int objects_count;
+	t_m_e_decor decor[40];
+	int decor_count;
 
-
+	int step;
 
 	int mode;
 }				t_map_editor;
@@ -391,6 +428,16 @@ typedef struct	s_enemy
 	int			health;
 
 	t_anim		walking_anims[8];
+	t_anim		attak_anim;
+	t_anim		damage_anim;
+	t_anim		death_anim;
+
+	int			damaged;
+	int			in_attak;
+
+	int			on_ground;
+
+	float		g_speed;
 
 	float		beta;
 	
@@ -404,7 +451,10 @@ typedef struct	s_scene
 	t_object	*objects;
 	int			objects_count;
 
-	t_enemy		enemy;
+	int			depth_mode;
+
+	t_enemy		enemies[40];
+	int			enemies_count;
 
 	t_model		*models;
 	int			models_count;
@@ -414,9 +464,50 @@ typedef struct	s_scene
 
 	t_plane		clipping_planes[5];
 
-	t_render	render_tr;
+	t_render	*render_tr;
+
+	t_render	f_render_tr;
+	t_render	s_render_tr;
+
 }				t_scene;
 
+typedef	struct	s_bullet
+{
+	t_sprite	sprite;
+	int			enable;
+	t_vertex	first;
+	float		gamma;
+	float		alpha;
+
+}				t_bullet;
+
+typedef	struct	s_ammo
+{
+	t_sprite	sprite;
+	int			enable;
+}				t_ammo;
+
+typedef	struct	s_aid
+{
+	t_sprite	sprite;
+	int			enable;
+}				t_aid;
+
+typedef struct	s_pthread_data
+{
+	t_scene		scene;
+	int			*image_data;
+}				t_pthread_data;
+
+typedef struct	s_menu
+{
+	SDL_Surface	*play;
+	SDL_Surface	*difficulty_1;
+	SDL_Surface	*difficulty_2;
+	SDL_Surface	*difficulty_3;
+	SDL_Surface *exit_b;
+	int			active;
+}				t_menu;
 
 
 typedef struct	s_doom
@@ -435,11 +526,47 @@ typedef struct	s_doom
 	int			d_pressed;
 	int			solid;
 
+	int			difficulty;
+
+	t_menu		menu;
+
+	int			sit;
+	int			run;
+
+	float		height;
+
+	t_vertex	aim;
+
+	SDL_Surface *menu_back;
+
+	SDL_Surface *health_bar;
+	SDL_Surface *ammo_bar;
+	SDL_Surface *kills_bar;
+
+	int			kills;
+
+	int			enemy_damage;
+	float		enemy_speed;
+
+	int			menu_opened;
+
+	int			health;
+
+	t_mat4x4	for_sprites;
+
+	int			player_ammo;
+
 	float		g_speed;
 	int			on_ground;
 
-	t_enemy		*enemies;
+	t_anim		drb_anim;
+
+	t_enemy		enemies[40];
 	int			enemies_count;
+
+	t_bullet	bullets[40];
+	t_ammo		ammo[40];
+	t_aid		aid[40];
 
 	t_object	*objects;
 	int			objects_count;

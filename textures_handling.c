@@ -1,6 +1,6 @@
 #include "duke.h"
 
-t_anim		load_anim(char *foldername, float speed)
+t_anim		load_anim(char *foldername, float speed, int alpha)
 {
 	t_anim anim;
 	char str[128];
@@ -11,8 +11,9 @@ t_anim		load_anim(char *foldername, float speed)
 	i = 0;
 	anim.length = 0;
 	anim.speed = speed;
-	anim.frames = malloc(sizeof(SDL_Surface *) * 64);
-
+	anim.frames = malloc(sizeof(SDL_Surface *) * 64);///////// 
+	anim.curr_f = 0.0;
+	anim.played = 1;
 	while (i < 64)
 	{
 		ft_strcpy(str, foldername);
@@ -30,23 +31,27 @@ t_anim		load_anim(char *foldername, float speed)
 			free(ptr);
 		ft_strcat(name, ".bmp");
 		ft_strcat(str, name);
-		anim.frames[i] = create_texture(str);
+		anim.frames[i] = create_texture(str, alpha);
 		
 		if (!anim.frames[i])
 			break ;
-		anim.frames[i]->flags = 0xff00ffff;
+		anim.frames[i]->flags = alpha;
 		i++;
 		anim.length++;
 	}
 	return (anim);
 }
 
-SDL_Surface	*create_texture(char *filename)
+SDL_Surface	*create_texture(char *filename, int alpha)
 {
 	SDL_Surface *texture = SDL_LoadBMP(filename);
 
 	if (!texture)
+	{
 		return (NULL);
+	}
+
+
 
 	SDL_Surface *tex;
 
@@ -55,6 +60,8 @@ SDL_Surface	*create_texture(char *filename)
 	
 
 	tex = SDL_ConvertSurface(texture, format, 0);
+
+	SDL_SetColorKey(tex, SDL_TRUE, alpha);
 	SDL_FreeFormat(format);
 	SDL_FreeSurface(texture);
 	return tex;
