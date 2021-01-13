@@ -1,13 +1,5 @@
 #include "my_graphics_lib.h"
 
-typedef struct s_audio
-{
-	Uint8 *audio_pos; // global pointer to the audio buffer to be played
-	Uint32 audio_len; // remaining length of the sample we have to play
-}				t_audio;
-
-
-
 t_mgl *mgl_init(char *win_name, int w, int h)
 {
 	t_mgl *mgl;
@@ -93,7 +85,5 @@ void mgl_run(t_mgl *mgl, void (*run_callback)(void *, int *), void (*event_callb
 			SDL_DestroyTexture(mgl->screen_texture);
 			i++;
 		}
-
-
 	}
 }

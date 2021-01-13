@@ -11,9 +11,10 @@ t_anim		load_anim(char *foldername, float speed, int alpha)
 	i = 0;
 	anim.length = 0;
 	anim.speed = speed;
-	anim.frames = malloc(sizeof(SDL_Surface *) * 64);///////// 
+	// anim.frames;
 	anim.curr_f = 0.0;
 	anim.played = 1;
+	puts("begin");
 	while (i < 64)
 	{
 		ft_strcpy(str, foldername);
@@ -32,6 +33,7 @@ t_anim		load_anim(char *foldername, float speed, int alpha)
 		ft_strcat(name, ".bmp");
 		ft_strcat(str, name);
 		anim.frames[i] = create_texture(str, alpha);
+
 		
 		if (!anim.frames[i])
 			break ;
@@ -39,6 +41,9 @@ t_anim		load_anim(char *foldername, float speed, int alpha)
 		i++;
 		anim.length++;
 	}
+	puts("end");
+	printf("%d\n\n", anim.length);
+
 	return (anim);
 }
 
@@ -61,8 +66,10 @@ SDL_Surface	*create_texture(char *filename, int alpha)
 
 	tex = SDL_ConvertSurface(texture, format, 0);
 
+	puts("mall");
 	SDL_SetColorKey(tex, SDL_TRUE, alpha);
 	SDL_FreeFormat(format);
 	SDL_FreeSurface(texture);
+
 	return tex;
 }

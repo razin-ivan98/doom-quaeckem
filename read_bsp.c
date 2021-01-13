@@ -527,12 +527,12 @@ void read_bsp(t_doom *doom, char *filename)
 
 void clear_bsp(t_bsp *node)
 {
+	free(node->vt_trs);
 	if (node->is_leaf)
 	{
-		//free(node->trs);
-		free(node->vt_trs);
 		return ;
 	}
+	
 	clear_bsp(node->front);
 	clear_bsp(node->back);
 	free(node->front);

@@ -48,13 +48,15 @@ void	clean_anim(t_anim *anim)
 	int i;
 
 	i = 0;
+
+	SDL_Surface *ptr;
 	
 	while (i < anim->length)
 	{
-		SDL_FreeSurface(anim->frames[i]);
+		ptr = anim->frames[i];
+		SDL_FreeSurface(ptr);
 		i++;
 	}
-	free(anim->frames);
 }
 void	clean_enemies(t_doom *doom)
 {
@@ -99,9 +101,10 @@ void	restart(t_doom *doom)
 		doom->aid[i].enable = 0;
 		i++;
 	}
+	
+	controls_init(doom);
 	clean_enemies(doom);
 	clear_bsp(&doom->scene.level.root);
-
 	read_bsp(doom, "bsp_test/new_saved_bsp.json");
 }
 
@@ -159,6 +162,18 @@ void	event_handle(SDL_Event *event, void *doom_ptr, int *quit)
 					exit(-2);
 				}
 			}
+		}
+		return ;
+	}
+
+	if (doom->win || doom->lose)
+	{
+		if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_RETURN)
+		{
+			doom->lose = 0;
+			doom->win = 0;
+			doom->menu_opened = 1;
+			restart(doom);
 		}
 		return ;
 	}
@@ -609,8 +624,9 @@ void	update_enemies(t_doom *doom)
 			doom->enemies[i].attak_anim.curr_f = 0.0;
 			doom->health -= doom->enemy_damage;
 			if (doom->health <= 0)
-				restart(doom);
-			printf("health: %d\n", doom->health);
+			{
+				doom->lose = 1;
+			}
 		}
 		else if (length(sub(doom->scene.camera.position,
 			doom->enemies[i].sprite.instance.position)) < 15.0)
@@ -890,6 +906,7 @@ void	draw_hud(t_doom *doom)
 	ft_strcpy(str, "KILLS ");
 	itoa(doom->kills, str2);
 	ft_strcat(str, str2);
+	
 	color.r = 94;
 	color.g = 6;
 	color.b = 6;
@@ -915,6 +932,17 @@ void	draw_hud(t_doom *doom)
 
 }
 
+void	draw_lose(t_doom *doom)
+{
+	SDL_BlitScaled(doom->lose_surface, NULL,
+			doom->mgl->screen_surface, NULL);
+}
+void	draw_win(t_doom *doom)
+{
+	SDL_BlitScaled(doom->win_surface, NULL,
+			doom->mgl->screen_surface, NULL);
+}
+
 void	update(void *doom_ptr, int *pixels)
 {
 	t_doom *doom;
@@ -928,6 +956,17 @@ void	update(void *doom_ptr, int *pixels)
 		draw_menu(doom);
 		return;
 	}
+	if (doom->lose)
+	{
+		draw_lose(doom);
+		return ;
+	}
+	if (doom->win)
+	{
+		draw_win(doom);
+		return ;
+	}
+
 
 
 	doom->for_sprites = make_oy_rot_matrix(doom->gamma);
@@ -955,6 +994,19 @@ void	update(void *doom_ptr, int *pixels)
 
 	animation_update(&doom->scene, doom->mgl->curr_time - doom->mgl->lst_time, doom->gamma);
 
+	SDL_PixelFormat *format = SDL_AllocFormat(SDL_PIXELFORMAT_BGRA32);
+	SDL_Surface	*tex = SDL_ConvertSurface(doom->menu_back, format, 0);
+
+	SDL_FreeSurface(tex);
+
+	tex = SDL_ConvertSurface(doom->menu_back, format, 0);
+
+	SDL_FreeSurface(tex);
+
+	tex = SDL_ConvertSurface(doom->menu_back, format, 0);
+	SDL_FreeSurface(tex);
+
+	SDL_FreeFormat(format);
 	
 
 
@@ -1123,9 +1175,9 @@ void	update(void *doom_ptr, int *pixels)
 		}
 	}
 	if (length(sub((t_vertex){doom->scene.camera.position.x, 0.0,
-			doom->scene.camera.position.z}, doom->aim)) < 2.0)
+			doom->scene.camera.position.z}, doom->aim)) < 3.0)
 	{
-		puts("Цель");
+		doom->win = 1;
 	}
 }
 
@@ -1466,7 +1518,7 @@ int		main()
 
 	doom.objects = malloc(sizeof(t_object) * 3);
 	doom.objects[0] = create_object((t_vertex){0.0,0.0,3.2});
-	doom.objects_count = 1;
+	doom.objects_count = 0;
 
 	doom.health = 100;
 	doom.player_ammo = 10;
@@ -1487,7 +1539,8 @@ int		main()
 	doom.ammo_bar = NULL;
 	doom.kills_bar = NULL;
 
-
+	doom.win = 0;
+	doom.lose = 0;
 
 
 
@@ -1511,13 +1564,44 @@ int		main()
 	color.b = 0;
 
 
+	SDL_Surface *temp;
+
 	doom.menu_back = create_texture("textures/menu.bmp", 0);//renderText("lol", "fonts/DoomsDay.ttf", color, 300);
+
 	doom.menu.active = 0;
 	doom.menu.play = renderText("PLAY", "fonts/DoomsDay.ttf", color, 100);
 	doom.menu.difficulty_1 = renderText("DIFFICULTY LVL 1", "fonts/DoomsDay.ttf", color, 100);
 	doom.menu.difficulty_2 = renderText("DIFFICULTY LVL 2", "fonts/DoomsDay.ttf", color, 100);
 	doom.menu.difficulty_3 = renderText("DIFFICULTY LVL 3", "fonts/DoomsDay.ttf", color, 100);
 	doom.menu.exit_b = renderText("EXIT", "fonts/DoomsDay.ttf", color, 100);
+
+	doom.win_surface = create_texture("textures/menu.bmp", 0);
+	doom.lose_surface = create_texture("textures/menu.bmp", 0);
+
+
+	SDL_Rect rect;
+
+	rect.x = -200;
+	rect.y = -100;
+	rect.w = W + 400;
+	rect.h = H + 200;
+
+
+	color.r = 35;
+	color.g = 151;
+	color.b = 35;
+	
+	temp = renderText("WIN", "fonts/DoomsDay.ttf", color, 300);
+	SDL_BlitScaled(temp, &rect, doom.win_surface, NULL);
+	
+	color.r = 94;
+	color.g = 6;
+	color.b = 6;
+	SDL_FreeSurface(temp);
+	temp = renderText("LOSE", "fonts/DoomsDay.ttf", color, 300);
+	SDL_BlitScaled(temp, &rect, doom.lose_surface, NULL);
+
+	SDL_FreeSurface(temp);
 
 
 

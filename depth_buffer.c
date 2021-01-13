@@ -20,7 +20,7 @@ int set_z_buffer(float *z_buffer, int x, int y, float value)
 	int index;
 	
 	index = (H_2 - y - 1) * W + W_2 + x;
-	if (index < 0 || index > HxW)
+	if (index < 0 || index >= HxW)
 		return (0);
 	if (z_buffer[index] < value){
 		z_buffer[index] = value;
@@ -35,7 +35,7 @@ int set_z_buffer_bsp(float *z_buffer, int x, int y, float value)
 	int index;
 	
 	index = (H_2 - y - 1) * W + W_2 + x;
-	if (index < 0 || index > HxW)
+	if (index < 0 || index >= HxW)
 		return (0);
 	if (!z_buffer[index]){
 		z_buffer[index] = value;

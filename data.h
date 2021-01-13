@@ -63,7 +63,7 @@ typedef struct	s_triangle
 
 typedef struct	s_anim
 {
-	SDL_Surface	**frames;
+	SDL_Surface	*frames[64];
 	int			length;
 	float		speed;
 	int			curr;
@@ -303,13 +303,6 @@ typedef struct s_bsp
 	int			floor_tex;
 	int			ceil_tex;
 
-	int			lose;
-	int			win;
-
-	SDL_Surface	*win_surface;
-	SDL_Surface	*lose_surface;
-
-
 	t_tr		*trs;
 	t_vt_tr		*vt_trs;
 	int			trs_count;
@@ -542,6 +535,12 @@ typedef struct	s_doom
 	SDL_Surface *health_bar;
 	SDL_Surface *ammo_bar;
 	SDL_Surface *kills_bar;
+
+	int			lose;
+	int			win;
+
+	SDL_Surface	*win_surface;
+	SDL_Surface	*lose_surface;
 
 	int			kills;
 

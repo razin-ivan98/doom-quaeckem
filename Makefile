@@ -15,7 +15,7 @@ all:
 ifeq ($(UNAME_S), Darwin)
 	@echo MAC OS
 	make -C $(FTPATH)
-	gcc -g3 $(SRCS) -lm -L./libft -lft $(FRAMEWORKS) $(INCLUDES) -o DoomQuaeckem
+	gcc -g  $(SRCS)  -lm -L./libft -lft $(FRAMEWORKS) $(INCLUDES) -o DoomQuaeckem
 else
 	@echo Linux
 	make -C $(FTPATH)
