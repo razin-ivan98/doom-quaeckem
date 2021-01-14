@@ -10,7 +10,7 @@ float *create_z_buffer()
 {
 	float *z_buffer;
 
-	z_buffer = malloc(sizeof(float) * H * W);////////////////////////
+	z_buffer = malloc(sizeof(float) * HxW);////////////////////////
 	clear_z_buffer(z_buffer);
 	return (z_buffer);
 }
@@ -26,7 +26,6 @@ int set_z_buffer(float *z_buffer, int x, int y, float value)
 		z_buffer[index] = value;
 		return (1);
 	}
-		
 	return (0);
 }
 

@@ -74,7 +74,6 @@ void get_normals(t_vertex *normals, int *count, char *file_name)
 {
     int fd;
     int i;
-    char *str;
     char *line;
 
     i = 0;
@@ -97,7 +96,6 @@ void get_uvss(t_model *model, char *file_name)
 {
     int fd;
     int i;
-    char *str;
     char *line;
 
     i = 0;
@@ -120,7 +118,6 @@ void get_points(t_model *model, char *file_name)
 {
     int fd;
     int i;
-    char *str;
     char *line;
 
     i = 0;
@@ -136,6 +133,7 @@ void get_points(t_model *model, char *file_name)
         }
         free(line);
     }
+
     close(fd);
 }
 
@@ -190,7 +188,6 @@ void get_polygons(t_model *model, char *file_name, t_vertex *normals)
 {
     int fd;
     int i;
-    char *str;
     char *line;
 
     i = 0;
@@ -211,12 +208,10 @@ void get_polygons(t_model *model, char *file_name, t_vertex *normals)
 
 void read_obj(t_model *model, char *file_name)
 {
-   // t_vertex *normals;
-    int normals_count;
-
     model->normals_count = 0;
 
-    model->normals = malloc(sizeof(t_vertex) * 3000);////////////////////
+    if (!(model->normals = malloc(sizeof(t_vertex) * 3000)))
+        exit(-2);
 
     model->vertexes_count = 0;
     get_points(model, file_name);

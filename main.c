@@ -90,22 +90,32 @@ void	restart(t_doom *doom)
 	doom->health = 100;
 	doom->player_ammo = 10;
 	doom->kills = 0;
+	doom->drb_anim.curr_f = 0.0;
+	doom->drb_anim.curr = -1;
 
+	doom->scene.camera.position = doom->start_pos;
 	
 	int i;
 	i = 0;
 	while (i < 40)
 	{
-		doom->ammo[i].enable = 0;
+		doom->ammo[i].enable = doom->ammo[i].start_enable;
 		doom->bullets[i].enable = 0;
-		doom->aid[i].enable = 0;
+		doom->aid[i].enable = doom->aid[i].start_enable;
+		i++;
+	}
+	i = 0;
+	while (i < doom->enemies_count)
+	{
+		doom->enemies[i].sprite.instance.position = doom->enemies[i].start_pos;
+		doom->enemies[i].health = 100;
 		i++;
 	}
 	
 	controls_init(doom);
-	clean_enemies(doom);
-	clear_bsp(&doom->scene.level.root);
-	read_bsp(doom, "bsp_test/new_saved_bsp.json");
+	// clean_enemies(doom);
+	// clear_bsp(&doom->scene.level.root);
+	// read_bsp(doom, "bsp_test/new_saved_bsp.json");
 }
 
 void	event_handle(SDL_Event *event, void *doom_ptr, int *quit)
@@ -159,6 +169,7 @@ void	event_handle(SDL_Event *event, void *doom_ptr, int *quit)
 				}
 				else if (doom->menu.active == 2)
 				{
+					*quit = 1;
 					exit(-2);
 				}
 			}
@@ -197,7 +208,15 @@ void	event_handle(SDL_Event *event, void *doom_ptr, int *quit)
 	}
 	else if (event->type == SDL_KEYDOWN )
 	{
-		if (event->key.keysym.sym == SDLK_ESCAPE)
+		if (event->key.keysym.sym == SDLK_f)
+		{
+			if (length(sub(doom->tv.sprite.instance.position, 
+				doom->scene.camera.position)) < 2.0)
+			{
+				doom->tv.enable = doom->tv.enable ? 0 : 1;
+			}					
+		}
+		else if (event->key.keysym.sym == SDLK_ESCAPE)
 		{
 			doom->menu_opened = 1;
 		}
@@ -411,30 +430,27 @@ void	update_sprites(t_doom *doom, float gamma)
 		doom->scene.sprites_count++;
 		i++;
 	}
+	doom->scene.sprites[doom->scene.sprites_count] = doom->tv.sprite;
+	if (doom->tv.enable)
+		doom->scene.sprites[doom->scene.sprites_count].instance.model.anim = &doom->tv.anim;
+	else
+	{
+		doom->scene.sprites[doom->scene.sprites_count].instance.model.anim = NULL;
+		doom->scene.sprites[doom->scene.sprites_count].instance.model.new_tex[0] =
+				doom->tv.anim.frames[(int)doom->tv.anim.curr_f % doom->tv.anim.length];
+	}
+	
+	doom->scene.sprites_count++;
 }
 
-void	update_objects(t_doom *doom)
-{
-	int i;
 
-	// i = 0;
-	// doom->scene.objects_count = 0;
-	// while (i < doom->objects_count)
-	// {
-	// 	doom->scene.objects[i] = doom->objects[i];
-	// 	doom->scene.objects_count++;
-	// 	i++;
-	// }
-}
 
 void	update_scene(t_doom *doom, float gamma)
 {
 	update_sprites(doom, gamma);
-
-	update_objects(doom);
 }
 
-void	animation_update(t_scene *scene, float curr_time, float gamma)
+void	animation_update(t_scene *scene, float curr_time)
 {
 	int i;
 	int frame;
@@ -455,8 +471,8 @@ void	animation_update(t_scene *scene, float curr_time, float gamma)
 				% scene->sprites[i].instance.model.anim->length;
 
 		// printf("а здесь %d\n\n", scene->sprites[i].instance.model.anim->length);
-		// if (frame < 0)
-		// 	frame = 0;
+		if (frame < 0)
+			frame = 0;
 		scene->sprites[i].instance.model.new_tex[0] =
 				scene->sprites[i].instance.model.anim->frames[frame];
 		i++;
@@ -596,13 +612,11 @@ void		get_floor_seil_traversal(t_bsp *node, t_vertex pos, float *floor, float *c
 
 void	update_enemies(t_doom *doom)
 {
-	float rand;
-	char str[160];
-	int i;
-	unsigned int *intrand;
-	t_vertex new_pos;
-
-	int fd;
+	char			str[160];
+	int				i;
+	unsigned int	*intrand;
+	t_vertex		new_pos;
+	int				fd;
 
 	fd = open("/dev/urandom", O_RDONLY);
 	read(fd, str, 160);
@@ -611,8 +625,6 @@ void	update_enemies(t_doom *doom)
 	intrand = (unsigned int *)str;
 
 	float speed = doom->enemy_speed;
-
-	float path = (doom->mgl->curr_time - doom->mgl->lst_time) * speed;
 
 	float floor;
 	float ceil;
@@ -951,6 +963,19 @@ void	draw_win(t_doom *doom)
 	SDL_BlitScaled(doom->win_surface, NULL,
 			doom->mgl->screen_surface, NULL);
 }
+void	draw_press_f(t_doom *doom)
+{
+	SDL_Rect rect;
+
+	rect.x = -400;
+	rect.w = 1000;
+	rect.y = -500;
+	rect.h = 720;
+	if (length(sub(doom->tv.sprite.instance.position, 
+				doom->scene.camera.position)) < 2.0)
+		SDL_BlitScaled(doom->press_f, &rect,
+			doom->mgl->screen_surface, NULL);
+}
 
 void	update(void *doom_ptr, int *pixels)
 {
@@ -1001,32 +1026,34 @@ void	update(void *doom_ptr, int *pixels)
 
 	update_scene(doom, doom->gamma);
 
-	animation_update(&doom->scene, doom->mgl->curr_time - doom->mgl->lst_time, doom->gamma);
+	animation_update(&doom->scene, doom->mgl->curr_time - doom->mgl->lst_time);
 
-	SDL_PixelFormat *format = SDL_AllocFormat(SDL_PIXELFORMAT_BGRA32);
-	SDL_Surface	*tex = SDL_ConvertSurface(doom->menu_back, format, 0);
+	// SDL_PixelFormat *format = SDL_AllocFormat(SDL_PIXELFORMAT_BGRA32);
+	// SDL_Surface	*tex = SDL_ConvertSurface(doom->menu_back, format, 0);
 
-	SDL_FreeSurface(tex);
+	// SDL_FreeSurface(tex);
 
-	tex = SDL_ConvertSurface(doom->menu_back, format, 0);
+	// tex = SDL_ConvertSurface(doom->menu_back, format, 0);
 
-	SDL_FreeSurface(tex);
+	// SDL_FreeSurface(tex);
 
-	tex = SDL_ConvertSurface(doom->menu_back, format, 0);
-	SDL_FreeSurface(tex);
+	// tex = SDL_ConvertSurface(doom->menu_back, format, 0);
+	// SDL_FreeSurface(tex);
 
-	SDL_FreeFormat(format);
+	// SDL_FreeFormat(format);
 	
 
 
 
 	pthread_render(pixels, doom);
 
-	// render_scene(pixels, &doom->scene);
+	//  render_scene(pixels, &doom->scene);
 
 	drb_animation_update(doom);
 
 	draw_hud(doom);
+
+	draw_press_f(doom);
 
 	float speed = 6.0;
 	if (doom->sit)
@@ -1254,6 +1281,8 @@ t_enemy	create_enemy(t_vertex pos, float beta)
 	enemy.damaged = 0;
 	enemy.in_attak = 0;
 
+	enemy.start_pos = pos;
+
 	enemy.health = 100;
 
 	return (enemy);
@@ -1306,17 +1335,58 @@ t_object	create_object(t_vertex pos, int index)
 
 	object_model.new_tex[0] = create_texture(str, 0xffff00ff);///////////////
 
-	printf("TEX %p\n\n", object_model.new_tex[0]);
-	puts(str);
-
 	object.sprite.instance.model = object_model;
 	object.sprite.instance.scale = 1.0;
 	object.sprite.instance.position = pos;
 	object.sprite.instance.orientation = make_oy_rot_matrix(0.0);
+	object.sprite.instance.model.anim = NULL;
 
 	return (object);
 }
 
+void	create_tv(t_doom *doom)
+{
+	t_model tv_model;
+
+	tv_model.bounds_center = (t_vertex) {0.0,0.0,0.0};;
+	tv_model.bounds_radius = 3.0;
+	tv_model.triangles_count = 2;
+	tv_model.vertexes_count = 4;
+	tv_model.vertexes = malloc(sizeof(t_vertex) * 4);
+	tv_model.vertexes[0] = (t_vertex) {-1.2,-0.8,0.0};
+	tv_model.vertexes[1] = (t_vertex) {-1.2,0.8,0.0};
+	tv_model.vertexes[2] = (t_vertex) {1.2,0.8,0.0};
+	tv_model.vertexes[3] = (t_vertex) {1.2,-0.8,0.0};
+	tv_model.triangles = malloc(sizeof(t_triangle) * 2);
+	tv_model.triangles[0].indexes[0] = 0;
+	tv_model.triangles[0].indexes[1] = 1;
+	tv_model.triangles[0].indexes[2] = 2;
+	tv_model.triangles[1].indexes[0] = 0;
+	tv_model.triangles[1].indexes[1] = 2;
+	tv_model.triangles[1].indexes[2] = 3;
+	tv_model.triangles[0].normal = (t_vertex) {0.0,0.0,1.0};
+	tv_model.triangles[1].normal = (t_vertex) {0.0,0.0,1.0};
+	tv_model.triangles[0].uvs[0] = (t_point) {0.0, 1.0,0.0};
+	tv_model.triangles[0].uvs[1] = (t_point) {0.0, 0.0,0.0};
+	tv_model.triangles[0].uvs[2] = (t_point) {1.0, 0.0,0.0};
+	tv_model.triangles[1].uvs[0] = (t_point) {0.0, 1.0,0.0};
+	tv_model.triangles[1].uvs[1] = (t_point) {1.0, 0.0,0.0};
+	tv_model.triangles[1].uvs[2] = (t_point) {1.0, 1.0,0.0};
+
+	
+	doom->tv.anim = load_anim("textures/anim1/", 15.0, 0);
+	doom->tv.anim.played = 1;
+	doom->tv.sprite.instance.model.anim = &doom->tv.anim;
+	doom->tv.anim.curr_f = 0.0;
+	
+
+	doom->tv.sprite.instance.model = tv_model;
+	doom->tv.sprite.instance.model.new_tex[0] = doom->tv.anim.frames[0];
+	doom->tv.sprite.instance.scale = 1.0;
+	doom->tv.sprite.instance.orientation = make_oy_rot_matrix(doom->tv.beta);
+	doom->tv.sprite.instance.model.anim = NULL;
+
+}
 void	bullets_init(t_doom *doom)
 {
 	t_model bullet_model;
@@ -1423,6 +1493,7 @@ void	ammo_init(t_doom *doom)
 
 	ammo.sprite.instance.orientation = make_oy_rot_matrix(0.0);
 
+	ammo.start_enable = 0;
 	i = 0;
 	while (i < 40)
 	{
@@ -1476,6 +1547,7 @@ void	aid_init(t_doom *doom)
 	aid.sprite.instance.model = aid_model;
 	aid.sprite.instance.scale = 2.0;
 	aid.enable = 0;
+	aid.start_enable = 0;
 
 	aid.sprite.instance.orientation = make_oy_rot_matrix(0.0);
 
@@ -1495,7 +1567,7 @@ void	drb_init(t_doom *doom)
 }
 
 
-int		main()
+int		main(int ac, char **av)
 {
 	t_mgl			mgl;
 
@@ -1526,10 +1598,10 @@ int		main()
 
 	
 
-	doom.scene.sprites = malloc(sizeof(t_sprite) * 200);
+	doom.scene.sprites = malloc(sizeof(t_sprite) * 200);////
 	doom.scene.sprites_count = 0;
 
-	doom.scene.objects = malloc(sizeof(t_object) * 200);
+	doom.scene.objects = malloc(sizeof(t_object) * 200);/////
 	doom.scene.objects_count = 0;
 
 	// doom.objects = malloc(sizeof(t_object) * 3);
@@ -1559,7 +1631,16 @@ int		main()
 	doom.lose = 0;
 
 
-
+	if (ac < 2)
+		exit(-2);
+	if (!check_hash(av[1]))
+	{
+		ft_putendl("Файлы повреждены");
+		exit(-2);
+	}
+	puts("OK");
+		
+	
 
 
 	bullets_init(&doom);
@@ -1567,7 +1648,7 @@ int		main()
 	aid_init(&doom);
 	drb_init(&doom);
 
-	level_init(&doom);
+	level_init(&doom, av[1]);
 	render_init(&doom.scene);
 	clipping_planes_init(&doom.scene);
 	controls_init(&doom);
@@ -1590,6 +1671,11 @@ int		main()
 	doom.menu.difficulty_2 = renderText("DIFFICULTY LVL 2", "fonts/DoomsDay.ttf", color, 100);
 	doom.menu.difficulty_3 = renderText("DIFFICULTY LVL 3", "fonts/DoomsDay.ttf", color, 100);
 	doom.menu.exit_b = renderText("EXIT", "fonts/DoomsDay.ttf", color, 100);
+	color.r = 255;
+	color.g =255;
+	color.b = 255;
+	doom.press_f = renderText("Press F", "fonts/DoomsDay.ttf", color, 70);
+
 
 	doom.win_surface = create_texture("textures/menu.bmp", 0);
 	doom.lose_surface = create_texture("textures/menu.bmp", 0);

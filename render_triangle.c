@@ -109,7 +109,7 @@ void	draw_pixel(t_scene *scene, int *image_data, t_triangle *tr, int y_it)
 	{
 		if (tr->tex->flags)
 		{
-			if (get_texel(tr->tex, u / inv_z, v / inv_z) == tr->tex->flags)
+			if (get_texel(tr->tex, u / inv_z, v / inv_z) == (int)tr->tex->flags)
 			{
 				x_it++;
 				inv_z += scene->render_tr->d_z;

@@ -4,7 +4,7 @@
 
 # define SCREEN_MULTIPLICATOR 2
 
-# define MAP_EDITOR_SCALE 10
+
 
 # define TEXTURE_SCALE 0.3
 
@@ -34,7 +34,7 @@
 #include "data.h"
 #include "helpers.h"
 #include "linear_algebra.h"
-#include "bsp_test/bsp.h"
+// #include "Editor/editor.h"
 #include <string.h>
 #include <pthread.h>
 #include <fcntl.h>
@@ -44,7 +44,7 @@
 
 void	render_init(t_scene *scene);
 void	clipping_planes_init(t_scene *scene);
-void	level_init(t_doom *doom);
+void	level_init(t_doom *doom, char *foldername);
 void	controls_init(t_doom *doom);
 SDL_Surface	*create_texture(char *filename, int alpha);
 t_anim		load_anim(char *foldername, float speed, int mode);
@@ -53,7 +53,7 @@ void	clip_1_outside(t_clip_triangle *cl, t_model *model, int k, int i);
 void	clip_2_outsides(t_clip_triangle *cl, t_model *model, int k, int i);
 
 
-int		clip_triangle(t_triangle *trs, int *count, t_plane *planes, t_model *model);
+int		clip_triangle(t_triangle *trs, t_plane *planes, t_model *model);
 
 void	render_triangle(int *image_data, t_model *model, t_triangle *tr, t_scene *scene);
 
@@ -92,6 +92,7 @@ void read_bsp(t_doom *doom, char *filename);
 int classify_point(t_vertex cam, t_vertex line, t_vertex normal);
 
 t_enemy	create_enemy(t_vertex pos, float beta);
+void	create_tv(t_doom *doom);
 
 
 //void read_map(char *name, t_model *model, int **tex, int *texture);
@@ -107,4 +108,8 @@ void		get_floor_seil_traversal(t_bsp *node, t_vertex pos, float *floor, float *c
 char *itoa(int value, char *buf);
 
 void clear_bsp(t_bsp *node);
+
+int		check_hash(char *foldername);
+
+
 #endif

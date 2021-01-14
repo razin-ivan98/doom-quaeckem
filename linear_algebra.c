@@ -334,7 +334,8 @@ t_vertex	triangle_normal(t_vertex v0, t_vertex v1, t_vertex v2)
 t_point		viewport_to_canvas(t_point p){
 	return ((t_point){
 		p.x * W / CW,
-		p.y * H / CH
+		p.y * H / CH,
+		0.0
 	});
 }
 t_point		project_vertex(t_vertex v)
@@ -342,7 +343,8 @@ t_point		project_vertex(t_vertex v)
 	return (viewport_to_canvas(
 		(t_point){
 			v.x * PROJ_PLANE_Z / v.z,
-			v.y * PROJ_PLANE_Z / v.z
+			v.y * PROJ_PLANE_Z / v.z,
+			0.0
 		}
 	));
 }

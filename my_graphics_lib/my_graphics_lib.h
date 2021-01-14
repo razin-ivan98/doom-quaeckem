@@ -1,15 +1,26 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   my_graphics_lib.h                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: razin-ivan98 <razin-ivan98@student.42.f    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/01/14 00:05:10 by razin-ivan9       #+#    #+#             */
+/*   Updated: 2021/01/14 00:24:58 by razin-ivan9      ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef MY_GRAPHICS_LIB_H
 # define MY_GRAPHICS_LIB_H
 
-#include <SDL2/SDL.h>
+# include "../frameworks/SDL2.framework/Headers/SDL.h"
+# include "../frameworks/SDL2_ttf.framework/Headers/SDL_ttf.h"
 
-#include "../frameworks/SDL2_ttf.framework/Headers/SDL_ttf.h"
+# include "../libft/libft.h"
 
-// #include "data.h"
-
-typedef struct      s_mgl
+typedef struct		s_mgl
 {
-    SDL_Window		*window;
+	SDL_Window		*window;
 	int				windows_count;
 	SDL_Renderer	*renderer;
 	SDL_Surface		*screen_surface;
@@ -24,19 +35,15 @@ typedef struct      s_mgl
 	float			curr_time;
 	float			fps;
 
-//	t_triangle		*trs;
-//	t_vertex		*vs;
-
 	int				trs_count;
 	int				vs_count;
-}                   t_mgl;
+}					t_mgl;
 
-t_mgl	mgl_init(char *win_name, int w, int h);
-void	mgl_quit(t_mgl *mgl);
-void	mgl_run(t_mgl *mgl,
+t_mgl				mgl_init(char *win_name, int w, int h);
+void				mgl_quit(t_mgl *mgl);
+void				mgl_run(t_mgl *mgl,
 				void (*run_callback)(void *, int *),
 				void (*event_callback)(SDL_Event *, void *, int *),
 				void *param);
-
 
 #endif

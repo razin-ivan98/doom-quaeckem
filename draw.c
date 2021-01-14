@@ -75,21 +75,19 @@ void	clip_triangles( t_model *model, t_instance *instance, t_scene *scene, int l
 {
 	int			i;
 	t_triangle	curr;
-	int			ters_count;
 	t_vertex	centre;
 	
 	i = 0;
 	while (i < instance->model.triangles_count)
 	{
 		curr = instance->model.triangles[i];
-		ters_count = 1;
 		centre = multiply(sub(instance->model.vertexes[curr.indexes[0]],
 			scene->camera.position), -1.0);
 		curr.tex = instance->model.new_tex[0];
 
 		if (dot(centre, curr.normal) >= 0.0 || lol)
 		{
-			clip_triangle(&curr, &ters_count, scene->clipping_planes, model);
+			clip_triangle(&curr, scene->clipping_planes, model);
 		}
 		i++;
 	}
@@ -114,7 +112,6 @@ void	bsp_render_traversal(t_bsp *node, t_scene *scene, t_instance *instance, t_m
 {
 	int i;
 	t_triangle	curr;
-	int			ters_count;
 	t_vertex	centre;
 
 	if (node->is_leaf)
@@ -131,8 +128,6 @@ void	bsp_render_traversal(t_bsp *node, t_scene *scene, t_instance *instance, t_m
 			curr.uvs[1] = instance->model.uvs[node->vt_trs[i].uv_ids[1]];
 			curr.uvs[2] = instance->model.uvs[node->vt_trs[i].uv_ids[2]];
 
-
-			ters_count = 1;
 			centre = multiply(sub(instance->model.vertexes[curr.indexes[0]],
 				scene->camera.position), -1.0);
 			if (node->vt_trs[i].type == TR_TYPE_WALL)
@@ -144,7 +139,7 @@ void	bsp_render_traversal(t_bsp *node, t_scene *scene, t_instance *instance, t_m
 
 			if (dot(centre, curr.normal) >= 0.0)
 			{
-				clip_triangle(&curr, &ters_count, scene->clipping_planes, model);
+				clip_triangle(&curr, scene->clipping_planes, model);
 			}
 			i++;
 		}
@@ -169,8 +164,6 @@ void	bsp_render_traversal(t_bsp *node, t_scene *scene, t_instance *instance, t_m
 t_model	*transform_and_clip(t_instance *instance,t_mat4x4 transform, t_scene *scene, int mode)
 {
 	t_model		*model;
-	t_vertex4	tmp;
-	t_vertex	center;
 
 	model = &scene->render_tr->rendered;
 
@@ -234,44 +227,16 @@ void	render_sprites(int *image_data, t_scene *scene, t_mat4x4 camera_mat)
 		i++;
 	}
 }
-// void	render_objects(int *image_data, t_scene *scene, t_mat4x4 camera_mat)
-// {
-// 	t_mat4x4	transform;
-// 	t_model		*model;
-// 	int			i;
 
-// 	i = 0;
-
-// 	while (i < scene->objects_count)
-// 	{
-// 		update_instance_transform(&scene->objects[i].instance);
-
-// 		transform = multiply_m_m(camera_mat, scene->objects[i].instance.transform);
-// 		if (!(model = transform_and_clip(&scene->objects[i].instance, transform, scene, 0)))
-// 		{
-// 			i++;
-// 			continue ;
-// 		}
-// 		scene->depth_mode = 0;
-
-// 		render_model(image_data, model, scene);
-// 		i++;
-// 	}
-
-// }
 void	render_scene(int *image_data, t_scene *scene)
 {
 	t_mat4x4	camera_mat;
-	t_mat4x4	transform;
-	t_model		*model;
 
 	camera_mat = multiply_m_m(transposed_m(scene->camera.orientation),
 		make_translation_matrix(multiply(scene->camera.position, -1.0)));
 
 	render_level(image_data, scene, camera_mat);
 	render_sprites(image_data, scene, camera_mat);
-//	render_objects(image_data, scene, camera_mat);
-
 }
 
 

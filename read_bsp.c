@@ -1,5 +1,4 @@
 #include "duke.h"
-#include "bsp_test/bsp.h"
 
 
 static int strlen_while_dig(char *str)
@@ -400,7 +399,20 @@ char	*read_objects(t_doom *doom, char *ptr)
 	}
 	return (ft_strchr(ptr, ']') + 1);
 }
+char	*read_tv(t_doom *doom, char *ptr)
+{
+	
+	ptr = ft_strchr(ptr, '[') + 1;
+	doom->tv.sprite.instance.position.x = ft_atof(ptr);
+	ptr = ft_strchr(ptr, ',') + 1;
+	doom->tv.sprite.instance.position.z = ft_atof(ptr);
+	ptr = ft_strchr(ptr, ':') + 1;
+	doom->tv.sprite.instance.position.y = 0.0;
+	doom->tv.beta = ft_atof(ptr);
+	create_tv(doom);
 
+	return (ft_strchr(ptr, '}') + 1);
+}
 char	*add_ammo(t_doom *doom, char *ptr, int *ammo_count)
 {
 	t_vertex pos;
@@ -411,6 +423,8 @@ char	*add_ammo(t_doom *doom, char *ptr, int *ammo_count)
 
 	doom->ammo[*ammo_count].enable = 1;
 	doom->ammo[*ammo_count].sprite.instance.position = pos;
+	doom->ammo[*ammo_count].start_enable = 1;
+
 
 	(*ammo_count)++;
 	
@@ -450,6 +464,8 @@ char	*add_aid(t_doom *doom, char *ptr, int *aid_count)
 
 	doom->aid[*aid_count].enable = 1;
 	doom->aid[*aid_count].sprite.instance.position = pos;
+	doom->aid[*aid_count].start_enable = 1;
+
 
 	(*aid_count)++;
 	
@@ -495,6 +511,7 @@ char *read_data_property(t_doom *doom, char *str)
 		doom->scene.camera.position.x = ft_atof(ptr);
 		ptr = ft_strchr(ptr, ',') + 1;
 		doom->scene.camera.position.z = ft_atof(ptr);
+		doom->start_pos = doom->scene.camera.position;
 		return (ft_strchr(ptr, ']') + 1);
 	}
 	else if (!ft_strcmp(key, "aim"))
@@ -509,6 +526,10 @@ char *read_data_property(t_doom *doom, char *str)
 	else if (!ft_strcmp(key, "enemies"))
 	{
 		return (read_enemies(doom, ptr));
+	}
+	else if (!ft_strcmp(key, "tv"))
+	{
+		return (read_tv(doom, ptr));
 	}
 	else if (!ft_strcmp(key, "ammo"))
 	{
@@ -553,11 +574,16 @@ void read_bsp(t_doom *doom, char *filename)
 {
 	int fd;
 	char *read_str;
-	int i;
 
 	read_str = malloc(262144); /////////////наверное надо больше
 
 	fd = open(filename, O_RDWR);
+
+	if (fd < 0)
+	{
+		ft_putendl("Ошибка чтения файла");
+		exit(-2);
+	}
 
 	read_str[read(fd, read_str, 262143)] = 0;
 	close(fd);

@@ -41,6 +41,7 @@ void	correct_objects_height(t_doom *doom)
 		}
 		i++;
 	}
+	
 	i = 0;
 	while (i < doom->objects_count)
 	{
@@ -51,19 +52,27 @@ void	correct_objects_height(t_doom *doom)
 		
 		i++;
 	}
+	get_floor_seil_traversal(&doom->scene.level.root,
+				(t_vertex){doom->tv.sprite.instance.position.x,
+				doom->tv.sprite.instance.position.z, 0.0}, &floor, &ceil);
+			doom->tv.sprite.instance.position.y = floor + 1.5;
 }
 
-void	level_init(t_doom *doom)
+void	level_init(t_doom *doom, char* foldername)
 {
 	t_scene *scene;
 
 	scene = &doom->scene;
 
+	char path[1024];
+
 	scene->z_buffer = create_z_buffer();
 	scene->camera.orientation = make_oy_rot_matrix(360.0);
 	scene->camera.position = (t_vertex){0,0, -2};
-
-	read_bsp(doom, "bsp_test/new_saved_bsp.json");
+	//puts(path);
+	ft_strcpy(path, foldername);
+	ft_strcat(path, "/data.json");
+	read_bsp(doom, path);
 
 	correct_objects_height(doom);
 
@@ -75,8 +84,11 @@ void	level_init(t_doom *doom)
 	scene->level.instance.model.uvs_count = 0;
 	scene->level.instance.model.bounds_center = (t_vertex){0,0,0};
 	scene->level.instance.model.bounds_radius = 100;
-
-	read_obj(&scene->level.instance.model, "bsp_test/levl.obj");
+	
+	ft_strcpy(path, foldername);
+	ft_strcat(path, "/geometry.obj");
+	read_obj(&scene->level.instance.model, path);
+//	puts(path);
 
 	scene->level.instance.position = (t_vertex){ 0, 0, 10};
 	scene->level.instance.clipped = malloc(sizeof(t_vertex) * 10);
@@ -107,38 +119,38 @@ void	clipping_planes_init(t_scene *scene)
 
 void	render_init(t_scene *scene)
 {
-	scene->f_render_tr.x.v012.array = malloc(sizeof(float) * H * 2);
-	scene->f_render_tr.x.v02.array = malloc(sizeof(float) * H * 2);
-	scene->f_render_tr.iz.v012.array = malloc(sizeof(float) * H * 2);
-	scene->f_render_tr.iz.v02.array = malloc(sizeof(float) * H * 2);
-	scene->f_render_tr.uz.v012.array = malloc(sizeof(float) * H * 2);
-	scene->f_render_tr.uz.v02.array = malloc(sizeof(float) * H * 2);
-	scene->f_render_tr.vz.v012.array = malloc(sizeof(float) * H * 2);
-	scene->f_render_tr.vz.v02.array = malloc(sizeof(float) * H * 2);
-	scene->f_render_tr.zscan.array = malloc(sizeof(float) * W * 2);
-	scene->f_render_tr.uzscan.array = malloc(sizeof(float) * W * 2);
-	scene->f_render_tr.vzscan.array = malloc(sizeof(float) * W * 2);
-	scene->f_render_tr.v02.array = malloc(sizeof(float) * H * 2);
-	scene->f_render_tr.v01.array = malloc(sizeof(float) * H * 2);
-	scene->f_render_tr.v12.array = malloc(sizeof(float) * H * 2);
+	scene->f_render_tr.x.v012.array = malloc(sizeof(float) * H * 20);
+	scene->f_render_tr.x.v02.array = malloc(sizeof(float) * H * 20);
+	scene->f_render_tr.iz.v012.array = malloc(sizeof(float) * H * 20);
+	scene->f_render_tr.iz.v02.array = malloc(sizeof(float) * H * 20);
+	scene->f_render_tr.uz.v012.array = malloc(sizeof(float) * H * 20);
+	scene->f_render_tr.uz.v02.array = malloc(sizeof(float) * H * 20);
+	scene->f_render_tr.vz.v012.array = malloc(sizeof(float) * H * 20);
+	scene->f_render_tr.vz.v02.array = malloc(sizeof(float) * H * 20);
+	scene->f_render_tr.zscan.array = malloc(sizeof(float) * W * 20);
+	scene->f_render_tr.uzscan.array = malloc(sizeof(float) * W * 20);
+	scene->f_render_tr.vzscan.array = malloc(sizeof(float) * W * 20);
+	scene->f_render_tr.v02.array = malloc(sizeof(float) * H * 20);
+	scene->f_render_tr.v01.array = malloc(sizeof(float) * H * 20);
+	scene->f_render_tr.v12.array = malloc(sizeof(float) * H * 20);
 	scene->f_render_tr.rendered.vertexes = malloc(sizeof(t_vertex) * 30000);
 	scene->f_render_tr.rendered.projected = malloc(sizeof(t_point) * 30000);
 	scene->f_render_tr.rendered.triangles = malloc(sizeof(t_triangle) * 30000);
 
-	scene->s_render_tr.x.v012.array = malloc(sizeof(float) * H * 2);
-	scene->s_render_tr.x.v02.array = malloc(sizeof(float) * H * 2);
-	scene->s_render_tr.iz.v012.array = malloc(sizeof(float) * H * 2);
-	scene->s_render_tr.iz.v02.array = malloc(sizeof(float) * H * 2);
-	scene->s_render_tr.uz.v012.array = malloc(sizeof(float) * H * 2);
-	scene->s_render_tr.uz.v02.array = malloc(sizeof(float) * H * 2);
-	scene->s_render_tr.vz.v012.array = malloc(sizeof(float) * H * 2);
-	scene->s_render_tr.vz.v02.array = malloc(sizeof(float) * H * 2);
-	scene->s_render_tr.zscan.array = malloc(sizeof(float) * W * 2);
-	scene->s_render_tr.uzscan.array = malloc(sizeof(float) * W * 2);
-	scene->s_render_tr.vzscan.array = malloc(sizeof(float) * W * 2);
-	scene->s_render_tr.v02.array = malloc(sizeof(float) * H * 2);
-	scene->s_render_tr.v01.array = malloc(sizeof(float) * H * 2);
-	scene->s_render_tr.v12.array = malloc(sizeof(float) * H * 2);
+	scene->s_render_tr.x.v012.array = malloc(sizeof(float) * H * 20);
+	scene->s_render_tr.x.v02.array = malloc(sizeof(float) * H * 20);
+	scene->s_render_tr.iz.v012.array = malloc(sizeof(float) * H * 20);
+	scene->s_render_tr.iz.v02.array = malloc(sizeof(float) * H * 20);
+	scene->s_render_tr.uz.v012.array = malloc(sizeof(float) * H * 20);
+	scene->s_render_tr.uz.v02.array = malloc(sizeof(float) * H * 20);
+	scene->s_render_tr.vz.v012.array = malloc(sizeof(float) * H * 20);
+	scene->s_render_tr.vz.v02.array = malloc(sizeof(float) * H * 20);
+	scene->s_render_tr.zscan.array = malloc(sizeof(float) * W * 20);
+	scene->s_render_tr.uzscan.array = malloc(sizeof(float) * W * 20);
+	scene->s_render_tr.vzscan.array = malloc(sizeof(float) * W * 20);
+	scene->s_render_tr.v02.array = malloc(sizeof(float) * H * 20);
+	scene->s_render_tr.v01.array = malloc(sizeof(float) * H * 20);
+	scene->s_render_tr.v12.array = malloc(sizeof(float) * H * 20);
 	scene->s_render_tr.rendered.vertexes = malloc(sizeof(t_vertex) * 30000);
 	scene->s_render_tr.rendered.projected = malloc(sizeof(t_point) * 30000);
 	scene->s_render_tr.rendered.triangles = malloc(sizeof(t_triangle) * 30000);
