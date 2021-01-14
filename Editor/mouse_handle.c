@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   mouse_handle.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: Chorange <Chorange@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/01/14 14:10:02 by Chorange          #+#    #+#             */
+/*   Updated: 2021/01/14 14:10:34 by Chorange         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "editor.h"
 
 void		mouse_motion(t_map_editor *ed)
@@ -30,7 +42,7 @@ void		mouse_motion(t_map_editor *ed)
 
 static void	mouse_b_d_select_sector(t_map_editor *ed)
 {
-	ed->map.selected_circuit = bsp_select_circuit_traversal(&ed->root, 
+	ed->map.selected_circuit = bsp_select_circuit_traversal(&ed->root,
 		(t_vertex){(float)(ed->prev_x - W_2) / MAP_EDITOR_SCALE,
 				(float)(H_2 - ed->prev_y) / MAP_EDITOR_SCALE, 0.0});
 	if (ed->step == STEP_2_FLOOR)
@@ -81,7 +93,7 @@ void		mouse_button_down(t_map_editor *ed)
 					(float)(H_2 - ed->prev_y) / MAP_EDITOR_SCALE, 0.0};
 	else if (ed->step == STEP_10_OBJECTS)
 		add_object((t_vertex){(float)(ed->prev_x - W_2) / MAP_EDITOR_SCALE,
-		(float)(H_2 - ed->prev_y) / MAP_EDITOR_SCALE, 0.0}, ed->curr_object, ed);
+	(float)(H_2 - ed->prev_y) / MAP_EDITOR_SCALE, 0.0}, ed->curr_object, ed);
 	else if (ed->step == STEP_11_ENEMIES)
 		add_enemy((t_vertex){(float)(ed->prev_x - W_2) / MAP_EDITOR_SCALE,
 					(float)(H_2 - ed->prev_y) / MAP_EDITOR_SCALE, 0.0}, ed);

@@ -1,7 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   draw.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: Chorange <Chorange@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/01/14 14:16:52 by Chorange          #+#    #+#             */
+/*   Updated: 2021/01/14 14:19:36 by Chorange         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "editor.h"
 
-void draw_line(int *pixels, t_int_v f, t_int_v s, int color)
+void	draw_line(int *pixels, t_int_v f, t_int_v s, int color)
 {
 	t_int_v		delta;
 	t_int_v		sign;
@@ -43,18 +54,20 @@ void	draw_in_points_mode(int i, int *pixels, t_map_editor *ed)
 		p1.y = (int)(ed->map.circuits[i].points[j - 1].y * MAP_EDITOR_SCALE);
 		p2.x = (int)(ed->map.circuits[i].points[j].x * MAP_EDITOR_SCALE);
 		p2.y = (int)(ed->map.circuits[i].points[j].y * MAP_EDITOR_SCALE);
-
 		draw_line(pixels, p1, p2, 0xFFFFFF);
-
-		draw_line(pixels, (t_int_v){p1.x + (p2.x - p1.x) / 2, p1.y + (p2.y - p1.y) / 2},
-			(t_int_v){p1.x + (p2.x - p1.x) / 2 + 30 * cos(atan2(p2.y - p1.y, p2.x - p1.x) +
+		draw_line(pixels, (t_int_v){p1.x + (p2.x - p1.x) / 2, p1.y +
+					(p2.y - p1.y) / 2},
+			(t_int_v){p1.x + (p2.x - p1.x) / 2 + 30 * cos(atan2(p2.y -
+					p1.y, p2.x - p1.x) +
 			(float)ed->map.circuits[i].normal_dir * M_PI / 2),
-			p1.y + (p2.y - p1.y) / 2 + 30 * sin(atan2(p2.y - p1.y, p2.x - p1.x) +
+			p1.y + (p2.y - p1.y) / 2 + 30 * sin(atan2(p2.y - p1.y,
+					p2.x - p1.x) +
 			(float)ed->map.circuits[i].normal_dir * M_PI / 2)},
 			0xff0000);
 		j++;
 	}
 }
+
 void	draw_in_walls_mode(int i, int *pixels, t_map_editor *ed)
 {
 	int			j;
@@ -64,22 +77,23 @@ void	draw_in_walls_mode(int i, int *pixels, t_map_editor *ed)
 	t_int_v		p2;
 
 	j = 0;
-	while (j < ed->map.circuits[i].walls_count)
+	while (j++ < ed->map.circuits[i].walls_count)
 	{
-		p1.x = (int)(ed->map.circuits[i].walls[j].points[0].x * MAP_EDITOR_SCALE);
-		p1.y = (int)(ed->map.circuits[i].walls[j].points[0].y * MAP_EDITOR_SCALE);
-		p2.x = (int)(ed->map.circuits[i].walls[j].points[1].x * MAP_EDITOR_SCALE);
-		p2.y = (int)(ed->map.circuits[i].walls[j].points[1].y * MAP_EDITOR_SCALE);
+		p1.x = (int)(ed->map.circuits[i].walls[j].points[0].x *
+				MAP_EDITOR_SCALE);
+		p1.y = (int)(ed->map.circuits[i].walls[j].points[0].y *
+				MAP_EDITOR_SCALE);
+		p2.x = (int)(ed->map.circuits[i].walls[j].points[1].x *
+				MAP_EDITOR_SCALE);
+		p2.y = (int)(ed->map.circuits[i].walls[j].points[1].y *
+				MAP_EDITOR_SCALE);
 		n = ed->map.circuits[i].walls[j].normal;
 		color = (i == ed->map.selected_circuit ? 0xFF0000 : 0xFFFF00);
 		draw_line(pixels, p1, p2, color);
 		draw_line(pixels,
-			(t_int_v){p1.x + (p2.x - p1.x) / 2,
-			p1.y + (p2.y - p1.y) / 2},
+			(t_int_v){p1.x + (p2.x - p1.x) / 2, p1.y + (p2.y - p1.y) / 2},
 			(t_int_v){p1.x + (p2.x - p1.x) / 2 + 30 * n.x,
-			p1.y + (p2.y - p1.y) / 2 + 30 * n.y},
-			0xff0000);
-		j++;
+			p1.y + (p2.y - p1.y) / 2 + 30 * n.y}, 0xff0000);
 	}
 }
 

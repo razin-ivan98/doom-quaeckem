@@ -401,8 +401,6 @@ void event_handle(SDL_Event *event, void *ed_ptr, int *quit)
 	}
 }
 
-
-
 void update(void *map_editor, int *pixels)
 {
 	t_map_editor	*ed;
@@ -423,7 +421,6 @@ void update(void *map_editor, int *pixels)
 	}
 	draw_elements(map_editor, pixels);
 }
-
 
 int		main(void)
 {

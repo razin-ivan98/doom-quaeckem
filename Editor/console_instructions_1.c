@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   console_instructions_1.c                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: Chorange <Chorange@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/01/14 14:29:11 by Chorange          #+#    #+#             */
+/*   Updated: 2021/01/14 14:29:12 by Chorange         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "editor.h"
 
 void	write_instructions(t_map_editor *ed)
@@ -27,6 +39,7 @@ void	write_instructions(t_map_editor *ed)
 	else if (ed->step == STEP_12_SAVE)
 		ft_putendl("Сохранение...");
 }
+
 void	write_object_num(t_map_editor *ed)
 {
 	char str[64];

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   add_elements_to_map.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: Chorange <Chorange@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/01/14 14:35:35 by Chorange          #+#    #+#             */
+/*   Updated: 2021/01/14 14:35:36 by Chorange         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "editor.h"
 
 void	add_aid(t_vertex pos, t_map_editor *ed)
@@ -10,6 +22,7 @@ void	add_aid(t_vertex pos, t_map_editor *ed)
 	ed->aid[ed->aid_count] = pos;
 	ed->aid_count++;
 }
+
 void	add_ammo(t_vertex pos, t_map_editor *ed)
 {
 	if (ed->ammo_count == 39)
@@ -20,6 +33,7 @@ void	add_ammo(t_vertex pos, t_map_editor *ed)
 	ed->ammo[ed->ammo_count] = pos;
 	ed->ammo_count++;
 }
+
 void	add_enemy(t_vertex pos, t_map_editor *ed)
 {
 	if (ed->enemies_count == 39)

@@ -1,34 +1,33 @@
 #include "editor.h"
 
 
-int		if_leaf(t_bsp *bsp, t_map *map, t_int_v q, t_circuit *circuits)
-{
-	int i;
-	int j;
+// int		if_leaf(t_bsp *bsp, t_map *map, t_int_v q, t_circuit *circuits)
+// {
+// 	int i;
+// 	int j;
 
-	if (q.x == -1)
-	{
-		bsp->walls_count = 0;
-		bsp->is_leaf = 1;
-		i = 0;
-		while (i < q.y)
-		{
-			j = 0;
-			while (j < circuits[i].walls_count)
-			{
-				bsp->floor = map->circuits[i].floor;
-				bsp->ceil = map->circuits[i].ceil;
-				bsp->circuit = i;
-				bsp->walls[bsp->walls_count++] = circuits[i].walls[j];
-				j++;
-			}
-			i++;
-		}
-		free (circuits);
-		return (1);
-	}
-	return (0);
-}
+// 	if (q.x == -1)
+// 	{
+// 		bsp->walls_count = 0;
+// 		bsp->is_leaf = 1;
+// 		i = 0;
+// 		while (i < q.y)
+// 		{
+// 			j = 0;
+// 			while (j < circuits[i].walls_count)
+// 			{
+// 				bsp->floor = map->circuits[i].floor;
+// 				bsp->ceil = map->circuits[i].ceil;
+// 				bsp->circuit = i;
+// 				bsp->walls[bsp->walls_count++] = circuits[i].walls[j];
+// 				j++;
+// 			}
+// 			i++;
+// 		}
+// 		free (circuits);
+// 		return ;
+
+// }
 
 void	bsp_recurse(t_bsp *bsp, t_circuit *circuits, int circuits_count, t_map *map)
 {
@@ -43,19 +42,49 @@ void	bsp_recurse(t_bsp *bsp, t_circuit *circuits, int circuits_count, t_map *map
 
 	t_wall	new1;
 	t_wall	new2;
-
+// int i;
+// 	int j;
 
 	t_vertex cutter_line;
-	bsp->front = NULL;
-	bsp->back = NULL;
+	
 
 	reconstruct_circuits(circuits, circuits_count);
 	get_cutter(circuits, circuits_count, &cutter_cir, &cutter_wall);
+
+
+
 	front = NULL;
 	back = NULL;
-	if (if_leaf(bsp, map, (t_int_v){cutter_cir, circuits_count}, circuits))
-		return ;
+	
+	bsp->front = NULL;
+	bsp->back = NULL;
 
+
+
+	
+
+	if (cutter_cir == -1)
+	{
+		bsp->walls_count = 0;
+		bsp->is_leaf = 1;
+		i = 0;
+		while (i < circuits_count)
+		{
+			j = 0;
+			while (j < circuits[i].walls_count)
+			{
+				bsp->floor = map->circuits[i].floor;
+				bsp->ceil = map->circuits[i].ceil;
+				bsp->circuit = i;
+				bsp->walls[bsp->walls_count++] = circuits[i].walls[j];
+				j++;
+			}
+			i++;
+		}
+		free (circuits);
+		return ;
+	
+	}
 	cutter = get_big_wall(circuits[cutter_cir].walls[cutter_wall], bsp, &cutter_line);
 
 	if (!(front = malloc(sizeof(t_circuit) * circuits_count)) ||

@@ -33,6 +33,25 @@
 # include "../duke.h"
 
 
+typedef struct		s_req_s
+{
+	t_circuit		*front;
+	t_circuit		*back;
+	int				i;
+	int				j;
+	int				result;
+	int				cutter_cir;
+	int				cutter_wall;
+	t_wall			cutter;
+	t_wall			new1;
+	t_wall			new2;
+	t_vertex 		cutter_line;
+	t_vertex		inter;
+}					t_req_s;
+
+
+
+
 typedef struct		s_m_e_object
 {
 	t_vertex		pos;
@@ -188,6 +207,7 @@ void				reconstruct_circuits(t_circuit *circuits, int circuits_count);
 
 
 
+void					err(char *str);
 
 
 
