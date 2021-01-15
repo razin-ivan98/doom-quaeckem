@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   export.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ldeirdre <ldeirdre@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/01/15 15:53:37 by ldeirdre          #+#    #+#             */
+/*   Updated: 2021/01/15 15:53:37 by ldeirdre         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "editor.h"
 
 void	back_transform(t_bsp *node, t_vertex *pts, int *pts_count)
@@ -12,8 +24,6 @@ void	back_transform(t_bsp *node, t_vertex *pts, int *pts_count)
 		(*pts_count)++;
 		i++;
 	}
-	//pts[i] = node->walls[0].points[0];
-	//(*pts_count)++;
 }
 
 int check_in_figure(t_vertex *pts, int pts_count, int i)
@@ -48,7 +58,6 @@ int check_in_figure(t_vertex *pts, int pts_count, int i)
 	return (0);
 }
 
-
 int add_n(t_map *map, t_vertex n)
 {
 	int i;
@@ -66,6 +75,7 @@ int add_n(t_map *map, t_vertex n)
 
 	return (map->nrmls_count - 1);
 }
+
 int add_vt(t_map *map, t_vertex vt)
 {
 	int i;
@@ -82,6 +92,7 @@ int add_vt(t_map *map, t_vertex vt)
 
 	return (map->vts_count - 1);
 }
+
 int add_uv(t_map *map, t_vertex uv)
 {
 	int i;
@@ -124,370 +135,6 @@ t_bsp *get_node_by_wall_traversal(t_bsp *node, t_wall wall)
 	return (NULL);
 }
 
-void	add_tops_bottoms(t_bsp *node, t_map *map, t_bsp *root)
-{
-	t_vt_tr new;
-	t_vertex vt;
-	t_vertex uv;
-	float top;
-	float bottom;
-	int flag;
-	int i;
-	t_bsp *link;
-	t_wall wall;
-	link = node;
-	i = 0;
-	while (i < node->walls_count)
-	{
-		link = node;
-		if (node->walls[i].type == WALL_TYPE_SECTOR_BORDER && node->walls[i].circuit != -1 &&
-			map->circuits[node->circuit].floor != map->circuits[node->walls[i].circuit].floor)
-		{
-			if (map->circuits[node->circuit].floor > map->circuits[node->walls[i].circuit].floor)
-			{
-				wall = node->walls[i];
-				link = get_node_by_wall_traversal(root, wall);
-				if (!link)
-					link = node;
-				top = map->circuits[node->circuit].floor;
-				bottom = map->circuits[node->walls[i].circuit].floor;
-				flag = 1;
-			}
-			else if (map->circuits[node->circuit].floor < map->circuits[node->walls[i].circuit].floor)
-			{
-				bottom = map->circuits[node->circuit].floor;
-				top = map->circuits[node->walls[i].circuit].floor;
-				flag = 0;
-			}
-
-			vt = (t_vertex){node->walls[i].points[0].x, node->walls[i].points[0].y,
-								top};
-			new.ids[0] = add_vt(map, vt);
-			vt = (t_vertex){node->walls[i].points[0].x, node->walls[i].points[0].y,
-									bottom};
-			new.ids[1] = add_vt(map, vt);
-			vt = (t_vertex){node->walls[i].points[1].x, node->walls[i].points[1].y,
-									bottom};
-			new.ids[2] = add_vt(map, vt);
-			vt = triangle_normal(map->vts[new.ids[2]], map->vts[new.ids[1]], map->vts[new.ids[0]]);
-			if (flag)
-				vt = multiply(vt, -1);
-			new.n_ids[0] = add_n(map, vt);
-			new.n_ids[1] = new.n_ids[0];
-			new.n_ids[2] = new.n_ids[0];
-
-			uv = (t_vertex){0.0, bottom * TEXTURE_SCALE, 0.0};
-			new.uv_ids[0] = add_uv(map, uv);
-			uv = (t_vertex){0.0, top * TEXTURE_SCALE, 0.0};
-			new.uv_ids[1] = add_uv(map, uv);
-			uv = (t_vertex){length(sub(node->walls[i].points[0],
-					node->walls[i].points[1])) * TEXTURE_SCALE,
-					top * TEXTURE_SCALE, 0.0};
-			new.uv_ids[2] = add_uv(map, uv);
-
-			new.type = TR_TYPE_WALL;
-
-			link->vt_trs[link->vt_trs_count] = new;
-			(link->vt_trs_count)++;
-
-
-
-			vt = (t_vertex){node->walls[i].points[0].x, node->walls[i].points[0].y,
-									top};
-			new.ids[0] = add_vt(map, vt);
-
-			vt = (t_vertex){node->walls[i].points[1].x, node->walls[i].points[1].y,
-									bottom};
-			new.ids[1] = add_vt(map, vt);
-
-			vt = (t_vertex){node->walls[i].points[1].x, node->walls[i].points[1].y,
-										top};
-			new.ids[2] = add_vt(map, vt);
-
-			vt = triangle_normal(map->vts[new.ids[2]], map->vts[new.ids[1]], map->vts[new.ids[0]]);
-				
-			if (flag)
-				vt = multiply(vt, -1);
-
-			new.n_ids[0] = add_n(map, vt);
-			new.n_ids[1] = new.n_ids[0];
-			new.n_ids[2] = new.n_ids[0];
-
-			uv = (t_vertex){0.0, bottom * TEXTURE_SCALE, 0.0};
-			new.uv_ids[0] = add_uv(map, uv);
-			uv = (t_vertex){length(sub(node->walls[i].points[0],
-					node->walls[i].points[1])) * TEXTURE_SCALE,
-					top * TEXTURE_SCALE, 0.0};
-			new.uv_ids[1] = add_uv(map, uv);
-			uv = (t_vertex){length(sub(node->walls[i].points[0],
-					node->walls[i].points[1])) * TEXTURE_SCALE,
-					bottom * TEXTURE_SCALE, 0.0};
-			new.uv_ids[2] = add_uv(map, uv);
-
-
-			new.type = TR_TYPE_WALL;
-
-			link->vt_trs[link->vt_trs_count] = new;
-			(link->vt_trs_count)++;
-		}
-		if (node->walls[i].type == WALL_TYPE_SECTOR_BORDER && node->walls[i].circuit != -1 &&
-			map->circuits[node->circuit].ceil != map->circuits[node->walls[i].circuit].ceil)
-		{
-			link = node;
-			if (map->circuits[node->circuit].ceil > map->circuits[node->walls[i].circuit].ceil)
-			{
-				top = map->circuits[node->circuit].ceil;
-				bottom = map->circuits[node->walls[i].circuit].ceil;
-				flag = 0;
-			}
-			else if (map->circuits[node->circuit].ceil < map->circuits[node->walls[i].circuit].ceil)
-			{
-				wall = node->walls[i];
-				link = get_node_by_wall_traversal(root, wall);
-				if (!link)
-					link = node;
-
-				bottom = map->circuits[node->circuit].ceil;
-				top = map->circuits[node->walls[i].circuit].ceil;
-				flag = 1;
-			}
-
-			vt = (t_vertex){node->walls[i].points[0].x, node->walls[i].points[0].y,
-								top};
-			new.ids[0] = add_vt(map, vt);
-
-			vt = (t_vertex){node->walls[i].points[0].x, node->walls[i].points[0].y,
-									bottom};
-			new.ids[1] = add_vt(map, vt);
-
-			vt = (t_vertex){node->walls[i].points[1].x, node->walls[i].points[1].y,
-									bottom};
-			new.ids[2] = add_vt(map, vt);
-
-			vt = triangle_normal(map->vts[new.ids[2]], map->vts[new.ids[1]], map->vts[new.ids[0]]);
-
-			if (flag)
-			vt = multiply(vt, -1);
-
-			new.n_ids[0] = add_n(map, vt);
-			new.n_ids[1] = new.n_ids[0];
-			new.n_ids[2] = new.n_ids[0];
-
-			uv = (t_vertex){0.0, bottom * TEXTURE_SCALE, 0.0};
-			new.uv_ids[0] = add_uv(map, uv);
-			uv = (t_vertex){0.0, top * TEXTURE_SCALE, 0.0};
-			new.uv_ids[1] = add_uv(map, uv);
-			uv = (t_vertex){length(sub(node->walls[i].points[0],
-					node->walls[i].points[1])) * TEXTURE_SCALE,
-					top * TEXTURE_SCALE, 0.0};
-			new.uv_ids[2] = add_uv(map, uv);
-
-			new.type = TR_TYPE_WALL;
-
-
-			link->vt_trs[link->vt_trs_count] = new;
-			(link->vt_trs_count)++;
-
-
-
-			vt = (t_vertex){node->walls[i].points[0].x, node->walls[i].points[0].y,
-						top};
-			new.ids[0] = add_vt(map, vt);
-
-			vt = (t_vertex){node->walls[i].points[1].x, node->walls[i].points[1].y,
-									bottom};
-			new.ids[1] = add_vt(map, vt);
-
-			vt = (t_vertex){node->walls[i].points[1].x, node->walls[i].points[1].y,
-									top};
-			new.ids[2] = add_vt(map, vt);
-
-			vt = triangle_normal(map->vts[new.ids[2]], map->vts[new.ids[1]], map->vts[new.ids[0]]);
-				
-			if (flag)
-				vt = multiply(vt, -1);
-
-			new.n_ids[0] = add_n(map, vt);
-			new.n_ids[1] = new.n_ids[0];
-			new.n_ids[2] = new.n_ids[0];
-
-			uv = (t_vertex){0.0, bottom * TEXTURE_SCALE, 0.0};
-			new.uv_ids[0] = add_uv(map, uv);
-			uv = (t_vertex){length(sub(node->walls[i].points[0],
-					node->walls[i].points[1])) * TEXTURE_SCALE,
-					top * TEXTURE_SCALE, 0.0};
-			new.uv_ids[1] = add_uv(map, uv);
-			uv = (t_vertex){length(sub(node->walls[i].points[0],
-					node->walls[i].points[1])) * TEXTURE_SCALE,
-					bottom * TEXTURE_SCALE, 0.0};
-			new.uv_ids[2] = add_uv(map, uv);
-
-			new.type = TR_TYPE_WALL;
-
-
-			link->vt_trs[link->vt_trs_count] = new;
-			(link->vt_trs_count)++;
-		}
-		i++;
-	}
-	
-}
-
-void to_obj_format(t_bsp *node, t_map *map)
-{
-	int i;
-
-	t_vt_tr new;
-	t_vertex vt;
-	t_vertex uv;
-
-
-	i = 0;
-	node->vt_trs = malloc(sizeof(t_vt_tr) * 30000);/////////
-	node->vt_trs_count = 0;
-	while (i < node->trs_count)
-	{
-		vt = (t_vertex){node->trs[i].points[0].x, node->trs[i].points[0].y,
-					map->circuits[node->circuit].floor};
-		new.ids[0] = add_vt(map, vt);
-
-		vt = (t_vertex){node->trs[i].points[1].x, node->trs[i].points[1].y,
-					map->circuits[node->circuit].floor};
-		new.ids[1] = add_vt(map, vt);
-
-		vt = (t_vertex){node->trs[i].points[2].x, node->trs[i].points[2].y,
-					map->circuits[node->circuit].floor};
-		new.ids[2] = add_vt(map, vt);
-
-		vt = triangle_normal(map->vts[new.ids[0]], map->vts[new.ids[1]], map->vts[new.ids[2]]);
-		new.n_ids[0] = add_n(map, vt);
-		new.n_ids[1] = new.n_ids[0];
-		new.n_ids[2] = new.n_ids[0];
-
-		uv = (t_vertex){node->trs[i].points[0].x * TEXTURE_SCALE, node->trs[i].points[0].y * TEXTURE_SCALE, 0.0};
-		new.uv_ids[0] = add_uv(map, uv);
-		uv = (t_vertex){node->trs[i].points[1].x * TEXTURE_SCALE, node->trs[i].points[1].y * TEXTURE_SCALE, 0.0};
-		new.uv_ids[1] = add_uv(map, uv);
-		uv = (t_vertex){node->trs[i].points[2].x * TEXTURE_SCALE, node->trs[i].points[2].y * TEXTURE_SCALE, 0.0};
-		new.uv_ids[2] = add_uv(map, uv);
-
-		new.type = TR_TYPE_FLOOR;
-		node->vt_trs[node->vt_trs_count] = new;
-		(node->vt_trs_count)++;
-
-		vt = (t_vertex){node->trs[i].points[0].x, node->trs[i].points[0].y,
-					map->circuits[node->circuit].ceil};
-		new.ids[0] = add_vt(map, vt);
-
-		vt = (t_vertex){node->trs[i].points[1].x, node->trs[i].points[1].y,
-					map->circuits[node->circuit].ceil};
-		new.ids[1] = add_vt(map, vt);
-
-		vt = (t_vertex){node->trs[i].points[2].x, node->trs[i].points[2].y,
-					map->circuits[node->circuit].ceil};
-		new.ids[2] = add_vt(map, vt);
-
-		vt = triangle_normal(map->vts[new.ids[0]], map->vts[new.ids[1]], map->vts[new.ids[2]]);
-		vt = multiply(vt, -1);
-		new.n_ids[0] = add_n(map, vt);
-		new.n_ids[1] = new.n_ids[0];
-		new.n_ids[2] = new.n_ids[0];
-
-		uv = (t_vertex){node->trs[i].points[0].x * TEXTURE_SCALE, node->trs[i].points[0].y * TEXTURE_SCALE, 0.0};
-		new.uv_ids[0] = add_uv(map, uv);
-		uv = (t_vertex){node->trs[i].points[1].x * TEXTURE_SCALE, node->trs[i].points[1].y * TEXTURE_SCALE, 0.0};
-		new.uv_ids[1] = add_uv(map, uv);
-		uv = (t_vertex){node->trs[i].points[2].x * TEXTURE_SCALE, node->trs[i].points[2].y * TEXTURE_SCALE, 0.0};
-		new.uv_ids[2] = add_uv(map, uv);
-
-		new.type = TR_TYPE_CEIL;
-
-		node->vt_trs[node->vt_trs_count] = new;
-		(node->vt_trs_count)++;
-
-		i++;
-	}
-
-	i = 0;
-	while ( i < node->walls_count)
-	{
-
-
-		if (node->walls[i].type != WALL_TYPE_WALL)
-		{
-			i++;
-			continue;
-		}
-		vt = (t_vertex){node->walls[i].points[0].x, node->walls[i].points[0].y,
-								map->circuits[node->circuit].ceil};
-		new.ids[0] = add_vt(map, vt);
-
-		vt = (t_vertex){node->walls[i].points[0].x, node->walls[i].points[0].y,
-								map->circuits[node->circuit].floor};
-		new.ids[1] = add_vt(map, vt);
-
-		vt = (t_vertex){node->walls[i].points[1].x, node->walls[i].points[1].y,
-								map->circuits[node->circuit].floor};
-		new.ids[2] = add_vt(map, vt);
-
-		vt = triangle_normal(map->vts[new.ids[2]], map->vts[new.ids[1]], map->vts[new.ids[0]]);
-		new.n_ids[0] = add_n(map, vt);
-		new.n_ids[1] = new.n_ids[0];
-		new.n_ids[2] = new.n_ids[0];
-
-		uv = (t_vertex){0.0, map->circuits[node->circuit].floor * TEXTURE_SCALE, 0.0};
-		new.uv_ids[0] = add_uv(map, uv);
-		uv = (t_vertex){0.0, map->circuits[node->circuit].ceil * TEXTURE_SCALE, 0.0};
-		new.uv_ids[1] = add_uv(map, uv);
-		uv = (t_vertex){length(sub(node->walls[i].points[0],
-				node->walls[i].points[1])) * TEXTURE_SCALE,
-				map->circuits[node->circuit].ceil * TEXTURE_SCALE, 0.0};
-		new.uv_ids[2] = add_uv(map, uv);
-
-		new.type = TR_TYPE_WALL;
-
-		node->vt_trs[node->vt_trs_count] = new;
-		(node->vt_trs_count)++;
-
-		vt = (t_vertex){node->walls[i].points[0].x, node->walls[i].points[0].y,
-								map->circuits[node->circuit].ceil};
-		new.ids[0] = add_vt(map, vt);
-
-		vt = (t_vertex){node->walls[i].points[1].x, node->walls[i].points[1].y,
-								map->circuits[node->circuit].floor};
-		new.ids[1] = add_vt(map, vt);
-
-		vt = (t_vertex){node->walls[i].points[1].x, node->walls[i].points[1].y,
-								map->circuits[node->circuit].ceil};
-		new.ids[2] = add_vt(map, vt);
-
-		vt = triangle_normal(map->vts[new.ids[2]], map->vts[new.ids[1]], map->vts[new.ids[0]]);
-		new.n_ids[0] = add_n(map, vt);
-		new.n_ids[1] = new.n_ids[0];
-		new.n_ids[2] = new.n_ids[0];
-
-		uv = (t_vertex){0.0, map->circuits[node->circuit].floor * TEXTURE_SCALE, 0.0};
-		new.uv_ids[0] = add_uv(map, uv);
-		uv = (t_vertex){length(sub(node->walls[i].points[0],
-				node->walls[i].points[1])) * TEXTURE_SCALE,
-				map->circuits[node->circuit].ceil * TEXTURE_SCALE, 0.0};
-		new.uv_ids[1] = add_uv(map, uv);
-		uv = (t_vertex){length(sub(node->walls[i].points[0],
-				node->walls[i].points[1])) * TEXTURE_SCALE,
-				map->circuits[node->circuit].floor * TEXTURE_SCALE, 0.0};
-		new.uv_ids[2] = add_uv(map, uv);
-
-		new.type = TR_TYPE_WALL;
-
-		node->vt_trs[node->vt_trs_count] = new;
-		(node->vt_trs_count)++;
-
-
-		i++;
-	}
-}
-
-
 t_tr create_tr(t_vertex *pts, int *pts_count, int i)
 {
 	t_tr res;
@@ -495,7 +142,6 @@ t_tr create_tr(t_vertex *pts, int *pts_count, int i)
 	res.points[0] = pts[i];
 	res.points[1] = pts[get_i_plus_1(i, *pts_count)];
 	res.points[2] = pts[get_i_plus_2(i, *pts_count)];
-
 	delete_by_index(pts, get_i_plus_1(i, *pts_count), pts_count);
 	return (res);
 }
@@ -516,7 +162,7 @@ void triangulate(t_bsp *node, t_vertex *pts, int *pts_count)
 
 	counter = 0;
 
-	node->trs = malloc(sizeof(t_tr) * 2000);/////////////////
+	node->trs = malloc(sizeof(t_tr) * 2000);
 	node->trs_count = 0;
 
 	while (*pts_count > 3)
@@ -544,7 +190,6 @@ void triangulate(t_bsp *node, t_vertex *pts, int *pts_count)
 			ft_putendl("Ошибка триангуляции");
 			exit(-2);
 		}
-			
 	}
 	node->trs[node->trs_count] = create_tr(pts, pts_count, 0);
 	(node->trs_count)++;
@@ -578,12 +223,9 @@ void	write_vt_trs_to_file(t_bsp *node, int fd)
 		ft_putstr_fd("/", fd);
 		ft_putnbr_fd(node->vt_trs[i].n_ids[2] + 1, fd);
 		ft_putstr_fd("\n", fd);
-
 		i++;
 	}
-
 	ft_putendl_fd("", fd);
-
 }
 
 void	write_to_file(t_map *map, int fd)
@@ -695,8 +337,6 @@ void	bsp_write_traversal(t_bsp *node, t_map *map, t_bsp *root, int fd)
 	}
 }
 
-
-
 void	export_map(t_map_editor *ed)
 {
 	int fd;
@@ -704,7 +344,6 @@ void	export_map(t_map_editor *ed)
 
 	if (!(str = malloc(100001)))
 		exit(-2);
-
 	fd = open("geometry.obj", O_RDWR | O_TRUNC | O_CREAT, 0640);
 	ed->map.uvs_count = 0;
 	ed->map.vts_count = 0;
@@ -750,6 +389,5 @@ void	export_map(t_map_editor *ed)
 	ft_putendl_fd("", fd);
 	ft_putendl_fd(str, fd);
 	close(fd);
-
 	free (str);
 }

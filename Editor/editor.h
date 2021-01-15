@@ -83,6 +83,20 @@ typedef struct		s_map
 
 }					t_map;
 
+typedef struct 		s_a_t_b
+{
+	t_vt_tr 		new;
+	t_vertex 		vt;
+	t_vertex 		uv;
+	float 			top;
+	float 			bottom;
+	int 			flag;
+	t_bsp 			*link;
+	t_wall 			wall;
+	t_bsp 			*root;
+}					t_a_t_b;
+
+
 typedef struct		s_map_editor
 {
 	int				prev_x;
@@ -204,7 +218,12 @@ void				get_cutter(t_circuit *circuits, int circuits_count, int *cutter_cir, int
 void				reconstruct_circuits(t_circuit *circuits, int circuits_count);
 
 
-
+void	add_tops_bottoms(t_bsp *node, t_map *map, t_bsp *root);
+t_bsp *get_node_by_wall_traversal(t_bsp *node, t_wall wall);
+int add_vt(t_map *map, t_vertex vt);
+int add_n(t_map *map, t_vertex n);
+int add_uv(t_map *map, t_vertex uv);
+void to_obj_format(t_bsp *node, t_map *map);
 
 
 void					err(char *str);
