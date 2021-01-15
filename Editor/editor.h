@@ -6,7 +6,7 @@
 /*   By: Chorange <Chorange@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/14 16:11:05 by Chorange          #+#    #+#             */
-/*   Updated: 2021/01/15 04:14:43 by Chorange         ###   ########.fr       */
+/*   Updated: 2021/01/15 19:29:52 by Chorange         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,23 +65,6 @@ typedef struct		s_cc
 	t_vertex		base;
 	int 			res[2];
 }					t_cc;
-
-typedef struct		s_req_s
-{
-	t_circuit		*front;
-	t_circuit		*back;
-	int				i;
-	int				j;
-	int				result;
-	int				cutter_cir;
-	int				cutter_wall;
-	t_wall			cutter;
-	t_wall			new1;
-	t_wall			new2;
-	t_vertex		cutter_line;
-	t_vertex		inter;	
-}					t_req_s;
-
 
 typedef struct		s_w_zz
 {
@@ -299,12 +282,9 @@ void				floor_tr(t_bsp *node, t_map *map, t_vt_tr *new, int i);
 void				ceil_tr(t_bsp *node, t_map *map, t_vt_tr *new, int i);
 void				ceil_tr_vts(t_bsp *node, t_map *map, t_vt_tr *new, int i);
 
-<<<<<<< HEAD
 void					err(char *str);
-=======
 void				set_hash_1(char *str1, char *str2);
 void				set_hash_2(char *str1, char *str2, int hash_n);
->>>>>>> test
 
 
 
