@@ -6,7 +6,7 @@
 /*   By: Chorange <Chorange@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/14 14:30:54 by Chorange          #+#    #+#             */
-/*   Updated: 2021/01/14 14:32:47 by Chorange         ###   ########.fr       */
+/*   Updated: 2021/01/15 19:19:25 by Chorange         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ static int	check_on_line(t_map_editor *ed, int i, int j)
 	t_vertex b;
 
 	a = ed->map.circuits[i].points[get_i_minus_1(j,
-			ed->map.circuits[i].points_count)];
+					ed->map.circuits[i].points_count)];
 	b = ed->map.circuits[i].points[j];
 	a.x = a.x * MAP_EDITOR_SCALE + W_2;
 	b.x = b.x * MAP_EDITOR_SCALE + W_2;
@@ -91,8 +91,9 @@ static int	check_on_line(t_map_editor *ed, int i, int j)
 		ed->map.on_line = 1;
 		ed->map.on_point = 0;
 		ed->map.on_circuit_i = i;
-		ed->map.on_point_i = get_i_minus_1(j, ed->map.circuits[i].points_count);
-		return (1);
+		ed->map.on_point_i = get_i_minus_1(j,
+									ed->map.circuits[i].points_count);
+		return 1;
 	}
 	return (0);
 }

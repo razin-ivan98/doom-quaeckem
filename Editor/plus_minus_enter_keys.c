@@ -6,7 +6,7 @@
 /*   By: Chorange <Chorange@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/14 14:12:35 by Chorange          #+#    #+#             */
-/*   Updated: 2021/01/14 14:14:24 by Chorange         ###   ########.fr       */
+/*   Updated: 2021/01/15 19:21:16 by Chorange         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ void			key_minus_down(t_map_editor *ed)
 	}
 }
 
-static void		key_plus_down_2(t_map_editor *ed)
+static void	key_plus_down_2(t_map_editor *ed)
 {
 	if (ed->edit_ceil_tex && ed->step == STEP_4_TEXTURES)
 	{
