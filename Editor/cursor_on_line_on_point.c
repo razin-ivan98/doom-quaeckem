@@ -1,4 +1,17 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   cursor_on_line_on_point.c                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: Chorange <Chorange@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/01/15 00:40:34 by Chorange          #+#    #+#             */
+/*   Updated: 2021/01/15 00:41:13 by Chorange         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "editor.h"
+
 int		check_on_point(t_map_editor *ed, int i, int j)
 {
 	float	x;
@@ -44,7 +57,6 @@ int		cursor_on_point(t_map_editor *ed)
 	return (0);
 }
 
-
 static int	circle_with_cut(t_vertex a, t_vertex b, t_vertex m)
 {
 	float aa;
@@ -67,7 +79,8 @@ static int	check_on_line(t_map_editor *ed, int i, int j)
 	t_vertex a;
 	t_vertex b;
 
-	a = ed->map.circuits[i].points[get_i_minus_1(j, ed->map.circuits[i].points_count)];
+	a = ed->map.circuits[i].points[get_i_minus_1(j,
+					ed->map.circuits[i].points_count)];
 	b = ed->map.circuits[i].points[j];
 	a.x = a.x * MAP_EDITOR_SCALE + W_2;
 	b.x = b.x * MAP_EDITOR_SCALE + W_2;
@@ -80,7 +93,8 @@ static int	check_on_line(t_map_editor *ed, int i, int j)
 		ed->map.on_line = 1;
 		ed->map.on_point = 0;
 		ed->map.on_circuit_i = i;
-		ed->map.on_point_i = get_i_minus_1(j, ed->map.circuits[i].points_count);
+		ed->map.on_point_i = get_i_minus_1(j,
+									ed->map.circuits[i].points_count);
 		return 1;
 	}
 	return (0);
@@ -89,7 +103,6 @@ int			cursor_on_line(t_map_editor *ed)
 {
 	int i;
 	int j;
-	
 	int max;
 
 	i = 0;
@@ -107,5 +120,5 @@ int			cursor_on_line(t_map_editor *ed)
 		}
 		i++;
 	}
-	return 0;
+	return (0);
 }

@@ -1,5 +1,16 @@
-#include "editor.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   draw_elements.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: Chorange <Chorange@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/01/15 00:17:35 by Chorange          #+#    #+#             */
+/*   Updated: 2021/01/15 00:18:06 by Chorange         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
+#include "editor.h"
 
 void	draw_ammo(t_map_editor *ed, int *pixels)
 {
@@ -55,9 +66,13 @@ void	draw_tv(t_map_editor *ed, int *pixels)
 	t_int_v p1;
 	t_int_v p2;
 
-	p1 = (t_int_v){(ed->tv.x + 2 * cos(ed->tv_beta / 180 * M_PI)) * MAP_EDITOR_SCALE,
-			(ed->tv.y +  2 * sin(ed->tv_beta / 180 * M_PI)) * MAP_EDITOR_SCALE};
-	p2 = (t_int_v){(ed->tv.x -  2 * cos(ed->tv_beta / 180 * M_PI)) * MAP_EDITOR_SCALE,
-			(ed->tv.y -  2 * sin(ed->tv_beta / 180 * M_PI)) *  MAP_EDITOR_SCALE};
+	p1 = (t_int_v){(ed->tv.x + 2 * cos(ed->tv_beta / 180 * M_PI)) *
+													MAP_EDITOR_SCALE,
+			(ed->tv.y +  2 * sin(ed->tv_beta / 180 * M_PI)) *
+													MAP_EDITOR_SCALE};
+	p2 = (t_int_v){(ed->tv.x -  2 * cos(ed->tv_beta / 180 * M_PI)) *
+													MAP_EDITOR_SCALE,
+			(ed->tv.y -  2 * sin(ed->tv_beta / 180 * M_PI)) *
+													MAP_EDITOR_SCALE};
 	draw_line(pixels, p1, p2, 0x00ffff);
 }

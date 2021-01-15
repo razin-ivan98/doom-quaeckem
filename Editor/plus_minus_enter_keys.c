@@ -1,5 +1,16 @@
-#include "editor.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   plus_minus_enter_keys.c                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: Chorange <Chorange@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/01/15 00:45:30 by Chorange          #+#    #+#             */
+/*   Updated: 2021/01/15 00:45:42 by Chorange         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
+#include "editor.h"
 
 void		key_enter_down(t_map_editor *ed)
 {
@@ -77,7 +88,7 @@ void		key_minus_down(t_map_editor *ed)
 	}
 }
 
-static void		key_plus_down_2(t_map_editor *ed)
+static void	key_plus_down_2(t_map_editor *ed)
 {
 	if (ed->edit_ceil_tex && ed->step == STEP_4_TEXTURES)
 	{
@@ -104,7 +115,7 @@ static void		key_plus_down_2(t_map_editor *ed)
 		ed->tv_beta += 10.0;
 }
 
-void	key_plus_down(t_map_editor *ed)
+void		key_plus_down(t_map_editor *ed)
 {
 	key_plus_down_2(ed);
 	if (ed->step == STEP_3_CEIL)
@@ -124,7 +135,5 @@ void	key_plus_down(t_map_editor *ed)
 			ed->map.circuits[ed->map.selected_circuit].floor_tex = 0;
 		write_floor_tex(ed);
 	}
-	
 }
-
 	

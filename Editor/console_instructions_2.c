@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   console_instructions_2.c                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: Chorange <Chorange@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/01/15 00:40:06 by Chorange          #+#    #+#             */
+/*   Updated: 2021/01/15 00:40:30 by Chorange         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "editor.h"
 
 void	write_floor_height(t_map_editor *ed)
@@ -8,6 +20,7 @@ void	write_floor_height(t_map_editor *ed)
 	ftoa(ed->map.circuits[ed->map.selected_circuit].floor, 8, str);
 	ft_putendl(str);
 }
+
 void	write_ceil_height(t_map_editor *ed)
 {
 	char str[64];
@@ -16,6 +29,7 @@ void	write_ceil_height(t_map_editor *ed)
 	ftoa(ed->map.circuits[ed->map.selected_circuit].ceil, 8, str);
 	ft_putendl(str);
 }
+
 void	write_floor_tex(t_map_editor *ed)
 {
 	char str[64];
@@ -24,6 +38,7 @@ void	write_floor_tex(t_map_editor *ed)
 	itoa(ed->map.circuits[ed->map.selected_circuit].floor_tex, str);
 	ft_putendl(str);
 }
+
 void	write_ceil_tex(t_map_editor *ed)
 {
 	char str[64];
@@ -32,6 +47,7 @@ void	write_ceil_tex(t_map_editor *ed)
 	itoa(ed->map.circuits[ed->map.selected_circuit].ceil_tex, str);
 	ft_putendl(str);
 }
+
 void	write_wall_tex(t_map_editor *ed)
 {
 	char str[64];

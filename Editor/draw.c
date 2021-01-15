@@ -1,3 +1,14 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   draw.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: Chorange <Chorange@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/01/15 00:44:17 by Chorange          #+#    #+#             */
+/*   Updated: 2021/01/15 00:44:50 by Chorange         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "editor.h"
 
@@ -46,10 +57,13 @@ void	draw_in_points_mode(int i, int *pixels, t_map_editor *ed)
 
 		draw_line(pixels, p1, p2, 0xFFFFFF);
 
-		draw_line(pixels, (t_int_v){p1.x + (p2.x - p1.x) / 2, p1.y + (p2.y - p1.y) / 2},
-			(t_int_v){p1.x + (p2.x - p1.x) / 2 + 30 * cos(atan2(p2.y - p1.y, p2.x - p1.x) +
+		draw_line(pixels, (t_int_v){p1.x + (p2.x - p1.x) / 2, p1.y +
+												(p2.y - p1.y) / 2},
+			(t_int_v){p1.x + (p2.x - p1.x) / 2 + 30 * cos(atan2(p2.y -
+												p1.y, p2.x - p1.x) +
 			(float)ed->map.circuits[i].normal_dir * M_PI / 2),
-			p1.y + (p2.y - p1.y) / 2 + 30 * sin(atan2(p2.y - p1.y, p2.x - p1.x) +
+			p1.y + (p2.y - p1.y) / 2 + 30 * sin(atan2(p2.y - p1.y,
+														p2.x - p1.x) +
 			(float)ed->map.circuits[i].normal_dir * M_PI / 2)},
 			0xff0000);
 		j++;
