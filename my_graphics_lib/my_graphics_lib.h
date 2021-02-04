@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   my_graphics_lib.h                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: razin-ivan98 <razin-ivan98@student.42.f    +#+  +:+       +#+        */
+/*   By: Chorange <Chorange@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/14 00:05:10 by razin-ivan9       #+#    #+#             */
-/*   Updated: 2021/01/14 00:24:58 by razin-ivan9      ###   ########.fr       */
+/*   Updated: 2021/01/23 12:14:30 by Chorange         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ typedef struct		s_mgl
 	int				vs_count;
 }					t_mgl;
 
-t_mgl				mgl_init(char *win_name, int w, int h);
+t_mgl		mgl_init(char *win_name, int w, int h, int multiplicator);
 void				mgl_quit(t_mgl *mgl);
 void				mgl_run(t_mgl *mgl,
 				void (*run_callback)(void *, int *),

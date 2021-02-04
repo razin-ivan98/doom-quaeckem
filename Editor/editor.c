@@ -425,7 +425,7 @@ void update(void *map_editor, int *pixels)
 int		main(void)
 {
 	t_map_editor map_editor;
-	t_mgl mgl = mgl_init("Map Editor BSP", W, H);
+	t_mgl mgl = mgl_init("Map Editor BSP", W, H, SCREEN_MULTIPLICATOR);
 	mgl.show_fps = 0;
 	map_editor.cursor_surface = SDL_LoadBMP("../textures/cursor.bmp");
 	map_editor.cursor = SDL_CreateColorCursor(map_editor.cursor_surface, 0, 0);

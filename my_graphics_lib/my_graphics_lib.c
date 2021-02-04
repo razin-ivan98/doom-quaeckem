@@ -3,21 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   my_graphics_lib.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: razin-ivan98 <razin-ivan98@student.42.f    +#+  +:+       +#+        */
+/*   By: Chorange <Chorange@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/14 00:22:38 by razin-ivan9       #+#    #+#             */
-/*   Updated: 2021/01/14 00:23:17 by razin-ivan9      ###   ########.fr       */
+/*   Updated: 2021/01/23 12:14:17 by Chorange         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "my_graphics_lib.h"
 
-t_mgl		mgl_init(char *win_name, int w, int h)
+t_mgl		mgl_init(char *win_name, int w, int h, int multiplicator)
 {
 	t_mgl mgl;
 
 	SDL_Init(SDL_INIT_EVERYTHING);
-	mgl.window = SDL_CreateWindow(win_name, 50, 50, w, h, SDL_WINDOW_SHOWN);
+	mgl.window = SDL_CreateWindow(win_name, 50, 50, w / multiplicator,
+							h / multiplicator, SDL_WINDOW_SHOWN);
 	mgl.windows_count = 1;
 	mgl.renderer = SDL_CreateRenderer(mgl.window, -1, 0);
 	mgl.screen_surface = SDL_CreateRGBSurface(0, w, h, 32, 0, 0, 0, 0);

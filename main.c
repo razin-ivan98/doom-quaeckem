@@ -1573,9 +1573,9 @@ int		main(int ac, char **av)
 
 	t_doom			doom;
 
-	mgl = mgl_init("Doom_Quaekem", W, H);
+	mgl = mgl_init("Doom_Quaekem", W, H, SCREEN_MULTIPLICATOR);
 
-
+	mgl.show_fps = 1;
 	// SDL_Surface *cursor_surface = SDL_LoadBMP("textures/cursor.bmp");
 	// SDL_Cursor *cursor = SDL_CreateColorCursor(cursor_surface, 0, 0);
 	// SDL_SetCursor(cursor);
