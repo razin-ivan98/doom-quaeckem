@@ -17,8 +17,10 @@ void		do_vt_sec(t_a_t_b *tatb, t_bsp *node, t_map *map, int i)
 	tatb->vt = (t_vertex){node->walls[i].points[0].x,
 		node->walls[i].points[0].y, tatb->top};
 	tatb->new.ids[0] = add_vt(map, tatb->vt);
+
 	tatb->vt = (t_vertex){node->walls[i].points[0].x,
 		node->walls[i].points[0].y, tatb->bottom};
+
 	tatb->new.ids[1] = add_vt(map, tatb->vt);
 	tatb->vt = (t_vertex){node->walls[i].points[1].x,
 		node->walls[i].points[1].y, tatb->bottom};
@@ -67,6 +69,7 @@ void		do_vt_2(t_a_t_b *tatb, t_bsp *node, t_map *map, int i)
 	tatb->new.n_ids[1] = tatb->new.n_ids[0];
 	tatb->new.n_ids[2] = tatb->new.n_ids[0];
 }
+
 //это рисует треугольник на полу
 
 
@@ -88,7 +91,9 @@ void		do_vt_3(t_a_t_b *tatb, t_bsp *node, t_map *map, int i)
 	tatb->new.n_ids[1] = tatb->new.n_ids[0];
 	tatb->new.n_ids[2] = tatb->new.n_ids[0];
 }
+
 //это рисует треугольник на потолке
+
 
 void		do_vt_4(t_a_t_b *tatb, t_bsp *node, t_map *map, int i)
 {
@@ -110,4 +115,6 @@ void		do_vt_4(t_a_t_b *tatb, t_bsp *node, t_map *map, int i)
 	tatb->new.n_ids[1] = tatb->new.n_ids[0];
 	tatb->new.n_ids[2] = tatb->new.n_ids[0];
 }
+
 //это рисует нижний правыый треугольник для стенки
+

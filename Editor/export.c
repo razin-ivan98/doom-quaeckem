@@ -164,6 +164,7 @@ void triangulate(t_bsp *node, t_vertex *pts, int *pts_count)
 
 	if (!(node->trs = malloc(sizeof(t_tr) * 2000)))
 		exit(-2);
+
 	node->trs_count = 0;
 
 	while (*pts_count > 3)

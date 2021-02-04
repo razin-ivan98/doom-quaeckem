@@ -264,9 +264,6 @@ void				get_cutter(t_circuit *circuits, int circuits_count, int *cutter_cir, int
 void				reconstruct_circuits(t_circuit *circuits, int circuits_count);
 
 
-void				reconstruct_circuits(t_circuit *circuits, int circuits_count);
-
-
 void	add_tops_bottoms(t_bsp *node, t_map *map, t_bsp *root);
 t_bsp *get_node_by_wall_traversal(t_bsp *node, t_wall wall);
 int add_vt(t_map *map, t_vertex vt);

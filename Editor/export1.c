@@ -31,6 +31,7 @@ void		do_vt(t_a_t_b *tatb, t_bsp *node, t_map *map, int i)
 	tatb->new.n_ids[1] = tatb->new.n_ids[0];
 	tatb->new.n_ids[2] = tatb->new.n_ids[0];
 }
+
 //верхний правый треугольник для полустенок (и для верхней и для нижней)
 
 void		do_uv(t_a_t_b *tatb, t_bsp *node, t_map *map, int i)
@@ -69,6 +70,7 @@ void		do_circuit(t_a_t_b *tatb, t_bsp *node, t_map *map, int i)
 		tatb->top = map->circuits[node->walls[i].circuit].ceil;
 		tatb->flag = 1;
 	}
+
 	do_vt_sec(tatb, node, map, i);
 	do_uv(tatb, node, map, i);
 	tatb->link->vt_trs[tatb->link->vt_trs_count] = tatb->new;
@@ -107,8 +109,6 @@ void		do_floor(t_a_t_b *tatb, t_bsp *node, t_map *map, int i)
 	do_uv_sec(tatb, node, map, i);
 	tatb->link->vt_trs[tatb->link->vt_trs_count] = tatb->new;
 		(tatb->link->vt_trs_count)++;
-
-
 }
 
 void		add_tops_bottoms(t_bsp *node, t_map *map, t_bsp *root)
