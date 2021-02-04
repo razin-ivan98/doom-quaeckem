@@ -238,8 +238,7 @@ t_vertex4	multiply_m_v(t_mat4x4 mat, t_vertex4 vec)
 	int		i;
 	int		j;
 
-	bzero(result, sizeof(float) * 4);///////////////////////
-	
+	ft_bzero(result, sizeof(float) * 4);
 
 	tmp[0] = vec.x;
 	tmp[1] = vec.y;
