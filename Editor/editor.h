@@ -6,7 +6,7 @@
 /*   By: Chorange <Chorange@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/14 16:11:05 by Chorange          #+#    #+#             */
-/*   Updated: 2021/01/15 19:29:52 by Chorange         ###   ########.fr       */
+/*   Updated: 2021/02/04 13:28:22 by Chorange         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,6 +128,20 @@ typedef struct		s_map
 	int				on_point_i;
 
 }					t_map;
+
+typedef struct 		s_a_t_b
+{
+	t_vt_tr 		new;
+	t_vertex 		vt;
+	t_vertex 		uv;
+	float 			top;
+	float 			bottom;
+	int 			flag;
+	t_bsp 			*link;
+	t_wall 			wall;
+	t_bsp 			*root;
+}					t_a_t_b;
+
 
 typedef struct		s_map_editor
 {
@@ -251,6 +265,22 @@ void				reconstruct_circuits(t_circuit *circuits, int circuits_count);
 
 
 void				reconstruct_circuits(t_circuit *circuits, int circuits_count);
+
+
+void	add_tops_bottoms(t_bsp *node, t_map *map, t_bsp *root);
+t_bsp *get_node_by_wall_traversal(t_bsp *node, t_wall wall);
+int add_vt(t_map *map, t_vertex vt);
+int add_n(t_map *map, t_vertex n);
+int add_uv(t_map *map, t_vertex uv);
+
+void		do_vt_sec(t_a_t_b *tatb, t_bsp *node, t_map *map, int i);
+void		do_uv_sec(t_a_t_b *tatb, t_bsp *node, t_map *map, int i);
+
+void		do_vt_2(t_a_t_b *tatb, t_bsp *node, t_map *map, int i);
+void		do_vt_3(t_a_t_b *tatb, t_bsp *node, t_map *map, int i);
+void		do_vt_4(t_a_t_b *tatb, t_bsp *node, t_map *map, int i);
+
+void to_obj_format(t_bsp *node, t_map *map);
 
 
 void				key_down(t_map_editor *ed, SDL_Event *event);
