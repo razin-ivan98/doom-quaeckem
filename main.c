@@ -1574,6 +1574,10 @@ int		main(int ac, char **av)
 	t_doom			doom;
 
 	mgl = mgl_init("Doom_Quaekem", W, H, SCREEN_MULTIPLICATOR);
+	
+	if (ac < 2)
+		exit(-2);
+
 
 	mgl.show_fps = 1;
 	// SDL_Surface *cursor_surface = SDL_LoadBMP("textures/cursor.bmp");
@@ -1631,8 +1635,7 @@ int		main(int ac, char **av)
 	doom.lose = 0;
 
 
-	if (ac < 2)
-		exit(-2);
+	
 	if (!check_hash(av[1]))
 	{
 		ft_putendl("Файлы повреждены");

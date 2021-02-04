@@ -6,7 +6,7 @@
 /*   By: Chorange <Chorange@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/15 16:11:02 by ldeirdre          #+#    #+#             */
-/*   Updated: 2021/01/15 22:01:09 by Chorange         ###   ########.fr       */
+/*   Updated: 2021/02/04 14:29:35 by Chorange         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ void		do_vt(t_a_t_b *tatb, t_bsp *node, t_map *map, int i)
 	tatb->new.n_ids[1] = tatb->new.n_ids[0];
 	tatb->new.n_ids[2] = tatb->new.n_ids[0];
 }
+//верхний правый треугольник для полустенок (и для верхней и для нижней)
+
 //верхний правый треугольник для полустенок (и для верхней и для нижней)
 
 void		do_uv(t_a_t_b *tatb, t_bsp *node, t_map *map, int i)
@@ -107,10 +109,7 @@ void		do_floor(t_a_t_b *tatb, t_bsp *node, t_map *map, int i)
 	do_uv_sec(tatb, node, map, i);
 	tatb->link->vt_trs[tatb->link->vt_trs_count] = tatb->new;
 		(tatb->link->vt_trs_count)++;
-
-
 }
-
 void		add_tops_bottoms(t_bsp *node, t_map *map, t_bsp *root)
 {
 	t_a_t_b	*tatb;

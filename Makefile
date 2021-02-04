@@ -6,16 +6,16 @@ FLAGS = -Wextra -Wall -Werror
 OBJECTS_DIR = objs
 
 OBJECTS = main.o image_handle.o draw.o interpolate.o linear_algebra.o depth_buffer.o \
-				get_next_line.o load_obj.o my_graphics_lib.o\
+				get_next_line.o load_obj.o my_graphics_lib.o \
 				render_init.o textures_handling.o clip_triangle_by_planes.o \
-				clip_1_outside.o clip_2_outsides.o render_triangle.o read_bsp.o ftoa.o hash.o
+				clip_1_outside.o clip_2_outsides.o render_triangle.o read_bsp.o ftoa.o hash.o hash_2.o
 
 OBJECTS_S = $(addprefix $(OBJECTS_DIR)/,$(OBJECTS_LIST))
 
 SOURCES = main.c image_handle.c draw.c interpolate.c linear_algebra.c depth_buffer.c \
 				get_next_line/get_next_line.c load_obj.c my_graphics_lib/my_graphics_lib.c\
 				render_init.c textures_handling.c clip_triangle_by_planes.c \
-				clip_1_outside.c clip_2_outsides.c render_triangle.c read_bsp.c ftoa.c Editor/hash.c
+				clip_1_outside.c clip_2_outsides.c render_triangle.c read_bsp.c ftoa.c Editor/hash.c Editor/hash_2.c
 
 LIBS = -L./libft -lft -lm -framework OpenGL\
 	-framework AppKit -framework OpenCL -framework OpenGL

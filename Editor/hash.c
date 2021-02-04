@@ -6,7 +6,7 @@
 /*   By: Chorange <Chorange@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/14 03:50:48 by razin-ivan9       #+#    #+#             */
-/*   Updated: 2021/01/14 14:08:19 by Chorange         ###   ########.fr       */
+/*   Updated: 2021/01/15 19:21:55 by Chorange         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,75 +31,44 @@ int		hash(const char *str)
 	return (hash);
 }
 
-void	s(char *str1, char *str2, int *fd1, int *fd2)
-{
-	int hash_n;
-
-	hash_n = hash(str1);
-	*fd1 = open("geometry.obj", O_RDWR);
-	if (*fd1 < 0)
-		err("Ошибка сохранения");
-	str1[read(*fd1, str1, 1000000)] = 0;
-	close(*fd1);
-	*fd1 = open("geometry.obj", O_RDWR | O_TRUNC);
-	*fd2 = open("data.json", O_RDWR | O_TRUNC);
-	if (*fd1 < 0 || *fd2 < 0)
-		err("Ошибка сохранения");
-	ft_putnbr_fd(hash_n, *fd1);
-	ft_putnbr_fd(hash_n, *fd2);
-	ft_putendl_fd("", *fd1);
-	ft_putendl_fd("", *fd2);
-	close(*fd1);
-	close(*fd2);
-	*fd1 = open("geometry.obj", O_RDWR | O_APPEND);
-	*fd2 = open("data.json", O_RDWR | O_APPEND);
-	if (*fd1 < 0 || *fd2 < 0)
-		err("Ошибка сохранения");
-	ft_putstr_fd(str1, *fd1);
-	ft_putstr_fd(str2, *fd2);
-	close(*fd1);
-}
-
 void	set_hash(void)
 {
 	int		fd1;
-	int		fd2;
 	char	*str1;
 	char	*str2;
+	int		hash_n;
 
-	str1 = (char *)malloc(1000001);
-	str2 = (char *)malloc(500001);
-	if (!str1 || !str2)
-		err("Ошибка памяти");
-	fd1 = open("geometry.obj", O_RDWR);
-	fd2 = open("data.json", O_RDWR);
-	if (fd1 < 0 || fd2 < 0)
-		err("Ошибка сохранения");
-	str1[read(fd1, str1, 1000000)] = 0;
-	str2[read(fd2, str2, 500000)] = 0;
-	close(fd1);
-	close(fd2);
-	if (!*str1 || !*str2)
-		err("Ошибка сохранения");
+	if (!(str1 = (char *)malloc(1000001)) ||
+			!(str2 = (char *)malloc(500001)))
+		exit(-2);
+	set_hash_1(str1, str2);
 	ft_strcat(str1, str2);
-	s(str1, str2, &fd1, &fd2);
-	close(fd2);
-	free(str1);
-	free(str2);
-	ft_putendl("Сохранено!");
+	hash_n = hash(str1);
+	fd1 = open("geometry.obj", O_RDWR);
+	if (fd1 < 0)
+		exit(-2);
+	str1[read(fd1, str1, 1000000)] = 0;
+	close(fd1);
+	set_hash_2(str1, str2, hash_n);
 }
 
-int		check_files(char *str1, char *str2, int fd1, int fd2)
+t_int_v	check_hash_1(char *foldername, char *path)
 {
-	int		hash_n;
-	char	*ptr;
+	t_int_v fd;
 
-	if (fd1 < 0 || fd2 < 0)
-		err("Ошибка памяти");
-	str1[read(fd1, str1, 1000000)] = 0;
-	str2[read(fd2, str2, 500000)] = 0;
-	if ((hash_n = ft_atoi(str1)) != ft_atoi(str2))
-		err("Файлы повреждены");
+	ft_strcpy(path, foldername);
+	ft_strcat(path, "/geometry.obj");
+	fd.x = open(path, O_RDONLY);
+	ft_strcpy(path, foldername);
+	ft_strcat(path, "/data.json");
+	fd.y = open(path, O_RDONLY);
+	return (fd);
+}
+
+int		check_hash_free(char *str1, char *str2, int hash_n)
+{
+	char *ptr;
+
 	ptr = ft_strchr(str1, '\n') + 1;
 	ft_strcpy(str1, ptr);
 	ptr = ft_strchr(str2, '\n') + 1;
@@ -118,25 +87,20 @@ int		check_files(char *str1, char *str2, int fd1, int fd2)
 int		check_hash(char *foldername)
 {
 	char	path[1024];
-	int		fd1;
-	int		fd2;
+	t_int_v	fd;
 	char	*str1;
 	char	*str2;
+	int		hash_n;
 
-	str1 = (char *)malloc(1000001);
-	str2 = (char *)malloc(500001);
-	if (!str1 || !str2)
-	{
-		ft_putendl("Ошибка памяти");
+	if (!(str1 = (char *)malloc(1000001)) ||
+			!(str2 = (char *)malloc(500001)))
 		exit(-2);
-	}
-	ft_strcpy(path, foldername);
-	ft_strcat(path, "/geometry.obj");
-	fd1 = open(path, O_RDONLY);
-	ft_strcpy(path, foldername);
-	ft_strcat(path, "/data.json");
-	fd2 = open(path, O_RDONLY);
-	if (check_files(str1, str2, fd1, fd2))
-		return (1);
-	return (0);
+	fd = check_hash_1(foldername, path);
+	if (fd.x < 0 || fd.y < 0)
+		exit(-2);
+	str1[read(fd.x, str1, 1000000)] = 0;
+	str2[read(fd.y, str2, 500000)] = 0;
+	if ((hash_n = ft_atoi(str1)) != ft_atoi(str2))
+		exit(-2);
+	return (check_hash_free(str1, str2, hash_n));
 }
