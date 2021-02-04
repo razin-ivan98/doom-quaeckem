@@ -4,27 +4,6 @@
 # include "data_types.h"
 # include "my_graphics_lib/my_graphics_lib.h"
 
-
-typedef struct	s_int_v
-{
-	int			x;
-	int			y;
-}				t_int_v;
-
-typedef struct	s_point
-{
-	float		x;
-	float		y;
-	float		h;
-}				t_point;
-
-typedef struct	s_vertex
-{
-	float x;
-	float y;
-	float z;
-}				t_vertex;
-
 typedef struct	s_plane
 {
 	t_vertex	normal;
