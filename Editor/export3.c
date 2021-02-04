@@ -6,11 +6,7 @@
 /*   By: Chorange <Chorange@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/15 18:55:42 by ldeirdre          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2021/01/15 21:59:15 by Chorange         ###   ########.fr       */
-=======
-/*   Updated: 2021/02/04 13:25:57 by Chorange         ###   ########.fr       */
->>>>>>> 68cc62e9abe61477b35078c45e4bc859f425b4f6
+/*   Updated: 2021/02/04 14:33:13 by Chorange         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,15 +17,8 @@ void		do_vt_sec(t_a_t_b *tatb, t_bsp *node, t_map *map, int i)
 	tatb->vt = (t_vertex){node->walls[i].points[0].x,
 		node->walls[i].points[0].y, tatb->top};
 	tatb->new.ids[0] = add_vt(map, tatb->vt);
-<<<<<<< HEAD
 	tatb->vt = (t_vertex){node->walls[i].points[0].x,
 		node->walls[i].points[0].y, tatb->bottom};
-=======
-
-	tatb->vt = (t_vertex){node->walls[i].points[0].x,
-		node->walls[i].points[0].y, tatb->bottom};
-
->>>>>>> 68cc62e9abe61477b35078c45e4bc859f425b4f6
 	tatb->new.ids[1] = add_vt(map, tatb->vt);
 	tatb->vt = (t_vertex){node->walls[i].points[1].x,
 		node->walls[i].points[1].y, tatb->bottom};
@@ -80,10 +69,6 @@ void		do_vt_2(t_a_t_b *tatb, t_bsp *node, t_map *map, int i)
 }
 //это рисует треугольник на полу
 
-
-//это рисует треугольник на полу
-
-
 void		do_vt_3(t_a_t_b *tatb, t_bsp *node, t_map *map, int i)
 {
 	tatb->vt = (t_vertex){node->trs[i].points[0].x, node->trs[i].points[0].y,
@@ -103,9 +88,6 @@ void		do_vt_3(t_a_t_b *tatb, t_bsp *node, t_map *map, int i)
 	tatb->new.n_ids[2] = tatb->new.n_ids[0];
 }
 //это рисует треугольник на потолке
-
-//это рисует треугольник на потолке
-
 
 void		do_vt_4(t_a_t_b *tatb, t_bsp *node, t_map *map, int i)
 {
@@ -127,10 +109,4 @@ void		do_vt_4(t_a_t_b *tatb, t_bsp *node, t_map *map, int i)
 	tatb->new.n_ids[1] = tatb->new.n_ids[0];
 	tatb->new.n_ids[2] = tatb->new.n_ids[0];
 }
-<<<<<<< HEAD
 //это рисует нижний правыый треугольник для стенки
-=======
-
-//это рисует нижний правыый треугольник для стенки
-
->>>>>>> 68cc62e9abe61477b35078c45e4bc859f425b4f6

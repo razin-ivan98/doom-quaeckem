@@ -6,7 +6,7 @@
 /*   By: Chorange <Chorange@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/14 14:16:52 by Chorange          #+#    #+#             */
-/*   Updated: 2021/01/15 19:37:17 by Chorange         ###   ########.fr       */
+/*   Updated: 2021/02/04 15:03:40 by Chorange         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ void	draw_in_walls_mode(int i, int *pixels, t_map_editor *ed)
 	t_int_v		p1;
 	t_int_v		p2;
 
-	j = 0;
+	j = -1;
 	while (j++ < ed->map.circuits[i].walls_count)
 	{
 		p1.x = (int)(ed->map.circuits[i].walls[j].points[0].x *

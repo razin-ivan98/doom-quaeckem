@@ -1,7 +1,7 @@
 
 NAME = Editor
 
-FLAGS = -Wextra -Wall -Werror
+FLAGS = -Wextra -Wall -Werror -fsanitize=address
 
 
 OBJECTS = editor.o my_graphics_lib.o image_handle.o linear_algebra.o \
