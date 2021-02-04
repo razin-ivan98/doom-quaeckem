@@ -274,8 +274,7 @@ t_mat4x4	multiply_m_m(t_mat4x4 m1, t_mat4x4 m2)
 
 	i = 0;
 
-	ft_bzero(&result, sizeof(t_mat4x4));//////////////////////////////
-	
+	ft_bzero(&result, sizeof(t_mat4x4));
 	
 	while (i < 4)
 	{
@@ -302,7 +301,6 @@ t_mat4x4	transposed_m(t_mat4x4 mat)
 	int j;
 
 	i = 0;
-	
 	while (i < 4)
 	{
 		j = 0;
