@@ -6,7 +6,7 @@
 /*   By: Chorange <Chorange@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/14 14:20:26 by Chorange          #+#    #+#             */
-/*   Updated: 2021/01/14 14:28:30 by Chorange         ###   ########.fr       */
+/*   Updated: 2021/01/15 19:37:28 by Chorange         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,12 +70,12 @@ void	draw_tv(t_map_editor *ed, int *pixels)
 	t_int_v p2;
 
 	p1 = (t_int_v){(ed->tv.x + 2 * cos(ed->tv_beta / 180 * M_PI)) *
-			MAP_EDITOR_SCALE,
-			(ed->tv.y + 2 * sin(ed->tv_beta / 180 * M_PI)) *
-			MAP_EDITOR_SCALE};
-	p2 = (t_int_v){(ed->tv.x - 2 * cos(ed->tv_beta / 180 * M_PI)) *
-			MAP_EDITOR_SCALE,
-			(ed->tv.y - 2 * sin(ed->tv_beta / 180 * M_PI)) *
-			MAP_EDITOR_SCALE};
+													MAP_EDITOR_SCALE,
+			(ed->tv.y +  2 * sin(ed->tv_beta / 180 * M_PI)) *
+													MAP_EDITOR_SCALE};
+	p2 = (t_int_v){(ed->tv.x -  2 * cos(ed->tv_beta / 180 * M_PI)) *
+													MAP_EDITOR_SCALE,
+			(ed->tv.y -  2 * sin(ed->tv_beta / 180 * M_PI)) *
+													MAP_EDITOR_SCALE};
 	draw_line(pixels, p1, p2, 0x00ffff);
 }

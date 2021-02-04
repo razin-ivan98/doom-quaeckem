@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   editor.h                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: Chorange <Chorange@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/01/14 16:11:05 by Chorange          #+#    #+#             */
+/*   Updated: 2021/02/04 13:28:22 by Chorange         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef EDITOR_H
 # define EDITOR_H
 
@@ -31,6 +43,40 @@
 # include "../data_types.h"
 # include "bsp_helpers.h"
 # include "../duke.h"
+
+typedef struct		s_bs_cc
+{
+	t_vt_tr			new;
+	t_vertex		vt;
+	t_vertex		uv;
+	float 			top;
+	float			bottom;
+	int				flag;
+	int				i;
+	t_wall			wall;
+	t_bsp			*link;
+}					t_bs_cc;
+
+
+typedef struct		s_cc
+{
+	int				i;
+	int				j;
+	t_vertex		base;
+	int 			res[2];
+}					t_cc;
+
+typedef struct		s_w_zz
+{
+	t_vertex 		p;
+	t_vertex		ort_line;
+	t_vertex		in;
+	t_vertex		ort1;
+	t_vertex		ort2;
+	float			dot1;
+	float			dot2;
+	int				ret;
+}					t_w_zz;
 
 
 typedef struct		s_req_s
@@ -223,10 +269,49 @@ t_bsp *get_node_by_wall_traversal(t_bsp *node, t_wall wall);
 int add_vt(t_map *map, t_vertex vt);
 int add_n(t_map *map, t_vertex n);
 int add_uv(t_map *map, t_vertex uv);
+
+void		do_vt_sec(t_a_t_b *tatb, t_bsp *node, t_map *map, int i);
+void		do_uv_sec(t_a_t_b *tatb, t_bsp *node, t_map *map, int i);
+
+void		do_vt_2(t_a_t_b *tatb, t_bsp *node, t_map *map, int i);
+void		do_vt_3(t_a_t_b *tatb, t_bsp *node, t_map *map, int i);
+void		do_vt_4(t_a_t_b *tatb, t_bsp *node, t_map *map, int i);
+
 void to_obj_format(t_bsp *node, t_map *map);
 
 
+void				key_down(t_map_editor *ed, SDL_Event *event);
+
+
+void				get_cutter(t_circuit *circuits, int circuits_count,
+								int *cutter_cir, int *cutter_wall);
+void				transform_data(t_map_editor *ed);
+
+
+
+void				check_enemies(t_map_editor *ed, int fd);
+void				check_ammo(t_map_editor *ed, int fd);
+void				check_objects(t_map_editor *ed, int fd);
+void				check_aid(t_map_editor *ed, int fd);
+void				check_player(t_map_editor *ed, int fd);
+void				check_aim(t_map_editor *ed, int fd);
+void				check_tv(t_map_editor *ed, int fd);
+void				check_not_leaf(t_bsp *node, int fd);
+void				write_data_1(t_bsp *node, int fd);
+void				write_data_2(t_bsp *node, int fd);
+void				check_walls(t_bsp *node, int i, int fd);
+void				bsp_save_traversal(t_bsp *node, int fd);
+
+
+
+void				floor_tr(t_bsp *node, t_map *map, t_vt_tr *new, int i);
+
+void				ceil_tr(t_bsp *node, t_map *map, t_vt_tr *new, int i);
+void				ceil_tr_vts(t_bsp *node, t_map *map, t_vt_tr *new, int i);
+
 void					err(char *str);
+void				set_hash_1(char *str1, char *str2);
+void				set_hash_2(char *str1, char *str2, int hash_n);
 
 
 

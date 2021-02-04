@@ -1573,6 +1573,9 @@ int		main(int ac, char **av)
 
 	t_doom			doom;
 
+	if (ac < 2)
+		exit(-2);
+
 	mgl = mgl_init("Doom_Quaekem", W, H);
 
 
@@ -1631,8 +1634,7 @@ int		main(int ac, char **av)
 	doom.lose = 0;
 
 
-	if (ac < 2)
-		exit(-2);
+	
 	if (!check_hash(av[1]))
 	{
 		ft_putendl("Файлы повреждены");

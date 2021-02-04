@@ -6,7 +6,7 @@
 /*   By: Chorange <Chorange@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/14 14:16:52 by Chorange          #+#    #+#             */
-/*   Updated: 2021/01/14 14:19:36 by Chorange         ###   ########.fr       */
+/*   Updated: 2021/01/15 19:37:17 by Chorange         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,13 +55,14 @@ void	draw_in_points_mode(int i, int *pixels, t_map_editor *ed)
 		p2.x = (int)(ed->map.circuits[i].points[j].x * MAP_EDITOR_SCALE);
 		p2.y = (int)(ed->map.circuits[i].points[j].y * MAP_EDITOR_SCALE);
 		draw_line(pixels, p1, p2, 0xFFFFFF);
+
 		draw_line(pixels, (t_int_v){p1.x + (p2.x - p1.x) / 2, p1.y +
-					(p2.y - p1.y) / 2},
+												(p2.y - p1.y) / 2},
 			(t_int_v){p1.x + (p2.x - p1.x) / 2 + 30 * cos(atan2(p2.y -
-					p1.y, p2.x - p1.x) +
+												p1.y, p2.x - p1.x) +
 			(float)ed->map.circuits[i].normal_dir * M_PI / 2),
 			p1.y + (p2.y - p1.y) / 2 + 30 * sin(atan2(p2.y - p1.y,
-					p2.x - p1.x) +
+														p2.x - p1.x) +
 			(float)ed->map.circuits[i].normal_dir * M_PI / 2)},
 			0xff0000);
 		j++;

@@ -4,10 +4,6 @@
 # include "data_types.h"
 # include "my_graphics_lib/my_graphics_lib.h"
 
-
-
-
-
 typedef struct	s_plane
 {
 	t_vertex	normal;
